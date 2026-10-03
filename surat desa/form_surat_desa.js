@@ -31,7 +31,7 @@
         ["nik", "NIK", "text", true],
         ["ttl", "Tempat, tanggal lahir", "text", true],
         ["jk", "Jenis kelamin", "select", true, ["Laki-laki", "Perempuan"]],
-        ["agama", "Agama", "text", true],
+        ["agama", "Agama", "select", true, ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu", "Kepercayaan terhadap Tuhan YME", "Lainnya"]],
         ["alamat", "Alamat lengkap", "textarea", true],
         ["domisili", "Alamat/tempat domisili", "textarea", true],
         ["nomorSurat", "Nomor surat (bagian kosong)", "text", false],
@@ -88,7 +88,7 @@
         ["nama", "Nama", "text", true],
         ["nik", "NIK", "text", true],
         ["ttl", "Tempat/tanggal lahir", "text", true],
-        ["agama", "Agama", "text", true],
+        ["agama", "Agama", "select", true, ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu", "Kepercayaan terhadap Tuhan YME", "Lainnya"]],
         ["jk", "Jenis kelamin", "select", true, ["Laki-laki", "Perempuan"]],
         ["pekerjaan", "Pekerjaan", "select", true, ["Belum/Tidak Bekerja", "Pelajar/Mahasiswa", "Mengurus Rumah Tangga", "Pensiunan", "PNS", "TNI", "POLRI", "Guru", "Tenaga Kesehatan", "Karyawan Swasta", "Wiraswasta", "Petani/Pekebun", "Nelayan", "Buruh Harian Lepas", "Pedagang", "Sopir", "Perangkat Desa", "Lainnya"]],
         ["alamat", "Alamat", "textarea", true],
@@ -121,7 +121,7 @@
         ["nik", "NIK", "text", true],
         ["ttl", "Tempat, tanggal lahir", "text", true],
         ["jk", "Jenis kelamin", "select", true, ["Laki-laki", "Perempuan"]],
-        ["agama", "Agama", "text", true],
+        ["agama", "Agama", "select", true, ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu", "Kepercayaan terhadap Tuhan YME", "Lainnya"]],
         ["alamat", "Alamat", "textarea", true],
         ["penduduk", "Desa/kelurahan tempat terdaftar", "text", true],
         ["nomorSurat", "Nomor surat (bagian kosong)", "text", false],
@@ -144,7 +144,7 @@
       fields: [
         ["nama","Nama","text",true],["nik","NIK","text",true],["noKK","Nomor KK","text",true],
         ["jk","Jenis kelamin","select",true,["Laki-laki","Perempuan"]],["ttl","Tempat/tanggal lahir","text",true],
-        ["agama","Agama","text",true],["alamat","Alamat","textarea",true],
+        ["agama","Agama","select",true, ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu", "Kepercayaan terhadap Tuhan YME", "Lainnya"]],["alamat","Alamat","textarea",true],
         ["domisili","Keterangan tempat tinggal","textarea",true],["nomorSurat","Nomor surat (bagian kosong)","text",false],
         ["bulanNomor","Bulan pada nomor surat","text",false],["tahunNomor","Tahun pada nomor surat","number",false],
         ["tempatTerbit","Dikeluarkan di","text",true,"Pusar"],["tanggalTerbit","Tanggal surat","date",true]
@@ -159,7 +159,7 @@
       numberPrefix: "140/", numberSuffix: "/SKTM/DSP-BB/",
       fields: [
         ["nama","Nama lengkap orang tua/wali","text",true],["nik","NIK orang tua/wali","text",true],
-        ["ttl","Tempat/tanggal lahir orang tua/wali","text",true],["agama","Agama","text",true],
+        ["ttl","Tempat/tanggal lahir orang tua/wali","text",true],["agama","Agama","select",true, ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu", "Kepercayaan terhadap Tuhan YME", "Lainnya"]],
         ["pekerjaan","Pekerjaan","select",true,["Belum/Tidak Bekerja", "Pelajar/Mahasiswa", "Mengurus Rumah Tangga", "Pensiunan", "PNS", "TNI", "POLRI", "Guru", "Tenaga Kesehatan", "Karyawan Swasta", "Wiraswasta", "Petani/Pekebun", "Nelayan", "Buruh Harian Lepas", "Pedagang", "Sopir", "Perangkat Desa", "Lainnya"]],["alamat","Alamat tempat tinggal","textarea",true],
         ["namaAnak","Nama anak/pelajar","text",true],["nikAnak","NIK anak/pelajar","text",false],
         ["ttlAnak","Tempat/tanggal lahir anak","text",false],["agamaAnak","Agama anak","text",false],
@@ -179,7 +179,7 @@
       fields: [
         ["nama","Nama lengkap","text",true],["nik","NIK","text",true],["jk","Jenis kelamin","select",true,["Laki-laki","Perempuan"]],
         ["ttl","Tempat/tanggal lahir","text",true],["kewarganegaraan","Kewarganegaraan","text",true,"Indonesia"],
-        ["agama","Agama","text",true],["statusKawin","Status perkawinan","select",true,["Belum Kawin", "Kawin", "Cerai Hidup", "Cerai Mati"]],["pekerjaan","Pekerjaan","select",true,["Belum/Tidak Bekerja", "Pelajar/Mahasiswa", "Mengurus Rumah Tangga", "Pensiunan", "PNS", "TNI", "POLRI", "Guru", "Tenaga Kesehatan", "Karyawan Swasta", "Wiraswasta", "Petani/Pekebun", "Nelayan", "Buruh Harian Lepas", "Pedagang", "Sopir", "Perangkat Desa", "Lainnya"]],
+        ["agama","Agama","select",true, ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu", "Kepercayaan terhadap Tuhan YME", "Lainnya"]],["statusKawin","Status perkawinan","select",true,["Belum Kawin", "Kawin", "Cerai Hidup", "Cerai Mati"]],["pekerjaan","Pekerjaan","select",true,["Belum/Tidak Bekerja", "Pelajar/Mahasiswa", "Mengurus Rumah Tangga", "Pensiunan", "PNS", "TNI", "POLRI", "Guru", "Tenaga Kesehatan", "Karyawan Swasta", "Wiraswasta", "Petani/Pekebun", "Nelayan", "Buruh Harian Lepas", "Pedagang", "Sopir", "Perangkat Desa", "Lainnya"]],
         ["alamat","Alamat","textarea",true],["keterangan","Keterangan tambahan","textarea",false],
         ["nomorSurat","Nomor surat (bagian kosong)","text",false],["bulanNomor","Bulan pada nomor surat","text",false],
         ["tahunNomor","Tahun pada nomor surat","number",false],["tempatTerbit","Dikeluarkan di","text",true,"Pusar"],["tanggalTerbit","Tanggal surat","date",true]
@@ -194,7 +194,7 @@
       numberPrefix: "140/", numberSuffix: "/SKU/DSP-BB/",
       fields: [
         ["nama","Nama","text",true],["nik","NIK","text",true],["ttl","Tempat/tanggal lahir","text",true],
-        ["jk","Jenis kelamin","select",true,["Laki-laki","Perempuan"]],["agama","Agama","text",true],
+        ["jk","Jenis kelamin","select",true,["Laki-laki","Perempuan"]],["agama","Agama","select",true, ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu", "Kepercayaan terhadap Tuhan YME", "Lainnya"]],
         ["alamat","Alamat KTP/tempat tinggal","textarea",true],["tempatUsaha","Tempat usaha","text",true],
         ["alamatUsaha","Alamat usaha","textarea",true],["jenisUsaha","Jenis usaha","text",true],
         ["nomorSurat","Nomor surat (bagian kosong)","text",false],["bulanNomor","Bulan pada nomor surat","text",false],
@@ -211,7 +211,7 @@
       fields: [
         ["nama","Nama lengkap","text",true],["jk","Jenis kelamin","select",true,["Laki-laki","Perempuan"]],
         ["ttl","Tempat/tanggal lahir","text",true],["kewarganegaraan","Kewarganegaraan","text",true,"Indonesia"],
-        ["agama","Agama","text",true],["pekerjaan","Pekerjaan","select",true,["Belum/Tidak Bekerja", "Pelajar/Mahasiswa", "Mengurus Rumah Tangga", "Pensiunan", "PNS", "TNI", "POLRI", "Guru", "Tenaga Kesehatan", "Karyawan Swasta", "Wiraswasta", "Petani/Pekebun", "Nelayan", "Buruh Harian Lepas", "Pedagang", "Sopir", "Perangkat Desa", "Lainnya"]],["pendidikan","Pendidikan","text",true],
+        ["agama","Agama","select",true, ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu", "Kepercayaan terhadap Tuhan YME", "Lainnya"]],["pekerjaan","Pekerjaan","select",true,["Belum/Tidak Bekerja", "Pelajar/Mahasiswa", "Mengurus Rumah Tangga", "Pensiunan", "PNS", "TNI", "POLRI", "Guru", "Tenaga Kesehatan", "Karyawan Swasta", "Wiraswasta", "Petani/Pekebun", "Nelayan", "Buruh Harian Lepas", "Pedagang", "Sopir", "Perangkat Desa", "Lainnya"]],["pendidikan","Pendidikan","text",true],
         ["alamat","Alamat asal","textarea",true],["noKK","Nomor KK","text",true],["nik","Nomor KTP/NIK","text",true],
         ["alamatPindah","Alamat pindah","textarea",true],["rtRw","RT/RW tujuan","text",false],["kecamatanTujuan","Kecamatan tujuan","text",true],
         ["kabupatenTujuan","Kabupaten/kota tujuan","text",true],["provinsiTujuan","Provinsi tujuan","text",true],
@@ -229,7 +229,7 @@
       numberPrefix: "B-", numberSuffix: "/HLN/400.7.7.2/",
       fields: [
         ["nama","Nama calon pengantin wanita","text",true],["nik","NIK","text",true],["ttl","Tempat/tanggal lahir","text",true],
-        ["umur","Umur (tahun)","number",true],["agama","Agama","text",true,"Islam"],["jk","Jenis kelamin","select",true,["Perempuan"]],
+        ["umur","Umur (tahun)","number",true],["agama","Agama","select",true,"Islam", ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu", "Kepercayaan terhadap Tuhan YME", "Lainnya"]],["jk","Jenis kelamin","select",true,["Perempuan"]],
         ["pendidikan","Pendidikan","text",true],["pekerjaan","Pekerjaan","select",true,["Belum/Tidak Bekerja", "Pelajar/Mahasiswa", "Mengurus Rumah Tangga", "Pensiunan", "PNS", "TNI", "POLRI", "Guru", "Tenaga Kesehatan", "Karyawan Swasta", "Wiraswasta", "Petani/Pekebun", "Nelayan", "Buruh Harian Lepas", "Pedagang", "Sopir", "Perangkat Desa", "Lainnya"]],["status","Status","select",true,["Belum Kawin", "Kawin", "Cerai Hidup", "Cerai Mati"]],
         ["alamat","Alamat/tempat tinggal","textarea",true],["keperluan","Keperluan","text",true,"Untuk menikah"],
         ["berlaku","Masa berlaku surat","text",true],["golonganDarah","Golongan darah","text",false],
@@ -253,12 +253,12 @@
     },
     nikah_laki: {
       title: "SURAT PENGANTAR NIKAH (LAKI-LAKI)", numberPrefix: "140/", numberSuffix: "/SPN/DSP-BB/",
-      fields: [["nama","Nama lengkap calon pengantin","text",true],["nik","NIK","text",true],["noKK","Nomor KK","text",false],["ttl","Tempat/tanggal lahir","text",true],["jk","Jenis kelamin","select",true,["Laki-laki"]],["kewarganegaraan","Kewarganegaraan","text",true,"Indonesia"],["agama","Agama","text",true],["pekerjaan","Pekerjaan","select",true,["Belum/Tidak Bekerja", "Pelajar/Mahasiswa", "Mengurus Rumah Tangga", "Pensiunan", "PNS", "TNI", "POLRI", "Guru", "Tenaga Kesehatan", "Karyawan Swasta", "Wiraswasta", "Petani/Pekebun", "Nelayan", "Buruh Harian Lepas", "Pedagang", "Sopir", "Perangkat Desa", "Lainnya"]],["statusKawin","Status perkawinan","select",true,["Belum Kawin", "Kawin", "Cerai Hidup", "Cerai Mati"]],["alamat","Alamat","textarea",true],["namaPasangan","Nama calon istri","text",true],["alamatPasangan","Alamat calon istri","textarea",false],["keperluan","Keperluan","text",true,"Pengantar pencatatan nikah"],["nomorSurat","Nomor surat (bagian kosong)","text",false],["bulanNomor","Bulan pada nomor surat","text",false],["tahunNomor","Tahun pada nomor surat","number",false],["tempatTerbit","Dikeluarkan di","text",true,"Pusar"],["tanggalTerbit","Tanggal surat","date",true]],
+      fields: [["nama","Nama lengkap calon pengantin","text",true],["nik","NIK","text",true],["noKK","Nomor KK","text",false],["ttl","Tempat/tanggal lahir","text",true],["jk","Jenis kelamin","select",true,["Laki-laki"]],["kewarganegaraan","Kewarganegaraan","text",true,"Indonesia"],["agama","Agama","select",true, ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu", "Kepercayaan terhadap Tuhan YME", "Lainnya"]],["pekerjaan","Pekerjaan","select",true,["Belum/Tidak Bekerja", "Pelajar/Mahasiswa", "Mengurus Rumah Tangga", "Pensiunan", "PNS", "TNI", "POLRI", "Guru", "Tenaga Kesehatan", "Karyawan Swasta", "Wiraswasta", "Petani/Pekebun", "Nelayan", "Buruh Harian Lepas", "Pedagang", "Sopir", "Perangkat Desa", "Lainnya"]],["statusKawin","Status perkawinan","select",true,["Belum Kawin", "Kawin", "Cerai Hidup", "Cerai Mati"]],["alamat","Alamat","textarea",true],["namaPasangan","Nama calon istri","text",true],["alamatPasangan","Alamat calon istri","textarea",false],["keperluan","Keperluan","text",true,"Pengantar pencatatan nikah"],["nomorSurat","Nomor surat (bagian kosong)","text",false],["bulanNomor","Bulan pada nomor surat","text",false],["tahunNomor","Tahun pada nomor surat","number",false],["tempatTerbit","Dikeluarkan di","text",true,"Pusar"],["tanggalTerbit","Tanggal surat","date",true]],
       body: d => `<p>Yang bertanda tangan di bawah ini Kepala Desa Pusar, Kecamatan Baturaja Barat, Kabupaten Ogan Komering Ulu, menerangkan data calon pengantin laki-laki sebagai berikut:</p>${rows([["Nama",d.nama],["NIK",d.nik],["Nomor KK",d.noKK],["Tempat/tanggal lahir",d.ttl],["Jenis kelamin",d.jk],["Kewarganegaraan",d.kewarganegaraan],["Agama",d.agama],["Pekerjaan",d.pekerjaan],["Status perkawinan",d.statusKawin],["Alamat",d.alamat],["Nama calon istri",d.namaPasangan],["Alamat calon istri",d.alamatPasangan]])}<p>Surat pengantar ini dibuat untuk keperluan ${esc(d.keperluan)}. Data dan persyaratan tetap harus diverifikasi oleh instansi yang berwenang.</p><p>Demikian surat pengantar ini dibuat untuk dipergunakan sebagaimana mestinya.</p>`
     },
     nikah_perempuan: {
       title: "SURAT PENGANTAR NIKAH (PEREMPUAN)", numberPrefix: "140/", numberSuffix: "/SPN/DSP-BB/",
-      fields: [["nama","Nama lengkap calon pengantin","text",true],["nik","NIK","text",true],["noKK","Nomor KK","text",false],["ttl","Tempat/tanggal lahir","text",true],["jk","Jenis kelamin","select",true,["Perempuan"]],["kewarganegaraan","Kewarganegaraan","text",true,"Indonesia"],["agama","Agama","text",true],["pekerjaan","Pekerjaan","select",true,["Belum/Tidak Bekerja", "Pelajar/Mahasiswa", "Mengurus Rumah Tangga", "Pensiunan", "PNS", "TNI", "POLRI", "Guru", "Tenaga Kesehatan", "Karyawan Swasta", "Wiraswasta", "Petani/Pekebun", "Nelayan", "Buruh Harian Lepas", "Pedagang", "Sopir", "Perangkat Desa", "Lainnya"]],["statusKawin","Status perkawinan","select",true,["Belum Kawin", "Kawin", "Cerai Hidup", "Cerai Mati"]],["alamat","Alamat","textarea",true],["namaPasangan","Nama calon suami","text",true],["alamatPasangan","Alamat calon suami","textarea",false],["keperluan","Keperluan","text",true,"Pengantar pencatatan nikah"],["nomorSurat","Nomor surat (bagian kosong)","text",false],["bulanNomor","Bulan pada nomor surat","text",false],["tahunNomor","Tahun pada nomor surat","number",false],["tempatTerbit","Dikeluarkan di","text",true,"Pusar"],["tanggalTerbit","Tanggal surat","date",true]],
+      fields: [["nama","Nama lengkap calon pengantin","text",true],["nik","NIK","text",true],["noKK","Nomor KK","text",false],["ttl","Tempat/tanggal lahir","text",true],["jk","Jenis kelamin","select",true,["Perempuan"]],["kewarganegaraan","Kewarganegaraan","text",true,"Indonesia"],["agama","Agama","select",true, ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu", "Kepercayaan terhadap Tuhan YME", "Lainnya"]],["pekerjaan","Pekerjaan","select",true,["Belum/Tidak Bekerja", "Pelajar/Mahasiswa", "Mengurus Rumah Tangga", "Pensiunan", "PNS", "TNI", "POLRI", "Guru", "Tenaga Kesehatan", "Karyawan Swasta", "Wiraswasta", "Petani/Pekebun", "Nelayan", "Buruh Harian Lepas", "Pedagang", "Sopir", "Perangkat Desa", "Lainnya"]],["statusKawin","Status perkawinan","select",true,["Belum Kawin", "Kawin", "Cerai Hidup", "Cerai Mati"]],["alamat","Alamat","textarea",true],["namaPasangan","Nama calon suami","text",true],["alamatPasangan","Alamat calon suami","textarea",false],["keperluan","Keperluan","text",true,"Pengantar pencatatan nikah"],["nomorSurat","Nomor surat (bagian kosong)","text",false],["bulanNomor","Bulan pada nomor surat","text",false],["tahunNomor","Tahun pada nomor surat","number",false],["tempatTerbit","Dikeluarkan di","text",true,"Pusar"],["tanggalTerbit","Tanggal surat","date",true]],
       body: d => `<p>Yang bertanda tangan di bawah ini Kepala Desa Pusar, Kecamatan Baturaja Barat, Kabupaten Ogan Komering Ulu, menerangkan data calon pengantin perempuan sebagai berikut:</p>${rows([["Nama",d.nama],["NIK",d.nik],["Nomor KK",d.noKK],["Tempat/tanggal lahir",d.ttl],["Jenis kelamin",d.jk],["Kewarganegaraan",d.kewarganegaraan],["Agama",d.agama],["Pekerjaan",d.pekerjaan],["Status perkawinan",d.statusKawin],["Alamat",d.alamat],["Nama calon suami",d.namaPasangan],["Alamat calon suami",d.alamatPasangan]])}<p>Surat pengantar ini dibuat untuk keperluan ${esc(d.keperluan)}. Data dan persyaratan tetap harus diverifikasi oleh instansi yang berwenang.</p><p>Demikian surat pengantar ini dibuat untuk dipergunakan sebagaimana mestinya.</p>`
     },
     undangan_beasiswa: {
@@ -395,7 +395,7 @@
               <div class="fsd-form-grid" id="res-form">
                 <label class="fsd-field">NIK<input id="res-nik" maxlength="16" inputmode="numeric"></label><label class="fsd-field">Nomor KK<input id="res-kk"></label>
                 <label class="fsd-field">Nama lengkap<input id="res-nama" required></label><label class="fsd-field">Tempat, tanggal lahir<input id="res-ttl"></label>
-                <label class="fsd-field">Jenis kelamin<select id="res-jk"><option value="">-- Pilih --</option><option>Laki-laki</option><option>Perempuan</option></select></label><label class="fsd-field">Agama<input id="res-agama"></label>
+                <label class="fsd-field">Jenis kelamin<select id="res-jk"><option value="">-- Pilih --</option><option>Laki-laki</option><option>Perempuan</option></select></label><label class="fsd-field">Agama<select id="res-agama"><option value="">-- Pilih agama --</option><option>Islam</option><option>Kristen</option><option>Katolik</option><option>Hindu</option><option>Buddha</option><option>Konghucu</option><option>Kepercayaan terhadap Tuhan YME</option><option>Lainnya</option></select></label>
                 <label class="fsd-field">Pekerjaan<select id="res-pekerjaan"><option value="">-- Pilih pekerjaan --</option><option>Belum/Tidak Bekerja</option><option>Pelajar/Mahasiswa</option><option>Mengurus Rumah Tangga</option><option>Pensiunan</option><option>PNS</option><option>TNI</option><option>POLRI</option><option>Guru</option><option>Tenaga Kesehatan</option><option>Karyawan Swasta</option><option>Wiraswasta</option><option>Petani/Pekebun</option><option>Nelayan</option><option>Buruh Harian Lepas</option><option>Pedagang</option><option>Sopir</option><option>Perangkat Desa</option><option>Lainnya</option></select></label><label class="fsd-field">Status perkawinan<select id="res-status"><option value="">-- Pilih status --</option><option>Belum Kawin</option><option>Kawin</option><option>Cerai Hidup</option><option>Cerai Mati</option></select></label><label class="fsd-field" style="grid-column:1/-1">Alamat<textarea id="res-alamat" rows="2"></textarea></label>
               </div><div class="fsd-actions"><button type="button" id="res-save">Simpan Penduduk</button><button type="button" class="secondary" id="res-clear">Form Baru</button></div><p id="res-message" class="fsd-note" aria-live="polite"></p>
             </div><div class="fsd-admin-card"><h2>Daftar Penduduk Tersimpan</h2><input id="res-search" placeholder="Cari nama atau NIK..."><div id="res-list"></div></div>
