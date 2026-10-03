@@ -1,0 +1,35 @@
+{
+  "name": "aplikasi-desa",
+  "version": "1.0.0",
+  "description": "Administrasi Desa Desktop",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "electron": "^38.2.1",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "id.aplikasidesa.app",
+    "productName": "Aplikasi Desa",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "database/**/*",
+      "templates/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    }
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^4.2.0"
+  }
+}

@@ -1,0 +1,54 @@
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f5f7;color:#1f2937}
+.hidden{display:none!important}
+.login{min-height:100vh;display:grid;place-items:center}
+.loginbox{background:white;width:390px;padding:36px;border-radius:16px;box-shadow:0 10px 40px #0002;text-align:center}
+.loginbox input{width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:8px}
+.app{display:flex;min-height:100vh}
+aside{width:250px;background:#173f35;color:white;padding:18px 12px}
+.brand{font-size:20px;font-weight:bold;padding:10px}
+.who{background:#245b4e;border-radius:8px;padding:9px;font-size:12px;margin:5px 4px 12px}
+aside button{width:100%;border:0;background:transparent;color:white;text-align:left;padding:11px 12px;border-radius:7px;margin:2px 0;cursor:pointer}
+aside button:hover{background:#245b4e}
+main{flex:1;min-width:0}
+header{background:white;padding:20px 28px;border-bottom:1px solid #ddd}
+header h1{margin:0}
+#content{padding:25px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.card,.panel{background:white;border-radius:12px;padding:20px;box-shadow:0 2px 8px #0001}
+.num{font-size:30px;font-weight:bold;margin-top:8px}
+.toolbar,.actions{display:flex;gap:10px;margin-bottom:15px}
+.toolbar input{flex:1}
+input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:7px;margin:5px 0 12px}
+textarea{min-height:100px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:10px;border-bottom:1px solid #eee;text-align:left}
+.primary{background:#176b54;color:#fff;border:0;border-radius:7px;padding:10px 15px;cursor:pointer}
+.wide{width:100%}
+.preview{background:#fff;border:1px solid #bbb;padding:35px;min-height:650px;line-height:1.6}
+.kop{text-align:center;border-bottom:3px double #111;padding-bottom:12px;margin-bottom:20px;line-height:1.35}
+.letter-title{text-align:center;text-decoration:underline;margin:20px 0 8px}
+.letter-number{text-align:center}
+.letter-body{white-space:normal;line-height:1.65}
+.signature{text-align:right;margin-top:60px}
+.hint{color:#666;font-size:13px}
+.fieldbox{border:1px solid #eee;border-radius:8px;padding:10px;margin-bottom:8px}
+.template-header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:10px}
+.template-status{padding:10px 12px;border-radius:7px;background:#f5f7f7;font-size:13px;margin:4px 0 14px}
+.template-ok{color:#176b54}
+.template-missing{color:#8a5a00}
+.template-editor{min-height:300px;font-family:Consolas,monospace;line-height:1.5}
+.placeholder-box{margin-top:15px;padding:14px;border:1px solid #e5e7eb;border-radius:8px;background:#fafafa}
+.placeholder-list{margin-top:8px;line-height:2}
+.placeholder-list code{background:#eef2f2;padding:3px 6px;border-radius:4px;margin:2px;display:inline-block}
+.empty{text-align:center;color:#777;padding:25px!important}
+.preview-actions{margin-top:20px;padding-top:15px;border-top:1px solid #ddd}
+@media(max-width:950px){
+  aside{width:205px}
+  .cards{grid-template-columns:1fr 1fr}
+  .grid{grid-template-columns:1fr}
+  .full{grid-column:auto}
+  .template-header{flex-direction:column}
+}

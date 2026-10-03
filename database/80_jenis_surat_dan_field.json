@@ -1,0 +1,2970 @@
+[
+  {
+    "kode_surat": "01",
+    "nama_surat": "Surat Keterangan Domisili",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "01",
+    "nama_surat": "Surat Keterangan Domisili",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "01",
+    "nama_surat": "Surat Keterangan Domisili",
+    "field": "keterangan_tambahan",
+    "tipe": "TEXT",
+    "wajib": 0
+  },
+  {
+    "kode_surat": "02",
+    "nama_surat": "Surat Keterangan Tempat Tinggal",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "02",
+    "nama_surat": "Surat Keterangan Tempat Tinggal",
+    "field": "alamat_tempat_tinggal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "02",
+    "nama_surat": "Surat Keterangan Tempat Tinggal",
+    "field": "sejak_tinggal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "02",
+    "nama_surat": "Surat Keterangan Tempat Tinggal",
+    "field": "status_tempat_tinggal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "02",
+    "nama_surat": "Surat Keterangan Tempat Tinggal",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "03",
+    "nama_surat": "Surat Keterangan Penduduk",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "03",
+    "nama_surat": "Surat Keterangan Penduduk",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "04",
+    "nama_surat": "Surat Keterangan Pindah",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "04",
+    "nama_surat": "Surat Keterangan Pindah",
+    "field": "alamat_tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "04",
+    "nama_surat": "Surat Keterangan Pindah",
+    "field": "desa_tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "04",
+    "nama_surat": "Surat Keterangan Pindah",
+    "field": "kecamatan_tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "04",
+    "nama_surat": "Surat Keterangan Pindah",
+    "field": "kabupaten_tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "04",
+    "nama_surat": "Surat Keterangan Pindah",
+    "field": "provinsi_tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "04",
+    "nama_surat": "Surat Keterangan Pindah",
+    "field": "alasan_pindah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "04",
+    "nama_surat": "Surat Keterangan Pindah",
+    "field": "tanggal_pindah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "05",
+    "nama_surat": "Surat Pengantar Pindah",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "05",
+    "nama_surat": "Surat Pengantar Pindah",
+    "field": "alamat_tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "05",
+    "nama_surat": "Surat Pengantar Pindah",
+    "field": "alasan_pindah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "05",
+    "nama_surat": "Surat Pengantar Pindah",
+    "field": "anggota_keluarga_pindah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "06",
+    "nama_surat": "Surat Keterangan Datang",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "06",
+    "nama_surat": "Surat Keterangan Datang",
+    "field": "alamat_asal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "06",
+    "nama_surat": "Surat Keterangan Datang",
+    "field": "tanggal_datang",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "06",
+    "nama_surat": "Surat Keterangan Datang",
+    "field": "alasan_datang",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "07",
+    "nama_surat": "Surat Keterangan Kelahiran",
+    "field": "nama_bayi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "07",
+    "nama_surat": "Surat Keterangan Kelahiran",
+    "field": "jenis_kelamin_bayi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "07",
+    "nama_surat": "Surat Keterangan Kelahiran",
+    "field": "tempat_lahir_bayi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "07",
+    "nama_surat": "Surat Keterangan Kelahiran",
+    "field": "tanggal_lahir_bayi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "07",
+    "nama_surat": "Surat Keterangan Kelahiran",
+    "field": "jam_lahir",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "07",
+    "nama_surat": "Surat Keterangan Kelahiran",
+    "field": "nama_ayah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "07",
+    "nama_surat": "Surat Keterangan Kelahiran",
+    "field": "nik_ayah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "07",
+    "nama_surat": "Surat Keterangan Kelahiran",
+    "field": "nama_ibu",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "07",
+    "nama_surat": "Surat Keterangan Kelahiran",
+    "field": "nik_ibu",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "07",
+    "nama_surat": "Surat Keterangan Kelahiran",
+    "field": "alamat_orang_tua",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "07",
+    "nama_surat": "Surat Keterangan Kelahiran",
+    "field": "anak_ke",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "08",
+    "nama_surat": "Surat Keterangan Kematian",
+    "field": "almarhum",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "08",
+    "nama_surat": "Surat Keterangan Kematian",
+    "field": "tanggal_meninggal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "08",
+    "nama_surat": "Surat Keterangan Kematian",
+    "field": "jam_meninggal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "08",
+    "nama_surat": "Surat Keterangan Kematian",
+    "field": "tempat_meninggal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "08",
+    "nama_surat": "Surat Keterangan Kematian",
+    "field": "penyebab_kematian",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "08",
+    "nama_surat": "Surat Keterangan Kematian",
+    "field": "nama_pelapor",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "09",
+    "nama_surat": "Surat Keterangan Belum Menikah",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "09",
+    "nama_surat": "Surat Keterangan Belum Menikah",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "10",
+    "nama_surat": "Surat Keterangan Status Perkawinan",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "10",
+    "nama_surat": "Surat Keterangan Status Perkawinan",
+    "field": "status_perkawinan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "10",
+    "nama_surat": "Surat Keterangan Status Perkawinan",
+    "field": "nama_pasangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "10",
+    "nama_surat": "Surat Keterangan Status Perkawinan",
+    "field": "nomor_buku_nikah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "10",
+    "nama_surat": "Surat Keterangan Status Perkawinan",
+    "field": "tanggal_perkawinan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "10",
+    "nama_surat": "Surat Keterangan Status Perkawinan",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "11",
+    "nama_surat": "Surat Keterangan Janda/Duda",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "11",
+    "nama_surat": "Surat Keterangan Janda/Duda",
+    "field": "nama_pasangan_sebelumnya",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "11",
+    "nama_surat": "Surat Keterangan Janda/Duda",
+    "field": "tanggal_perkawinan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "11",
+    "nama_surat": "Surat Keterangan Janda/Duda",
+    "field": "tanggal_perceraian_atau_kematian",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "11",
+    "nama_surat": "Surat Keterangan Janda/Duda",
+    "field": "nomor_dokumen",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "11",
+    "nama_surat": "Surat Keterangan Janda/Duda",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "12",
+    "nama_surat": "Surat Keterangan Susunan Keluarga",
+    "field": "kepala_keluarga",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "12",
+    "nama_surat": "Surat Keterangan Susunan Keluarga",
+    "field": "anggota_keluarga",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "12",
+    "nama_surat": "Surat Keterangan Susunan Keluarga",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "13",
+    "nama_surat": "Surat Keterangan Usaha (SKU)",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "13",
+    "nama_surat": "Surat Keterangan Usaha (SKU)",
+    "field": "nama_usaha",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "13",
+    "nama_surat": "Surat Keterangan Usaha (SKU)",
+    "field": "jenis_usaha",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "13",
+    "nama_surat": "Surat Keterangan Usaha (SKU)",
+    "field": "alamat_usaha",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "13",
+    "nama_surat": "Surat Keterangan Usaha (SKU)",
+    "field": "modal_usaha",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "13",
+    "nama_surat": "Surat Keterangan Usaha (SKU)",
+    "field": "tahun_mulai",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "13",
+    "nama_surat": "Surat Keterangan Usaha (SKU)",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "14",
+    "nama_surat": "Surat Keterangan Penghasilan",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "14",
+    "nama_surat": "Surat Keterangan Penghasilan",
+    "field": "pekerjaan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "14",
+    "nama_surat": "Surat Keterangan Penghasilan",
+    "field": "penghasilan_bulanan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "14",
+    "nama_surat": "Surat Keterangan Penghasilan",
+    "field": "sumber_penghasilan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "14",
+    "nama_surat": "Surat Keterangan Penghasilan",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "15",
+    "nama_surat": "Surat Keterangan Tidak Mempunyai Penghasilan Tetap",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "15",
+    "nama_surat": "Surat Keterangan Tidak Mempunyai Penghasilan Tetap",
+    "field": "pekerjaan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "15",
+    "nama_surat": "Surat Keterangan Tidak Mempunyai Penghasilan Tetap",
+    "field": "sumber_penghasilan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "15",
+    "nama_surat": "Surat Keterangan Tidak Mempunyai Penghasilan Tetap",
+    "field": "kondisi_penghasilan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "15",
+    "nama_surat": "Surat Keterangan Tidak Mempunyai Penghasilan Tetap",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "16",
+    "nama_surat": "Surat Keterangan UMKM",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "16",
+    "nama_surat": "Surat Keterangan UMKM",
+    "field": "nama_umkm",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "16",
+    "nama_surat": "Surat Keterangan UMKM",
+    "field": "jenis_usaha",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "16",
+    "nama_surat": "Surat Keterangan UMKM",
+    "field": "alamat_usaha",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "16",
+    "nama_surat": "Surat Keterangan UMKM",
+    "field": "tahun_berdiri",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "16",
+    "nama_surat": "Surat Keterangan UMKM",
+    "field": "jumlah_tenaga_kerja",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "16",
+    "nama_surat": "Surat Keterangan UMKM",
+    "field": "perkiraan_omzet",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "16",
+    "nama_surat": "Surat Keterangan UMKM",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "17",
+    "nama_surat": "Surat Rekomendasi Usaha",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "17",
+    "nama_surat": "Surat Rekomendasi Usaha",
+    "field": "nama_usaha",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "17",
+    "nama_surat": "Surat Rekomendasi Usaha",
+    "field": "jenis_usaha",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "17",
+    "nama_surat": "Surat Rekomendasi Usaha",
+    "field": "lokasi_usaha",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "17",
+    "nama_surat": "Surat Rekomendasi Usaha",
+    "field": "tujuan_rekomendasi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "17",
+    "nama_surat": "Surat Rekomendasi Usaha",
+    "field": "keterangan",
+    "tipe": "TEXT",
+    "wajib": 0
+  },
+  {
+    "kode_surat": "18",
+    "nama_surat": "Surat Keterangan Pengajuan Kredit",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "18",
+    "nama_surat": "Surat Keterangan Pengajuan Kredit",
+    "field": "nama_bank",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "18",
+    "nama_surat": "Surat Keterangan Pengajuan Kredit",
+    "field": "tujuan_kredit",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "18",
+    "nama_surat": "Surat Keterangan Pengajuan Kredit",
+    "field": "jumlah_pengajuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "18",
+    "nama_surat": "Surat Keterangan Pengajuan Kredit",
+    "field": "usaha_atau_pekerjaan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "18",
+    "nama_surat": "Surat Keterangan Pengajuan Kredit",
+    "field": "penghasilan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "18",
+    "nama_surat": "Surat Keterangan Pengajuan Kredit",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "19",
+    "nama_surat": "Surat Keterangan Tidak Mampu (SKTM)",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "19",
+    "nama_surat": "Surat Keterangan Tidak Mampu (SKTM)",
+    "field": "penghasilan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "19",
+    "nama_surat": "Surat Keterangan Tidak Mampu (SKTM)",
+    "field": "jumlah_anggota_keluarga",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "19",
+    "nama_surat": "Surat Keterangan Tidak Mampu (SKTM)",
+    "field": "kondisi_ekonomi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "19",
+    "nama_surat": "Surat Keterangan Tidak Mampu (SKTM)",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "20",
+    "nama_surat": "Surat Keterangan untuk Beasiswa",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "20",
+    "nama_surat": "Surat Keterangan untuk Beasiswa",
+    "field": "nisn_nim",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "20",
+    "nama_surat": "Surat Keterangan untuk Beasiswa",
+    "field": "sekolah_kampus",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "20",
+    "nama_surat": "Surat Keterangan untuk Beasiswa",
+    "field": "kelas_semester",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "20",
+    "nama_surat": "Surat Keterangan untuk Beasiswa",
+    "field": "nama_orang_tua",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "20",
+    "nama_surat": "Surat Keterangan untuk Beasiswa",
+    "field": "pekerjaan_orang_tua",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "20",
+    "nama_surat": "Surat Keterangan untuk Beasiswa",
+    "field": "penghasilan_orang_tua",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "20",
+    "nama_surat": "Surat Keterangan untuk Beasiswa",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "21",
+    "nama_surat": "Surat Keterangan untuk Bantuan Sosial",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "21",
+    "nama_surat": "Surat Keterangan untuk Bantuan Sosial",
+    "field": "jumlah_anggota_keluarga",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "21",
+    "nama_surat": "Surat Keterangan untuk Bantuan Sosial",
+    "field": "kondisi_keluarga",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "21",
+    "nama_surat": "Surat Keterangan untuk Bantuan Sosial",
+    "field": "kondisi_ekonomi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "21",
+    "nama_surat": "Surat Keterangan untuk Bantuan Sosial",
+    "field": "jenis_bantuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "21",
+    "nama_surat": "Surat Keterangan untuk Bantuan Sosial",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "22",
+    "nama_surat": "Surat Keterangan untuk BPJS",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "22",
+    "nama_surat": "Surat Keterangan untuk BPJS",
+    "field": "status_kepesertaan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "22",
+    "nama_surat": "Surat Keterangan untuk BPJS",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "23",
+    "nama_surat": "Surat Keterangan Kondisi Ekonomi",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "23",
+    "nama_surat": "Surat Keterangan Kondisi Ekonomi",
+    "field": "jumlah_anggota_keluarga",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "23",
+    "nama_surat": "Surat Keterangan Kondisi Ekonomi",
+    "field": "pekerjaan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "23",
+    "nama_surat": "Surat Keterangan Kondisi Ekonomi",
+    "field": "penghasilan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "23",
+    "nama_surat": "Surat Keterangan Kondisi Ekonomi",
+    "field": "kondisi_rumah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "23",
+    "nama_surat": "Surat Keterangan Kondisi Ekonomi",
+    "field": "kepemilikan_kendaraan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "23",
+    "nama_surat": "Surat Keterangan Kondisi Ekonomi",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "24",
+    "nama_surat": "Surat Rekomendasi Bantuan",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "24",
+    "nama_surat": "Surat Rekomendasi Bantuan",
+    "field": "jenis_bantuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "24",
+    "nama_surat": "Surat Rekomendasi Bantuan",
+    "field": "alasan_permohonan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "24",
+    "nama_surat": "Surat Rekomendasi Bantuan",
+    "field": "kondisi_ekonomi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "24",
+    "nama_surat": "Surat Rekomendasi Bantuan",
+    "field": "instansi_tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "25",
+    "nama_surat": "Surat Keterangan sebagai Siswa",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "25",
+    "nama_surat": "Surat Keterangan sebagai Siswa",
+    "field": "nisn",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "25",
+    "nama_surat": "Surat Keterangan sebagai Siswa",
+    "field": "sekolah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "25",
+    "nama_surat": "Surat Keterangan sebagai Siswa",
+    "field": "kelas",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "25",
+    "nama_surat": "Surat Keterangan sebagai Siswa",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "26",
+    "nama_surat": "Surat Keterangan sebagai Mahasiswa",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "26",
+    "nama_surat": "Surat Keterangan sebagai Mahasiswa",
+    "field": "nim",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "26",
+    "nama_surat": "Surat Keterangan sebagai Mahasiswa",
+    "field": "perguruan_tinggi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "26",
+    "nama_surat": "Surat Keterangan sebagai Mahasiswa",
+    "field": "program_studi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "26",
+    "nama_surat": "Surat Keterangan sebagai Mahasiswa",
+    "field": "semester",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "26",
+    "nama_surat": "Surat Keterangan sebagai Mahasiswa",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "27",
+    "nama_surat": "Surat Keterangan Orang Tua",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "27",
+    "nama_surat": "Surat Keterangan Orang Tua",
+    "field": "nama_anak",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "27",
+    "nama_surat": "Surat Keterangan Orang Tua",
+    "field": "nik_anak",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "27",
+    "nama_surat": "Surat Keterangan Orang Tua",
+    "field": "pekerjaan_orang_tua",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "27",
+    "nama_surat": "Surat Keterangan Orang Tua",
+    "field": "penghasilan_orang_tua",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "27",
+    "nama_surat": "Surat Keterangan Orang Tua",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "28",
+    "nama_surat": "Surat Rekomendasi Pendidikan",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "28",
+    "nama_surat": "Surat Rekomendasi Pendidikan",
+    "field": "sekolah_kampus",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "28",
+    "nama_surat": "Surat Rekomendasi Pendidikan",
+    "field": "tujuan_rekomendasi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "28",
+    "nama_surat": "Surat Rekomendasi Pendidikan",
+    "field": "keterangan",
+    "tipe": "TEXT",
+    "wajib": 0
+  },
+  {
+    "kode_surat": "29",
+    "nama_surat": "Surat Pengantar Beasiswa",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "29",
+    "nama_surat": "Surat Pengantar Beasiswa",
+    "field": "sekolah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "29",
+    "nama_surat": "Surat Pengantar Beasiswa",
+    "field": "kelas",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "29",
+    "nama_surat": "Surat Pengantar Beasiswa",
+    "field": "prestasi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "29",
+    "nama_surat": "Surat Pengantar Beasiswa",
+    "field": "kondisi_ekonomi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "29",
+    "nama_surat": "Surat Pengantar Beasiswa",
+    "field": "jenis_beasiswa",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "30",
+    "nama_surat": "Surat Pengantar Nikah",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "30",
+    "nama_surat": "Surat Pengantar Nikah",
+    "field": "nama_calon_pasangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "30",
+    "nama_surat": "Surat Pengantar Nikah",
+    "field": "nik_calon_pasangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "30",
+    "nama_surat": "Surat Pengantar Nikah",
+    "field": "alamat_calon_pasangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "30",
+    "nama_surat": "Surat Pengantar Nikah",
+    "field": "tanggal_rencana_nikah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "31",
+    "nama_surat": "Surat Keterangan Wali Nikah",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "31",
+    "nama_surat": "Surat Keterangan Wali Nikah",
+    "field": "nama_wali",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "31",
+    "nama_surat": "Surat Keterangan Wali Nikah",
+    "field": "nik_wali",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "31",
+    "nama_surat": "Surat Keterangan Wali Nikah",
+    "field": "hubungan_wali",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "31",
+    "nama_surat": "Surat Keterangan Wali Nikah",
+    "field": "alamat_wali",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "32",
+    "nama_surat": "Surat Keterangan Status Perkawinan",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "32",
+    "nama_surat": "Surat Keterangan Status Perkawinan",
+    "field": "status_perkawinan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "32",
+    "nama_surat": "Surat Keterangan Status Perkawinan",
+    "field": "nama_pasangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "32",
+    "nama_surat": "Surat Keterangan Status Perkawinan",
+    "field": "tanggal_perkawinan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "33",
+    "nama_surat": "Surat Keterangan Cerai",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "33",
+    "nama_surat": "Surat Keterangan Cerai",
+    "field": "nama_pasangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "33",
+    "nama_surat": "Surat Keterangan Cerai",
+    "field": "tanggal_perceraian",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "33",
+    "nama_surat": "Surat Keterangan Cerai",
+    "field": "nomor_dokumen_perceraian",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "33",
+    "nama_surat": "Surat Keterangan Cerai",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "34",
+    "nama_surat": "Surat Keterangan Ahli Waris",
+    "field": "nama_pewaris",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "34",
+    "nama_surat": "Surat Keterangan Ahli Waris",
+    "field": "nik_pewaris",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "34",
+    "nama_surat": "Surat Keterangan Ahli Waris",
+    "field": "tanggal_meninggal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "34",
+    "nama_surat": "Surat Keterangan Ahli Waris",
+    "field": "alamat_terakhir",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "34",
+    "nama_surat": "Surat Keterangan Ahli Waris",
+    "field": "daftar_ahli_waris",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "34",
+    "nama_surat": "Surat Keterangan Ahli Waris",
+    "field": "objek_warisan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "34",
+    "nama_surat": "Surat Keterangan Ahli Waris",
+    "field": "keterangan",
+    "tipe": "TEXT",
+    "wajib": 0
+  },
+  {
+    "kode_surat": "35",
+    "nama_surat": "Surat Pernyataan Ahli Waris",
+    "field": "nama_pewaris",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "35",
+    "nama_surat": "Surat Pernyataan Ahli Waris",
+    "field": "daftar_ahli_waris",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "35",
+    "nama_surat": "Surat Pernyataan Ahli Waris",
+    "field": "hubungan_keluarga",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "35",
+    "nama_surat": "Surat Pernyataan Ahli Waris",
+    "field": "saksi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "35",
+    "nama_surat": "Surat Pernyataan Ahli Waris",
+    "field": "isi_pernyataan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "36",
+    "nama_surat": "Surat Keterangan Hubungan Keluarga",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "36",
+    "nama_surat": "Surat Keterangan Hubungan Keluarga",
+    "field": "anggota_keluarga",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "36",
+    "nama_surat": "Surat Keterangan Hubungan Keluarga",
+    "field": "hubungan_keluarga",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "36",
+    "nama_surat": "Surat Keterangan Hubungan Keluarga",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "37",
+    "nama_surat": "Surat Keterangan Penguburan",
+    "field": "almarhum",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "37",
+    "nama_surat": "Surat Keterangan Penguburan",
+    "field": "tanggal_meninggal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "37",
+    "nama_surat": "Surat Keterangan Penguburan",
+    "field": "lokasi_pemakaman",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "37",
+    "nama_surat": "Surat Keterangan Penguburan",
+    "field": "tanggal_pemakaman",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "38",
+    "nama_surat": "Surat Keterangan Tanah",
+    "field": "pemilik_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "38",
+    "nama_surat": "Surat Keterangan Tanah",
+    "field": "nik_pemilik",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "38",
+    "nama_surat": "Surat Keterangan Tanah",
+    "field": "lokasi_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "38",
+    "nama_surat": "Surat Keterangan Tanah",
+    "field": "luas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "38",
+    "nama_surat": "Surat Keterangan Tanah",
+    "field": "nomor_persil",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "38",
+    "nama_surat": "Surat Keterangan Tanah",
+    "field": "nomor_objek_pajak",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "38",
+    "nama_surat": "Surat Keterangan Tanah",
+    "field": "batas_utara",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "38",
+    "nama_surat": "Surat Keterangan Tanah",
+    "field": "batas_selatan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "38",
+    "nama_surat": "Surat Keterangan Tanah",
+    "field": "batas_timur",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "38",
+    "nama_surat": "Surat Keterangan Tanah",
+    "field": "batas_barat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "38",
+    "nama_surat": "Surat Keterangan Tanah",
+    "field": "dasar_kepemilikan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "39",
+    "nama_surat": "Surat Keterangan Riwayat Tanah",
+    "field": "pemilik_sekarang",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "39",
+    "nama_surat": "Surat Keterangan Riwayat Tanah",
+    "field": "pemilik_sebelumnya",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "39",
+    "nama_surat": "Surat Keterangan Riwayat Tanah",
+    "field": "riwayat_peralihan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "39",
+    "nama_surat": "Surat Keterangan Riwayat Tanah",
+    "field": "tahun_peralihan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "39",
+    "nama_surat": "Surat Keterangan Riwayat Tanah",
+    "field": "luas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "39",
+    "nama_surat": "Surat Keterangan Riwayat Tanah",
+    "field": "lokasi_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "39",
+    "nama_surat": "Surat Keterangan Riwayat Tanah",
+    "field": "dasar_penguasaan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "40",
+    "nama_surat": "Surat Keterangan Tidak Sengketa",
+    "field": "pemilik_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "40",
+    "nama_surat": "Surat Keterangan Tidak Sengketa",
+    "field": "lokasi_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "40",
+    "nama_surat": "Surat Keterangan Tidak Sengketa",
+    "field": "luas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "40",
+    "nama_surat": "Surat Keterangan Tidak Sengketa",
+    "field": "batas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "40",
+    "nama_surat": "Surat Keterangan Tidak Sengketa",
+    "field": "dasar_kepemilikan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "41",
+    "nama_surat": "Surat Pernyataan Penguasaan Tanah",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "41",
+    "nama_surat": "Surat Pernyataan Penguasaan Tanah",
+    "field": "lokasi_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "41",
+    "nama_surat": "Surat Pernyataan Penguasaan Tanah",
+    "field": "luas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "41",
+    "nama_surat": "Surat Pernyataan Penguasaan Tanah",
+    "field": "batas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "41",
+    "nama_surat": "Surat Pernyataan Penguasaan Tanah",
+    "field": "dasar_penguasaan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "41",
+    "nama_surat": "Surat Pernyataan Penguasaan Tanah",
+    "field": "lama_penguasaan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "42",
+    "nama_surat": "Surat Pernyataan Batas Tanah",
+    "field": "pemilik_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "42",
+    "nama_surat": "Surat Pernyataan Batas Tanah",
+    "field": "luas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "42",
+    "nama_surat": "Surat Pernyataan Batas Tanah",
+    "field": "lokasi_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "42",
+    "nama_surat": "Surat Pernyataan Batas Tanah",
+    "field": "batas_utara",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "42",
+    "nama_surat": "Surat Pernyataan Batas Tanah",
+    "field": "batas_selatan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "42",
+    "nama_surat": "Surat Pernyataan Batas Tanah",
+    "field": "batas_timur",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "42",
+    "nama_surat": "Surat Pernyataan Batas Tanah",
+    "field": "batas_barat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "42",
+    "nama_surat": "Surat Pernyataan Batas Tanah",
+    "field": "pemilik_tanah_sebelah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "43",
+    "nama_surat": "Surat Keterangan Jual Beli Tanah",
+    "field": "penjual",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "43",
+    "nama_surat": "Surat Keterangan Jual Beli Tanah",
+    "field": "nik_penjual",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "43",
+    "nama_surat": "Surat Keterangan Jual Beli Tanah",
+    "field": "pembeli",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "43",
+    "nama_surat": "Surat Keterangan Jual Beli Tanah",
+    "field": "nik_pembeli",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "43",
+    "nama_surat": "Surat Keterangan Jual Beli Tanah",
+    "field": "lokasi_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "43",
+    "nama_surat": "Surat Keterangan Jual Beli Tanah",
+    "field": "luas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "43",
+    "nama_surat": "Surat Keterangan Jual Beli Tanah",
+    "field": "harga_transaksi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "43",
+    "nama_surat": "Surat Keterangan Jual Beli Tanah",
+    "field": "batas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "43",
+    "nama_surat": "Surat Keterangan Jual Beli Tanah",
+    "field": "tanggal_transaksi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "43",
+    "nama_surat": "Surat Keterangan Jual Beli Tanah",
+    "field": "saksi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "44",
+    "nama_surat": "Surat Keterangan Hibah Tanah",
+    "field": "pemberi_hibah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "44",
+    "nama_surat": "Surat Keterangan Hibah Tanah",
+    "field": "penerima_hibah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "44",
+    "nama_surat": "Surat Keterangan Hibah Tanah",
+    "field": "lokasi_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "44",
+    "nama_surat": "Surat Keterangan Hibah Tanah",
+    "field": "luas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "44",
+    "nama_surat": "Surat Keterangan Hibah Tanah",
+    "field": "batas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "44",
+    "nama_surat": "Surat Keterangan Hibah Tanah",
+    "field": "tujuan_hibah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "44",
+    "nama_surat": "Surat Keterangan Hibah Tanah",
+    "field": "tanggal_hibah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "44",
+    "nama_surat": "Surat Keterangan Hibah Tanah",
+    "field": "saksi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "45",
+    "nama_surat": "Surat Keterangan Kepemilikan Tanah",
+    "field": "pemilik_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "45",
+    "nama_surat": "Surat Keterangan Kepemilikan Tanah",
+    "field": "nik_pemilik",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "45",
+    "nama_surat": "Surat Keterangan Kepemilikan Tanah",
+    "field": "lokasi_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "45",
+    "nama_surat": "Surat Keterangan Kepemilikan Tanah",
+    "field": "luas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "45",
+    "nama_surat": "Surat Keterangan Kepemilikan Tanah",
+    "field": "nomor_persil",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "45",
+    "nama_surat": "Surat Keterangan Kepemilikan Tanah",
+    "field": "bukti_kepemilikan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "45",
+    "nama_surat": "Surat Keterangan Kepemilikan Tanah",
+    "field": "batas_tanah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "46",
+    "nama_surat": "Surat Pengantar SKCK",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "46",
+    "nama_surat": "Surat Pengantar SKCK",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "47",
+    "nama_surat": "Surat Keterangan Kelakuan Baik",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "47",
+    "nama_surat": "Surat Keterangan Kelakuan Baik",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "47",
+    "nama_surat": "Surat Keterangan Kelakuan Baik",
+    "field": "keterangan",
+    "tipe": "TEXT",
+    "wajib": 0
+  },
+  {
+    "kode_surat": "48",
+    "nama_surat": "Surat Keterangan Kehilangan",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "48",
+    "nama_surat": "Surat Keterangan Kehilangan",
+    "field": "barang_dokumen_hilang",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "48",
+    "nama_surat": "Surat Keterangan Kehilangan",
+    "field": "nomor_dokumen",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "48",
+    "nama_surat": "Surat Keterangan Kehilangan",
+    "field": "tempat_kehilangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "48",
+    "nama_surat": "Surat Keterangan Kehilangan",
+    "field": "waktu_kehilangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "48",
+    "nama_surat": "Surat Keterangan Kehilangan",
+    "field": "kronologi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "49",
+    "nama_surat": "Surat Keterangan untuk Keperluan Tertentu",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "49",
+    "nama_surat": "Surat Keterangan untuk Keperluan Tertentu",
+    "field": "jenis_keterangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "49",
+    "nama_surat": "Surat Keterangan untuk Keperluan Tertentu",
+    "field": "isi_keterangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "49",
+    "nama_surat": "Surat Keterangan untuk Keperluan Tertentu",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "50",
+    "nama_surat": "Surat Pengantar",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "50",
+    "nama_surat": "Surat Pengantar",
+    "field": "tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "50",
+    "nama_surat": "Surat Pengantar",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "51",
+    "nama_surat": "Surat Pernyataan",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "51",
+    "nama_surat": "Surat Pernyataan",
+    "field": "isi_pernyataan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "51",
+    "nama_surat": "Surat Pernyataan",
+    "field": "saksi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "51",
+    "nama_surat": "Surat Pernyataan",
+    "field": "tanggal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "52",
+    "nama_surat": "Surat Kuasa",
+    "field": "pemberi_kuasa",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "52",
+    "nama_surat": "Surat Kuasa",
+    "field": "nik_pemberi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "52",
+    "nama_surat": "Surat Kuasa",
+    "field": "penerima_kuasa",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "52",
+    "nama_surat": "Surat Kuasa",
+    "field": "nik_penerima",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "52",
+    "nama_surat": "Surat Kuasa",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "52",
+    "nama_surat": "Surat Kuasa",
+    "field": "batas_kewenangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "52",
+    "nama_surat": "Surat Kuasa",
+    "field": "tanggal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "53",
+    "nama_surat": "Surat Rekomendasi",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "53",
+    "nama_surat": "Surat Rekomendasi",
+    "field": "instansi_tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "53",
+    "nama_surat": "Surat Rekomendasi",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "53",
+    "nama_surat": "Surat Rekomendasi",
+    "field": "isi_rekomendasi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "54",
+    "nama_surat": "Surat Undangan",
+    "field": "tujuan_surat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "54",
+    "nama_surat": "Surat Undangan",
+    "field": "acara",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "54",
+    "nama_surat": "Surat Undangan",
+    "field": "tanggal_acara",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "54",
+    "nama_surat": "Surat Undangan",
+    "field": "waktu_acara",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "54",
+    "nama_surat": "Surat Undangan",
+    "field": "tempat_acara",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "54",
+    "nama_surat": "Surat Undangan",
+    "field": "agenda",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "55",
+    "nama_surat": "Surat Pemberitahuan",
+    "field": "tujuan_surat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "55",
+    "nama_surat": "Surat Pemberitahuan",
+    "field": "perihal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "55",
+    "nama_surat": "Surat Pemberitahuan",
+    "field": "isi_pemberitahuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "55",
+    "nama_surat": "Surat Pemberitahuan",
+    "field": "tanggal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "55",
+    "nama_surat": "Surat Pemberitahuan",
+    "field": "tempat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "56",
+    "nama_surat": "Surat Edaran",
+    "field": "tujuan_surat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "56",
+    "nama_surat": "Surat Edaran",
+    "field": "perihal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "56",
+    "nama_surat": "Surat Edaran",
+    "field": "isi_edaran",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "56",
+    "nama_surat": "Surat Edaran",
+    "field": "berlaku_mulai",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "57",
+    "nama_surat": "Surat Tugas",
+    "field": "nama_petugas",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "57",
+    "nama_surat": "Surat Tugas",
+    "field": "nik_nip",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "57",
+    "nama_surat": "Surat Tugas",
+    "field": "jabatan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "57",
+    "nama_surat": "Surat Tugas",
+    "field": "dasar_tugas",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "57",
+    "nama_surat": "Surat Tugas",
+    "field": "tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "57",
+    "nama_surat": "Surat Tugas",
+    "field": "tempat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "57",
+    "nama_surat": "Surat Tugas",
+    "field": "waktu",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "57",
+    "nama_surat": "Surat Tugas",
+    "field": "uraian_tugas",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "58",
+    "nama_surat": "Surat Perintah",
+    "field": "nama_penerima",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "58",
+    "nama_surat": "Surat Perintah",
+    "field": "jabatan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "58",
+    "nama_surat": "Surat Perintah",
+    "field": "dasar_perintah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "58",
+    "nama_surat": "Surat Perintah",
+    "field": "isi_perintah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "58",
+    "nama_surat": "Surat Perintah",
+    "field": "waktu_pelaksanaan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "59",
+    "nama_surat": "Surat Keterangan Melaksanakan Tugas",
+    "field": "nama",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "59",
+    "nama_surat": "Surat Keterangan Melaksanakan Tugas",
+    "field": "jabatan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "59",
+    "nama_surat": "Surat Keterangan Melaksanakan Tugas",
+    "field": "uraian_tugas",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "59",
+    "nama_surat": "Surat Keterangan Melaksanakan Tugas",
+    "field": "periode",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "59",
+    "nama_surat": "Surat Keterangan Melaksanakan Tugas",
+    "field": "keterangan",
+    "tipe": "TEXT",
+    "wajib": 0
+  },
+  {
+    "kode_surat": "60",
+    "nama_surat": "Surat Rekomendasi Perangkat Desa",
+    "field": "nama",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "60",
+    "nama_surat": "Surat Rekomendasi Perangkat Desa",
+    "field": "jabatan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "60",
+    "nama_surat": "Surat Rekomendasi Perangkat Desa",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "60",
+    "nama_surat": "Surat Rekomendasi Perangkat Desa",
+    "field": "instansi_tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "60",
+    "nama_surat": "Surat Rekomendasi Perangkat Desa",
+    "field": "keterangan",
+    "tipe": "TEXT",
+    "wajib": 0
+  },
+  {
+    "kode_surat": "61",
+    "nama_surat": "Surat Pengantar Dinas",
+    "field": "nama_petugas",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "61",
+    "nama_surat": "Surat Pengantar Dinas",
+    "field": "jabatan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "61",
+    "nama_surat": "Surat Pengantar Dinas",
+    "field": "tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "61",
+    "nama_surat": "Surat Pengantar Dinas",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "61",
+    "nama_surat": "Surat Pengantar Dinas",
+    "field": "dokumen_dibawa",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "62",
+    "nama_surat": "Surat Undangan Rapat Desa",
+    "field": "peserta",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "62",
+    "nama_surat": "Surat Undangan Rapat Desa",
+    "field": "tanggal_rapat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "62",
+    "nama_surat": "Surat Undangan Rapat Desa",
+    "field": "waktu_rapat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "62",
+    "nama_surat": "Surat Undangan Rapat Desa",
+    "field": "tempat_rapat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "62",
+    "nama_surat": "Surat Undangan Rapat Desa",
+    "field": "agenda",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "63",
+    "nama_surat": "Surat Undangan Musyawarah Desa",
+    "field": "peserta",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "63",
+    "nama_surat": "Surat Undangan Musyawarah Desa",
+    "field": "agenda",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "63",
+    "nama_surat": "Surat Undangan Musyawarah Desa",
+    "field": "tanggal_rapat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "63",
+    "nama_surat": "Surat Undangan Musyawarah Desa",
+    "field": "waktu_rapat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "63",
+    "nama_surat": "Surat Undangan Musyawarah Desa",
+    "field": "tempat_rapat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "64",
+    "nama_surat": "Surat Panggilan",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "64",
+    "nama_surat": "Surat Panggilan",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "64",
+    "nama_surat": "Surat Panggilan",
+    "field": "tanggal",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "64",
+    "nama_surat": "Surat Panggilan",
+    "field": "waktu",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "64",
+    "nama_surat": "Surat Panggilan",
+    "field": "tempat",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "65",
+    "nama_surat": "Surat Keterangan Anggota BPD",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "65",
+    "nama_surat": "Surat Keterangan Anggota BPD",
+    "field": "jabatan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "65",
+    "nama_surat": "Surat Keterangan Anggota BPD",
+    "field": "periode",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "65",
+    "nama_surat": "Surat Keterangan Anggota BPD",
+    "field": "nomor_sk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "66",
+    "nama_surat": "Surat Keterangan Ketua RT/RW",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "66",
+    "nama_surat": "Surat Keterangan Ketua RT/RW",
+    "field": "jabatan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "66",
+    "nama_surat": "Surat Keterangan Ketua RT/RW",
+    "field": "wilayah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "66",
+    "nama_surat": "Surat Keterangan Ketua RT/RW",
+    "field": "periode",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "67",
+    "nama_surat": "Surat Keterangan Pengurus Lembaga Desa",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "67",
+    "nama_surat": "Surat Keterangan Pengurus Lembaga Desa",
+    "field": "nama_lembaga",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "67",
+    "nama_surat": "Surat Keterangan Pengurus Lembaga Desa",
+    "field": "jabatan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "67",
+    "nama_surat": "Surat Keterangan Pengurus Lembaga Desa",
+    "field": "periode",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "68",
+    "nama_surat": "Surat Rekomendasi Lembaga Desa",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "68",
+    "nama_surat": "Surat Rekomendasi Lembaga Desa",
+    "field": "nama_lembaga",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "68",
+    "nama_surat": "Surat Rekomendasi Lembaga Desa",
+    "field": "instansi_tujuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "68",
+    "nama_surat": "Surat Rekomendasi Lembaga Desa",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "68",
+    "nama_surat": "Surat Rekomendasi Lembaga Desa",
+    "field": "isi_rekomendasi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "69",
+    "nama_surat": "Surat Permohonan Bantuan",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "69",
+    "nama_surat": "Surat Permohonan Bantuan",
+    "field": "jenis_bantuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "69",
+    "nama_surat": "Surat Permohonan Bantuan",
+    "field": "jumlah_bantuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "69",
+    "nama_surat": "Surat Permohonan Bantuan",
+    "field": "alasan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "69",
+    "nama_surat": "Surat Permohonan Bantuan",
+    "field": "tujuan_penggunaan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "70",
+    "nama_surat": "Surat Keterangan Penerima Bantuan",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "70",
+    "nama_surat": "Surat Keterangan Penerima Bantuan",
+    "field": "jenis_bantuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "70",
+    "nama_surat": "Surat Keterangan Penerima Bantuan",
+    "field": "program_bantuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "70",
+    "nama_surat": "Surat Keterangan Penerima Bantuan",
+    "field": "nilai_bantuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "70",
+    "nama_surat": "Surat Keterangan Penerima Bantuan",
+    "field": "tahun",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "71",
+    "nama_surat": "Surat Rekomendasi Bantuan Rumah",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "71",
+    "nama_surat": "Surat Rekomendasi Bantuan Rumah",
+    "field": "kondisi_rumah",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "71",
+    "nama_surat": "Surat Rekomendasi Bantuan Rumah",
+    "field": "kondisi_ekonomi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "71",
+    "nama_surat": "Surat Rekomendasi Bantuan Rumah",
+    "field": "alasan_pengajuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "71",
+    "nama_surat": "Surat Rekomendasi Bantuan Rumah",
+    "field": "jenis_bantuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "72",
+    "nama_surat": "Surat Keterangan Penerima BLT",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "72",
+    "nama_surat": "Surat Keterangan Penerima BLT",
+    "field": "kriteria_program",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "72",
+    "nama_surat": "Surat Keterangan Penerima BLT",
+    "field": "tahun",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "72",
+    "nama_surat": "Surat Keterangan Penerima BLT",
+    "field": "periode",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "73",
+    "nama_surat": "Surat Keterangan Penerima Bantuan Desa",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "73",
+    "nama_surat": "Surat Keterangan Penerima Bantuan Desa",
+    "field": "jenis_bantuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "73",
+    "nama_surat": "Surat Keterangan Penerima Bantuan Desa",
+    "field": "tahun",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "73",
+    "nama_surat": "Surat Keterangan Penerima Bantuan Desa",
+    "field": "sumber_bantuan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "73",
+    "nama_surat": "Surat Keterangan Penerima Bantuan Desa",
+    "field": "keterangan",
+    "tipe": "TEXT",
+    "wajib": 0
+  },
+  {
+    "kode_surat": "74",
+    "nama_surat": "Surat Keterangan Bekerja",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "74",
+    "nama_surat": "Surat Keterangan Bekerja",
+    "field": "tempat_bekerja",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "74",
+    "nama_surat": "Surat Keterangan Bekerja",
+    "field": "jabatan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "74",
+    "nama_surat": "Surat Keterangan Bekerja",
+    "field": "lama_bekerja",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "74",
+    "nama_surat": "Surat Keterangan Bekerja",
+    "field": "penghasilan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "75",
+    "nama_surat": "Surat Keterangan Tidak Bekerja",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "75",
+    "nama_surat": "Surat Keterangan Tidak Bekerja",
+    "field": "status_pekerjaan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "75",
+    "nama_surat": "Surat Keterangan Tidak Bekerja",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "76",
+    "nama_surat": "Surat Keterangan Pensiun",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "76",
+    "nama_surat": "Surat Keterangan Pensiun",
+    "field": "instansi",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "76",
+    "nama_surat": "Surat Keterangan Pensiun",
+    "field": "tanggal_pensiun",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "76",
+    "nama_surat": "Surat Keterangan Pensiun",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "77",
+    "nama_surat": "Surat Keterangan Beda Nama",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "77",
+    "nama_surat": "Surat Keterangan Beda Nama",
+    "field": "nama_dokumen_1",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "77",
+    "nama_surat": "Surat Keterangan Beda Nama",
+    "field": "nama_dokumen_2",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "77",
+    "nama_surat": "Surat Keterangan Beda Nama",
+    "field": "dokumen_pembanding",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "77",
+    "nama_surat": "Surat Keterangan Beda Nama",
+    "field": "keterangan_perbedaan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "77",
+    "nama_surat": "Surat Keterangan Beda Nama",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "78",
+    "nama_surat": "Surat Keterangan Beda Tanggal Lahir",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "78",
+    "nama_surat": "Surat Keterangan Beda Tanggal Lahir",
+    "field": "tanggal_lahir_dokumen_1",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "78",
+    "nama_surat": "Surat Keterangan Beda Tanggal Lahir",
+    "field": "tanggal_lahir_dokumen_2",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "78",
+    "nama_surat": "Surat Keterangan Beda Tanggal Lahir",
+    "field": "dokumen_pembanding",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "78",
+    "nama_surat": "Surat Keterangan Beda Tanggal Lahir",
+    "field": "keterangan",
+    "tipe": "TEXT",
+    "wajib": 0
+  },
+  {
+    "kode_surat": "78",
+    "nama_surat": "Surat Keterangan Beda Tanggal Lahir",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "79",
+    "nama_surat": "Surat Keterangan Identitas",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "79",
+    "nama_surat": "Surat Keterangan Identitas",
+    "field": "keterangan_identitas",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "79",
+    "nama_surat": "Surat Keterangan Identitas",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "80",
+    "nama_surat": "Surat Keterangan Lainnya",
+    "field": "penduduk",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "80",
+    "nama_surat": "Surat Keterangan Lainnya",
+    "field": "jenis_keterangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "80",
+    "nama_surat": "Surat Keterangan Lainnya",
+    "field": "isi_keterangan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "80",
+    "nama_surat": "Surat Keterangan Lainnya",
+    "field": "keperluan",
+    "tipe": "TEXT",
+    "wajib": 1
+  },
+  {
+    "kode_surat": "80",
+    "nama_surat": "Surat Keterangan Lainnya",
+    "field": "catatan",
+    "tipe": "TEXT",
+    "wajib": 0
+  }
+]
