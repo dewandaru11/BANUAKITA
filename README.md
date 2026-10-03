@@ -1,32 +1,51 @@
-# APLIKASI DESA
+# Template Surat BanuaKita – Format Desa Pusar
 
-Fondasi aplikasi EXE administrasi desa sesuai alur UI yang diberikan.
+Template di bawah ini dibuat berdasarkan dokumen Word resmi
+**Desa Pusar, Kecamatan Baturaja Barat, Kabupaten Ogan Komering Ulu**.
 
-## Modul
-1. Login: username/password + role Admin/Operator/Kepala Desa
-2. Dashboard: surat hari ini/bulan ini, surat masuk, penduduk, draft, arsip
-3. Penduduk: cari NIK/nama/KK, tambah/edit/nonaktifkan, import/export (fondasi)
-4. Buat Surat: penduduk -> jenis -> form dinamis -> nomor -> simpan
-5. Preview: kop, nomor, judul, isi, tanda tangan, stempel; cetak/PDF/Word
-6. Arsip: filter dan preview/cetak ulang
-7. Template: CRUD template, placeholder, A4/margin
-8. Pengaturan: identitas desa, kepala desa, logo, stempel, tanda tangan, format nomor
-9. Pengguna: akun dan role
-10. Backup/Restore database
+## Cara memasang
 
-## Menjalankan
-Install Node.js LTS, buka folder di VS Code, lalu:
+1. Salin file `templates-seed.js` ke folder:
+   ```
+   BANUAKITA/database/templates-seed.js
+   ```
 
-```bash
-npm install
-npm start
-```
+2. Pastikan `main.js` memanggil seed (sudah ditambahkan):
+   ```js
+   require(path.join(__dirname, '..', 'database', 'templates-seed.js'))(db);
+   ```
 
-## Membuat EXE
-```bash
-npm run build
-```
+3. Restart aplikasi BanuaKita.
+   Template akan otomatis masuk ke menu **Template Surat**.
 
-Login awal: `admin` / `admin123`
+4. Isi **Pengaturan Desa** agar kop surat benar:
+   - Nama Desa: Pusar
+   - Kecamatan: Baturaja Barat
+   - Kabupaten: Ogan Komering Ulu
+   - Provinsi: Sumatera Selatan
+   - Kepala Desa: ZAINUDDIN
+   - Alamat: Jalan Puyang Padang No 001 ...
 
-Data 80 jenis surat dan field disimpan di `database/80_jenis_surat_dan_field.json`.
+## Daftar template yang diimpor
+
+| Kode     | Nama Surat                                      |
+|----------|-------------------------------------------------|
+| 01       | Surat Keterangan Domisili                       |
+| 04       | Surat Keterangan Pindah                         |
+| 07       | Surat Keterangan Kelahiran                      |
+| 08       | Surat Keterangan Kematian                       |
+| 13       | Surat Keterangan Usaha (SKU)                    |
+| 19       | Surat Keterangan Tidak Mampu (SKTM)             |
+| 19-KIS   | Surat Keterangan Tidak Mampu (KIS)              |
+| 19-KIP   | Surat Keterangan Tidak Mampu Pelajar (KIP)      |
+| 48       | Surat Keterangan Kehilangan                     |
+
+## Placeholder yang dipakai
+
+`{{nama}}` `{{nik}}` `{{no_kk}}` `{{tempat_lahir}}` `{{tanggal_lahir}}`
+`{{jenis_kelamin}}` `{{agama}}` `{{pekerjaan}}` `{{status_perkawinan}}`
+`{{alamat}}` `{{rt}}` `{{rw}}` `{{desa}}` `{{kecamatan}}` `{{kabupaten}}`
+`{{provinsi}}` `{{nomor_surat}}` `{{tanggal_surat}}`
+
+Plus field khusus per jenis surat (mis. `{{nama_usaha}}`, `{{alamat_pindah}}`, dll).
+Field khusus muncul di Form Dinamis saat membuat surat.
