@@ -1,0 +1,22 @@
+directories:
+  output: release
+  buildResources: build
+appId: id.banuakita.suratdesa
+productName: BanuaKita Surat Desa
+asar: false
+files:
+  - filter:
+      - main.js
+      - index.html
+      - form_surat_desa.js
+      - package.json
+      - vendor/**
+win:
+  target:
+    - portable
+    - nsis
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+electronVersion: 38.8.6
