@@ -1,0 +1,46 @@
+{
+  "name": "banuakita",
+  "version": "1.0.0",
+  "description": "BanuaKita - Administrasi Desa Pusar",
+  "main": "electron-main.js",
+  "author": "BanuaKita",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "prepare-vendor": "node prepare-vendor.js",
+    "start": "npm run prepare-vendor && electron .",
+    "dist": "npm run prepare-vendor && electron-builder --win nsis portable"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "dependencies": {
+    "docx": "8.5.0",
+    "mammoth": "1.8.0",
+    "tesseract.js": "5.1.1",
+    "xlsx": "0.18.5"
+  },
+  "build": {
+    "appId": "id.banuakita.administrasidesa",
+    "productName": "BanuaKita",
+    "asar": true,
+    "files": [
+      "index.html",
+      "form_surat_desa.js",
+      "electron-main.js",
+      "vendor/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": ["nsis", "portable"],
+      "artifactName": "BanuaKita-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}

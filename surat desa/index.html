@@ -1,1 +1,23 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>BanuaKita - Administrasi Desa</title></head><body><div id="form-surat-desa"></div><script src="form_surat_desa.js"></script></body></html>
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BanuaKita - Administrasi Desa</title>
+</head>
+<body>
+  <div id="form-surat-desa"></div>
+  <script>
+    window.BANUAKITA_LOCAL_LIBS = {
+      xlsx: "./vendor/xlsx.full.min.js",
+      mammoth: "./vendor/mammoth.browser.min.js",
+      docx: "./vendor/docx.umd.js",
+      tesseract: "./vendor/tesseract/tesseract.min.js",
+      tesseractWorker: "./vendor/tesseract/worker.min.js",
+      tesseractLangPath: "./vendor/tesseract/lang-data",
+      tesseractCorePath: "./vendor/tesseract/core"
+    };
+  </script>
+  <script src="form_surat_desa.js"></script>
+</body>
+</html>

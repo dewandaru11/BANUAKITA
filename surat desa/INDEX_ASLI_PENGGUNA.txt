@@ -1,0 +1,1 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>BanuaKita - Administrasi Desa</title></head><body><div id="form-surat-desa"></div><script src="form_surat_desa.js"></script></body></html>

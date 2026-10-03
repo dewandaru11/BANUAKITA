@@ -1,0 +1,14 @@
+BANUAKITA - IMPORT DATA PENDUDUK DARI EXCEL
+
+1. Ganti file form_surat_desa.js lama dengan file yang disertakan dalam paket ini.
+2. Buka kembali index.html di browser.
+3. Masuk menu Data Penduduk, lalu bagian "Input Data Penduduk dari Excel".
+4. Pilih file .xlsx, .xls, atau .csv. Baris pertama wajib berisi judul kolom.
+5. Klik "Baca & Pratinjau", periksa contoh data, lalu klik "Impor Data ke Daftar Penduduk".
+6. Data dengan NIK yang sudah ada akan diperbarui; NIK baru akan ditambahkan. Data disimpan di localStorage browser/perangkat yang sama.
+
+Kolom yang dikenali:
+NIK (wajib), Nomor KK, Nama (wajib), Tempat/Tanggal Lahir, Jenis Kelamin, Agama, Pekerjaan, Status Perkawinan, Alamat.
+
+Gunakan tombol "Unduh Template CSV" di aplikasi untuk contoh format. Impor file Excel (.xlsx/.xls) membutuhkan koneksi internet saat pertama kali karena pustaka pembaca Excel dimuat dari CDN. File CSV bisa dibaca tanpa pustaka tersebut.
+Sebelum impor massal, sebaiknya simpan salinan data penting. Pastikan NIK dan isi kolom benar karena data dengan NIK sama akan diperbarui.

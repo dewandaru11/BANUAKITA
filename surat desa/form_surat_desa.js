@@ -398,7 +398,14 @@
                 <label class="fsd-field">Jenis kelamin<select id="res-jk"><option value="">-- Pilih --</option><option>Laki-laki</option><option>Perempuan</option></select></label><label class="fsd-field">Agama<select id="res-agama"><option value="">-- Pilih agama --</option><option>Islam</option><option>Kristen</option><option>Katolik</option><option>Hindu</option><option>Buddha</option><option>Konghucu</option><option>Kepercayaan terhadap Tuhan YME</option><option>Lainnya</option></select></label>
                 <label class="fsd-field">Pekerjaan<select id="res-pekerjaan"><option value="">-- Pilih pekerjaan --</option><option>Belum/Tidak Bekerja</option><option>Pelajar/Mahasiswa</option><option>Mengurus Rumah Tangga</option><option>Pensiunan</option><option>PNS</option><option>TNI</option><option>POLRI</option><option>Guru</option><option>Tenaga Kesehatan</option><option>Karyawan Swasta</option><option>Wiraswasta</option><option>Petani/Pekebun</option><option>Nelayan</option><option>Buruh Harian Lepas</option><option>Pedagang</option><option>Sopir</option><option>Perangkat Desa</option><option>Lainnya</option></select></label><label class="fsd-field">Status perkawinan<select id="res-status"><option value="">-- Pilih status --</option><option>Belum Kawin</option><option>Kawin</option><option>Cerai Hidup</option><option>Cerai Mati</option></select></label><label class="fsd-field" style="grid-column:1/-1">Alamat<textarea id="res-alamat" rows="2"></textarea></label>
               </div><div class="fsd-actions"><button type="button" id="res-save">Simpan Penduduk</button><button type="button" class="secondary" id="res-clear">Form Baru</button></div><p id="res-message" class="fsd-note" aria-live="polite"></p>
-            </div><div class="fsd-admin-card"><h2>Daftar Penduduk Tersimpan</h2><input id="res-search" placeholder="Cari nama atau NIK..."><div id="res-list"></div></div>
+            </div>
+            <div class="fsd-admin-card"><h2>📊 Input Data Penduduk dari Excel</h2>
+              <p class="fsd-note">Impor banyak penduduk sekaligus dari file Excel (.xlsx/.xls) atau CSV. Baris pertama harus berisi judul kolom. Kolom yang dikenali: NIK, Nomor KK, Nama, Tempat/Tanggal Lahir, Jenis Kelamin, Agama, Pekerjaan, Status Perkawinan, dan Alamat.</p>
+              <div class="fsd-actions"><label class="fsd-field">Pilih file Excel/CSV<input type="file" id="res-excel-file" accept=".xlsx,.xls,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"></label><button type="button" id="res-excel-preview">Baca &amp; Pratinjau</button><button type="button" class="secondary" id="res-excel-template">Unduh Template CSV</button></div>
+              <p id="res-excel-message" class="fsd-note" aria-live="polite"></p><div id="res-excel-preview-table"></div>
+              <div class="fsd-actions"><button type="button" id="res-excel-import" disabled>Impor Data ke Daftar Penduduk</button></div>
+            </div>
+            <div class="fsd-admin-card"><h2>Daftar Penduduk Tersimpan</h2><input id="res-search" placeholder="Cari nama atau NIK..."><div id="res-list"></div></div>
           </section>
           <section class="fsd-view" data-panel="arsip" hidden><div class="fsd-admin-card"><h2>Arsip Surat</h2><p>Modul arsip permanen belum diaktifkan. Simpan dokumen yang diunduh ke folder arsip desa sesuai prosedur kantor.</p><p class="fsd-note">Surat yang dibuat tidak otomatis tersimpan dalam arsip aplikasi.</p></div></section>
           <section class="fsd-view" data-panel="jenis" hidden><div class="fsd-admin-card"><h2>Jenis Surat</h2><p>Daftar jenis surat yang tersedia di aplikasi:</p><div id="fsd-type-list" class="fsd-note"></div><button type="button" class="fsd-dash-create" data-go="buat" style="border:0;border-radius:9px;background:#329b70;color:#fff;padding:11px 16px;font-weight:700;cursor:pointer">Buat Surat</button></div></section>
@@ -490,6 +497,16 @@
   const ocrTextArea = document.getElementById("fsd-ocr-text");
   const ocrStatus = document.getElementById("fsd-ocr-status");
 
+  const LOCAL_LIBS = Object.assign({
+    xlsx: "./vendor/xlsx.full.min.js",
+    mammoth: "./vendor/mammoth.browser.min.js",
+    docx: "./vendor/docx.umd.js",
+    tesseract: "./vendor/tesseract/tesseract.min.js",
+    tesseractWorker: "./vendor/tesseract/worker.min.js",
+    tesseractLangPath: "./vendor/tesseract/lang-data",
+    tesseractCorePath: "./vendor/tesseract/core"
+  }, window.BANUAKITA_LOCAL_LIBS || {});
+
   function loadScriptOnce(src, globalName) {
     return new Promise((resolve, reject) => {
       if (window[globalName]) return resolve(window[globalName]);
@@ -554,8 +571,11 @@
     button.disabled = true;
     ocrStatus.textContent = "Sedang membaca gambar KTP. Proses dapat memerlukan waktu...";
     try {
-      const Tesseract = await loadScriptOnce("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js", "Tesseract");
+      const Tesseract = await loadScriptOnce(LOCAL_LIBS.tesseract, "Tesseract");
       const result = await Tesseract.recognize(file, "ind+eng", {
+        workerPath: LOCAL_LIBS.tesseractWorker,
+        langPath: LOCAL_LIBS.tesseractLangPath,
+        corePath: LOCAL_LIBS.tesseractCorePath,
         logger: m => {
           if (m.status === "recognizing text" && typeof m.progress === "number") {
             ocrStatus.textContent = `Sedang membaca teks: ${Math.round(m.progress * 100)}%`;
@@ -565,7 +585,7 @@
       ocrTextArea.value = result.data.text || "";
       ocrStatus.textContent = "Pembacaan selesai. Periksa teks hasil OCR, lalu klik “Masukkan data ke formulir”.";
     } catch (err) {
-      ocrStatus.textContent = "Gagal membaca KTP: " + (err.message || "Terjadi kesalahan.") + " Pastikan internet aktif dan coba gambar yang lebih jelas.";
+      ocrStatus.textContent = "Gagal membaca KTP: " + (err.message || "Terjadi kesalahan.") + " Pastikan paket BanuaKita menyertakan library OCR lokal dan coba gambar yang lebih jelas.";
     } finally {
       button.disabled = false;
     }
@@ -643,29 +663,44 @@
   }
   function fillFromResident() {
     const id = document.getElementById("fsd-resident-select").value;
-    const r = residents.find(item => item.id === id);
+    const r = residents.find(item => String(item.id) === String(id));
     if (!r) { alert("Pilih data penduduk terlebih dahulu."); return; }
-    const aliases = {
-      nama: ["nama","namaLengkap","namaPemohon","namaPenduduk","namaAnak","namaPelapor","namaAyah","namaIbu","namaCalonPengantin","namaCalonSuami","namaCalonIstri","namaPenerima","namaPetugas"],
-      nik: ["nik","NIK","noKtp","nomorKtp"], kk: ["kk","noKK","nomorKK"], ttl: ["ttl","tempatTanggalLahir","tempatTglLahir","tempatLahir"],
-      jk: ["jk","jenisKelamin","jenis_kelamin"], agama: ["agama"], pekerjaan: ["pekerjaan"], status: ["status","statusPerkawinan"], alamat: ["alamat","alamatKTP","alamatTempatTinggal","alamatAsal"]
+    const normalize = v => String(v || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+    const source = {
+      nama: r.nama, nik: r.nik, kk: r.kk, noKK: r.kk, ttl: r.ttl,
+      jk: r.jk, agama: r.agama, pekerjaan: r.pekerjaan, status: r.status,
+      alamat: r.alamat, alamatKTP: r.alamat, alamatTempatTinggal: r.alamat,
+      namaPemilikKK: r.nama, namaLengkap: r.nama, namaPemohon: r.nama,
+      namaPenduduk: r.nama, namaAnak: r.nama, namaPelapor: r.nama,
+      namaCalonPengantin: r.nama, namaCalonSuami: r.nama, namaCalonIstri: r.nama,
+      namaPenerima: r.nama, namaPetugas: r.nama
     };
-    const data = {};
-    Object.entries(aliases).forEach(([source, keys]) => keys.forEach(k => { if (r[source] && !data[k]) data[k] = r[source]; }));
+    const aliases = {
+      nama: ["nama","namalengkap","namapemohon","namapenduduk","namaanak","namapelapor","namacalonsuami","namacalonistri","namapenerima","namapetugas","namapemilikkk"],
+      nik: ["nik","noktp","nomorktp"], kk: ["kk","nokk","nomorkk","nomorkartukeluarga"],
+      ttl: ["ttl","tempattanggallahir","tempattgllahir","tempatlahir"],
+      jk: ["jk","jeniskelamin"], agama: ["agama"], pekerjaan: ["pekerjaan"],
+      status: ["status","statusperkawinan"], alamat: ["alamat","alamatktp","alamattempattinggal","alamatasal","alamatlengkap"]
+    };
+    const fields = document.querySelectorAll("#fsd-fields input, #fsd-fields select, #fsd-fields textarea");
     let count = 0;
-    Object.entries(data).forEach(([key, value]) => {
-      const el = document.getElementById("fsd-" + key);
-      if (el && value && !el.value) { el.value = value; count++; }
-    });
-    // Also fill matching field names directly, including custom Word template placeholders.
-    Object.entries(r).forEach(([key, value]) => {
-      if (["id"].includes(key) || !value) return;
-      const el = document.getElementById("fsd-" + key);
-      if (el && !el.value) { el.value = value; count++; }
+    fields.forEach(el => {
+      const key = normalize(el.name || el.id.replace(/^fsd-/, ""));
+      let value = source[el.name || el.id.replace(/^fsd-/, "")];
+      if (!value) {
+        for (const [sourceKey, keys] of Object.entries(aliases)) {
+          if (keys.includes(key)) { value = r[sourceKey] || (sourceKey === "kk" ? r.kk : ""); break; }
+        }
+      }
+      if (!value) return;
+      if (el.tagName === "SELECT") {
+        const option = [...el.options].find(o => normalize(o.value || o.textContent) === normalize(value));
+        if (option) { el.value = option.value; count++; }
+      } else { el.value = value; count++; }
     });
     renderPreview();
     const note = document.getElementById("fsd-resident-fill-status");
-    if (note) note.textContent = count ? `Data penduduk berhasil dimasukkan ke ${count} kolom yang cocok. Lengkapi data lain secara manual.` : "Tidak ada kolom kosong yang cocok; periksa apakah data sudah terisi atau nama kolom berbeda.";
+    if (note) note.textContent = count ? `Berhasil mengisi ${count} kolom dari data ${r.nama}. Periksa kembali dan lengkapi data khusus surat.` : "Data penduduk ditemukan, tetapi nama kolom formulir tidak cocok. Coba pilih jenis surat lain atau isi kolom secara manual.";
   }
   function initEntryMode() {
     const mode = document.getElementById("fsd-entry-mode");
@@ -748,7 +783,7 @@
       if (!window.docx) {
         await new Promise((resolve, reject) => {
           const script = document.createElement("script");
-          script.src = "https://unpkg.com/docx@8.5.0/build/index.umd.js";
+          script.src = LOCAL_LIBS.docx;
           script.onload = resolve;
           script.onerror = () => reject(new Error("Pustaka Word tidak bisa dimuat. Periksa koneksi internet."));
           document.head.appendChild(script);
@@ -858,10 +893,93 @@
     }
     document.getElementById("res-save").onclick=()=>{const r={id:currentResidentId||("p"+Date.now()),...Object.fromEntries(ids.map(id=>[id,val(id)]))};if(!r.nama||!r.nik){document.getElementById("res-message").textContent="Nama dan NIK wajib diisi.";return;}const i=residents.findIndex(x=>x.id===r.id);if(i>=0)residents[i]=r;else residents.unshift(r);try{localStorage.setItem("banuakita_residents_v1",JSON.stringify(residents));document.getElementById("res-message").textContent="Data penduduk tersimpan di browser ini.";clear();render();refreshResidentPicker();}catch(e){document.getElementById("res-message").textContent="Penyimpanan penuh atau tidak diizinkan browser.";}};
     document.getElementById("res-clear").onclick=clear;document.getElementById("res-search").oninput=render;render();refreshResidentPicker();
-    document.getElementById("res-read-ktp").onclick=async()=>{const f=document.getElementById("res-ktp-file").files[0],status=document.getElementById("res-ocr-status");if(!f){status.textContent="Pilih foto KTP terlebih dahulu.";return;}status.textContent="Sedang membaca KTP...";try{if(!window.Tesseract){await new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";s.onload=ok;s.onerror=no;document.head.appendChild(s);});}const out=await Tesseract.recognize(f,"ind+eng");const text=out.data.text||"";const lines=text.split(/\n/).map(x=>x.trim()).filter(Boolean);const nik=(text.match(/\b\d{16}\b/)||[])[0]||"";const pick=(re)=>{const m=text.match(re);return m?m[1].trim().replace(/^[:\- ]+/,""):""};const nama=pick(/(?:Nama)\s*[:.]?\s*([^\n]+)/i);const ttl=pick(/(?:Tempat\s*[/,]?\s*Tgl\s*Lahir|Tempat\s*Lahir)\s*[:.]?\s*([^\n]+)/i);const jk= /perempuan/i.test(text)?"Perempuan":(/laki.?laki/i.test(text)?"Laki-laki":"");const agama=pick(/Agama\s*[:.]?\s*([^\n]+)/i);const alamat=pick(/Alamat\s*[:.]?\s*([^\n]+)/i);const vals={nik,nama,ttl,jk,agama,alamat};Object.entries(vals).forEach(([k,v])=>{if(v&&document.getElementById("res-"+k))document.getElementById("res-"+k).value=v;});status.textContent="OCR selesai. Periksa dan koreksi hasil sebelum menyimpan.";}catch(e){status.textContent="OCR gagal. Pastikan internet aktif dan foto jelas.";}};
+    initResidentExcel({residents, render, refreshResidentPicker});
+    document.getElementById("res-read-ktp").onclick=async()=>{const f=document.getElementById("res-ktp-file").files[0],status=document.getElementById("res-ocr-status");if(!f){status.textContent="Pilih foto KTP terlebih dahulu.";return;}status.textContent="Sedang membaca KTP...";try{if(!window.Tesseract){await new Promise((ok,no)=>{const s=document.createElement("script");s.src=LOCAL_LIBS.tesseract;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}const out=await Tesseract.recognize(f,"ind+eng",{workerPath:LOCAL_LIBS.tesseractWorker,langPath:LOCAL_LIBS.tesseractLangPath,corePath:LOCAL_LIBS.tesseractCorePath});const text=out.data.text||"";const lines=text.split(/\n/).map(x=>x.trim()).filter(Boolean);const nik=(text.match(/\b\d{16}\b/)||[])[0]||"";const pick=(re)=>{const m=text.match(re);return m?m[1].trim().replace(/^[:\- ]+/,""):""};const nama=pick(/(?:Nama)\s*[:.]?\s*([^\n]+)/i);const ttl=pick(/(?:Tempat\s*[/,]?\s*Tgl\s*Lahir|Tempat\s*Lahir)\s*[:.]?\s*([^\n]+)/i);const jk= /perempuan/i.test(text)?"Perempuan":(/laki.?laki/i.test(text)?"Laki-laki":"");const agama=pick(/Agama\s*[:.]?\s*([^\n]+)/i);const alamat=pick(/Alamat\s*[:.]?\s*([^\n]+)/i);const vals={nik,nama,ttl,jk,agama,alamat};Object.entries(vals).forEach(([k,v])=>{if(v&&document.getElementById("res-"+k))document.getElementById("res-"+k).value=v;});status.textContent="OCR selesai. Periksa dan koreksi hasil sebelum menyimpan.";}catch(e){status.textContent="OCR gagal. Pastikan internet aktif dan foto jelas.";}};
   }
+  function initResidentExcel(ctx) {
+    let parsedRows = [];
+    const fileEl = document.getElementById("res-excel-file");
+    const msg = document.getElementById("res-excel-message");
+    const preview = document.getElementById("res-excel-preview-table");
+    const importBtn = document.getElementById("res-excel-import");
+    const normalize = v => String(v ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+    const aliases = {
+      nik:["nik","nomorindukkependudukan","noindukkependudukan"],
+      kk:["kk","nomorkk","nokk","nomorkartukeluarga","kartukeluarga"],
+      nama:["nama","namalengkap","namapenduduk","namaorang"],
+      ttl:["ttl","tempattanggallahir","tempatlahir","tempattgllahir"],
+      jk:["jk","jeniskelamin","kelamin","gender"],
+      agama:["agama"], pekerjaan:["pekerjaan","jenispekerjaan"],
+      status:["status","statusperkawinan","statuspernikahan"],
+      alamat:["alamat","alamatlengkap","alamatdomisili"]
+    };
+    const fieldForHeader = header => Object.keys(aliases).find(k => aliases[k].includes(normalize(header)));
+    const safeCell = v => String(v ?? "").trim();
+    document.getElementById("res-excel-preview").onclick = async () => {
+      const file = fileEl.files && fileEl.files[0];
+      if (!file) { msg.textContent = "Pilih file Excel atau CSV terlebih dahulu."; return; }
+      msg.textContent = "Membaca file lokal..."; preview.innerHTML = ""; importBtn.disabled = true; parsedRows = [];
+      try {
+        let rows;
+        if (/\.csv$/i.test(file.name)) {
+          const text = await file.text();
+          const firstLine = text.split(/\r?\n/)[0] || "";
+          const delimiter = (firstLine.match(/;/g)||[]).length > (firstLine.match(/,/g)||[]).length ? ";" : ",";
+          rows = parseCsvRows(text, delimiter);
+        } else {
+          if (!window.XLSX) await new Promise((resolve, reject) => { const sc=document.createElement("script"); sc.src=LOCAL_LIBS.xlsx; sc.onload=resolve; sc.onerror=reject; document.head.appendChild(sc); });
+          const wb = XLSX.read(await file.arrayBuffer(), {type:"array", cellDates:false});
+          const sheet = wb.Sheets[wb.SheetNames[0]];
+          rows = XLSX.utils.sheet_to_json(sheet, {header:1, defval:"", raw:false});
+        }
+        if (!rows || rows.length < 2) throw new Error("File tidak berisi baris data. Pastikan baris pertama adalah judul kolom.");
+        const headers = rows[0].map(safeCell);
+        const mapping = {};
+        headers.forEach((h,i)=>{ const k=fieldForHeader(h); if(k && mapping[k]===undefined) mapping[k]=i; });
+        if (mapping.nik===undefined || mapping.nama===undefined) throw new Error("Kolom wajib NIK dan Nama belum ditemukan. Gunakan judul kolom NIK dan Nama.");
+        parsedRows = rows.slice(1).map(row=>{
+          const obj={};
+          Object.keys(aliases).forEach(k=>obj[k]=mapping[k]===undefined?"":safeCell(row[mapping[k]]));
+          if (obj.nik || obj.nama) obj.id="excel_"+Date.now()+"_"+Math.random().toString(36).slice(2,8);
+          return obj;
+        }).filter(r=>r.nik && r.nama);
+        if (!parsedRows.length) throw new Error("Tidak ada baris valid. Setiap data harus memiliki NIK dan Nama.");
+        const show = parsedRows.slice(0,8);
+        preview.innerHTML = `<div style="overflow:auto"><table><thead><tr><th>NIK</th><th>Nama</th><th>Nomor KK</th><th>Alamat</th></tr></thead><tbody>${show.map(r=>`<tr><td>${esc(r.nik)}</td><td>${esc(r.nama)}</td><td>${esc(r.kk)}</td><td>${esc(r.alamat)}</td></tr>`).join("")}</tbody></table></div><p class="fsd-note">Pratinjau ${show.length} dari ${parsedRows.length} baris valid. Jika NIK sudah ada, data tersebut akan diperbarui.</p>`;
+        msg.textContent = `Berhasil membaca ${parsedRows.length} data. Periksa pratinjau lalu klik Impor.`; importBtn.disabled=false;
+      } catch(e) { msg.textContent = e.message || "File gagal dibaca. Periksa format file dan koneksi internet."; }
+    };
+    importBtn.onclick = () => {
+      if (!parsedRows.length) return;
+      try {
+        const current = Array.isArray(residents) ? residents : [];
+        let added=0, updated=0;
+        parsedRows.forEach(row=>{
+          const existing=current.find(r=>String(r.nik||"").replace(/\s/g,"")===String(row.nik||"").replace(/\s/g,""));
+          if(existing){ Object.keys(aliases).forEach(k=>{ if(row[k]!=="") existing[k]=row[k]; }); updated++; }
+          else { current.unshift(row); added++; }
+        });
+        localStorage.setItem("banuakita_residents_v1", JSON.stringify(current));
+        // Keep the same resident array reference used by the app.
+        residents.splice(0, residents.length, ...current);
+        ctx.render(); ctx.refreshResidentPicker();
+        msg.textContent=`Impor selesai: ${added} data baru, ${updated} data diperbarui.`;
+        preview.innerHTML=""; parsedRows=[]; importBtn.disabled=true; fileEl.value="";
+      } catch(e) { msg.textContent="Impor gagal. Penyimpanan browser mungkin penuh."; }
+    };
+    document.getElementById("res-excel-template").onclick = () => {
+      const csv='NIK,Nomor KK,Nama,Tempat/Tanggal Lahir,Jenis Kelamin,Agama,Pekerjaan,Status Perkawinan,Alamat\n"1673...","1673...","Nama Penduduk","Baturaja, 01-01-1990","Laki-laki","Islam","Petani/Pekebun","Kawin","Desa Pusar"\n';
+      const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="template_data_penduduk_banuakita.csv"; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    };
+    function parseCsvRows(text, delimiter) {
+      const out=[]; let row=[], cell="", quoted=false;
+      for(let i=0;i<text.length;i++){const c=text[i]; if(c==='"' && quoted && text[i+1]==='"'){cell+='"';i++;} else if(c==='"'){quoted=!quoted;} else if(c===delimiter&&!quoted){row.push(cell);cell="";} else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&text[i+1]==='\n')i++;row.push(cell);if(row.some(v=>String(v).trim()))out.push(row);row=[];cell="";} else cell+=c;}
+      row.push(cell);if(row.some(v=>String(v).trim()))out.push(row);return out;
+    }
+  }
+
   function initSettings(){const ids={kabupaten:"kabupaten",kecamatan:"kecamatan",desa:"desa",kepala:"kepala",alamat:"alamat",kontak:"kontak"};function fill(){Object.entries(ids).forEach(([id,k])=>document.getElementById("set-"+id).value=kop[k]||"");}fill();document.getElementById("set-save").onclick=()=>{Object.entries(ids).forEach(([id,k])=>kop[k]=document.getElementById("set-"+id).value.trim());localStorage.setItem("banuakita_settings_v1",JSON.stringify(kop));document.getElementById("set-message").textContent="Pengaturan desa tersimpan dan akan digunakan pada kop/pratinjau surat.";renderPreview();};document.getElementById("set-reset").onclick=()=>{Object.assign(kop,DEFAULT_KOP);localStorage.setItem("banuakita_settings_v1",JSON.stringify(kop));fill();renderPreview();document.getElementById("set-message").textContent="Pengaturan default dipulihkan.";};}
-  function initTemplates(){const title=document.getElementById("tpl-title"),file=document.getElementById("tpl-file"),content=document.getElementById("tpl-content"),msg=document.getElementById("tpl-message");function list(){document.getElementById("tpl-list").innerHTML=customTemplates.length?customTemplates.map(t=>`<p>📄 <b>${esc(t.title)}</b> <button type="button" data-use-tpl="${t.id}">Pilih</button> <button type="button" data-remove-tpl="${t.id}">Hapus</button></p>`).join(""):"<p class='fsd-note'>Belum ada template impor.</p>";document.querySelectorAll("[data-use-tpl]").forEach(b=>b.onclick=()=>{typeSelect.value=b.dataset.useTpl;showView("buat");renderFields();});document.querySelectorAll("[data-remove-tpl]").forEach(b=>b.onclick=()=>{if(confirm("Hapus template ini?")){const i=customTemplates.findIndex(t=>t.id===b.dataset.removeTpl);if(i>=0)customTemplates.splice(i,1);localStorage.setItem("banuakita_templates_v1",JSON.stringify(customTemplates));refreshTemplateChoices();list();}});}document.getElementById("tpl-import").onclick=async()=>{const f=file.files[0];if(!f){msg.textContent="Pilih file Word .docx terlebih dahulu.";return;}msg.textContent="Membaca dokumen Word...";try{if(!window.mammoth){await new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js";s.onload=ok;s.onerror=no;document.head.appendChild(s);});}const ab=await f.arrayBuffer();const result=await mammoth.extractRawText({arrayBuffer:ab});content.value=result.value||"";if(!title.value)title.value=f.name.replace(/\.docx$/i,"").replace(/[_-]+/g," ");msg.textContent="Teks berhasil diimpor. Tata letak kompleks Word mungkin perlu disusun ulang; tambahkan placeholder seperti {{nama}} lalu simpan.";}catch(e){msg.textContent="Tidak dapat membaca Word. Pastikan file .docx dan koneksi internet aktif.";}};document.getElementById("tpl-save").onclick=()=>{const t=title.value.trim(),c=content.value.trim();if(!t||!c){msg.textContent="Nama dan isi template harus diisi.";return;}const item={id:"tpl_"+Date.now(),title:t,content:c};customTemplates.push(item);try{localStorage.setItem("banuakita_templates_v1",JSON.stringify(customTemplates));refreshTemplateChoices();list();msg.textContent="Template tersimpan sebagai pilihan surat. Buka menu Buat Surat untuk menggunakannya.";title.value="";content.value="";file.value="";}catch(e){customTemplates.pop();msg.textContent="Template terlalu besar untuk penyimpanan browser.";}};list();}
+  function initTemplates(){const title=document.getElementById("tpl-title"),file=document.getElementById("tpl-file"),content=document.getElementById("tpl-content"),msg=document.getElementById("tpl-message");function list(){document.getElementById("tpl-list").innerHTML=customTemplates.length?customTemplates.map(t=>`<p>📄 <b>${esc(t.title)}</b> <button type="button" data-use-tpl="${t.id}">Pilih</button> <button type="button" data-remove-tpl="${t.id}">Hapus</button></p>`).join(""):"<p class='fsd-note'>Belum ada template impor.</p>";document.querySelectorAll("[data-use-tpl]").forEach(b=>b.onclick=()=>{typeSelect.value=b.dataset.useTpl;showView("buat");renderFields();});document.querySelectorAll("[data-remove-tpl]").forEach(b=>b.onclick=()=>{if(confirm("Hapus template ini?")){const i=customTemplates.findIndex(t=>t.id===b.dataset.removeTpl);if(i>=0)customTemplates.splice(i,1);localStorage.setItem("banuakita_templates_v1",JSON.stringify(customTemplates));refreshTemplateChoices();list();}});}document.getElementById("tpl-import").onclick=async()=>{const f=file.files[0];if(!f){msg.textContent="Pilih file Word .docx terlebih dahulu.";return;}msg.textContent="Membaca dokumen Word...";try{if(!window.mammoth){await new Promise((ok,no)=>{const s=document.createElement("script");s.src=LOCAL_LIBS.mammoth;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}const ab=await f.arrayBuffer();const result=await mammoth.extractRawText({arrayBuffer:ab});content.value=result.value||"";if(!title.value)title.value=f.name.replace(/\.docx$/i,"").replace(/[_-]+/g," ");msg.textContent="Teks berhasil diimpor. Tata letak kompleks Word mungkin perlu disusun ulang; tambahkan placeholder seperti {{nama}} lalu simpan.";}catch(e){msg.textContent="Tidak dapat membaca Word. Pastikan library Word lokal tersedia dan file .docx valid.";}};document.getElementById("tpl-save").onclick=()=>{const t=title.value.trim(),c=content.value.trim();if(!t||!c){msg.textContent="Nama dan isi template harus diisi.";return;}const item={id:"tpl_"+Date.now(),title:t,content:c};customTemplates.push(item);try{localStorage.setItem("banuakita_templates_v1",JSON.stringify(customTemplates));refreshTemplateChoices();list();msg.textContent="Template tersimpan sebagai pilihan surat. Buka menu Buat Surat untuk menggunakannya.";title.value="";content.value="";file.value="";}catch(e){customTemplates.pop();msg.textContent="Template terlalu besar untuk penyimpanan browser.";}};list();}
 
   const pageLabels = {dashboard:"Dashboard",penduduk:"Data Penduduk",buat:"Buat Surat",arsip:"Arsip Surat",jenis:"Jenis Surat",template:"Template Surat",pengaturan:"Pengaturan Desa",pengguna:"Pengguna","backup":"Backup / Restore"};
   function showView(view) {
