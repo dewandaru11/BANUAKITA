@@ -18,7 +18,6 @@ function init() {
   db.exec(fs.readFileSync(path.join(__dirname, '..', 'database', 'schema.sql'), 'utf8'));
   migrate();
   require(path.join(__dirname, '..', 'database', 'seed.js'))(db);
-  // Template resmi Desa Pusar — sinkron dengan folder "template surat desa"
   try {
     const seedTpl = path.join(__dirname, '..', 'database', 'templates-seed.js');
     if (fs.existsSync(seedTpl)) {
@@ -27,7 +26,6 @@ function init() {
   } catch (e) {
     console.warn('templates-seed skip:', e.message);
   }
-  // Sinkron ulang file Word yang ada di folder "template surat desa"
   try {
     syncDesaTemplateFolder();
   } catch (e) {
@@ -36,13 +34,11 @@ function init() {
   ensureAdmin();
 }
 
-// Migrasi ringan: tambah kolom baru jika DB lama belum punya
 function migrate(d = db) {
   const cols = d.prepare('PRAGMA table_info(penduduk)').all().map(c => c.name);
   if (!cols.includes('ktp_path')) {
     d.prepare("ALTER TABLE penduduk ADD COLUMN ktp_path TEXT DEFAULT ''").run();
   }
-  // penanda template hasil impor Word -> otomatis jadi pilihan jenis surat
   const tcols = d.prepare('PRAGMA table_info(template_surat)').all().map(c => c.name);
   if (!tcols.includes('from_word')) {
     d.prepare("ALTER TABLE template_surat ADD COLUMN from_word INTEGER DEFAULT 0").run();
@@ -87,7 +83,6 @@ function nextNomor(tanggal, kodeJenis) {
   const year = t.slice(0, 4);
   const month = t.slice(5, 7);
 
-  // nomor urut: hitung surat yang nomornya berakhiran /{bulan}/{tahun}
   const like = `%/${month}/${year}`;
   const rows = db
     .prepare("SELECT nomor_surat FROM surat WHERE substr(tanggal_surat,1,4)=? AND nomor_surat LIKE ?")
@@ -99,7 +94,6 @@ function nextNomor(tanggal, kodeJenis) {
   }
   const seq = String(maxSeq + 1).padStart(3, '0');
 
-  // format dari pengaturan desa; placeholder: {nomor} {kode} {bulan} {tahun}
   let fmt = '';
   try {
     fmt = String(
@@ -118,7 +112,6 @@ function nextNomor(tanggal, kodeJenis) {
 
 // ---------- IPC ----------
 
-// Pengaturan desa untuk keperluan normalisasi template Word.
 function getSettings() {
   try { return db.prepare('SELECT * FROM pengaturan_desa WHERE id=1').get() || {}; }
   catch (e) { return {}; }
@@ -184,7 +177,6 @@ ipcMain.handle('penduduk:save', (_, d) => {
   return db.prepare('SELECT * FROM penduduk WHERE id=?').get(r.lastInsertRowid);
 });
 
-// Upload KTP: simpan gambar ke folder userData/ktp, balas path-nya
 ipcMain.handle('ktp:upload', async (e) => {
   const r = await dialog.showOpenDialog(e.sender, {
     title: 'Pilih Foto / Scan KTP',
@@ -209,7 +201,6 @@ ipcMain.handle('penduduk:nonaktif', (_, id) => {
 ipcMain.handle('surat:types', () => {
   const rows = db.prepare('SELECT id,kode,nama,kategori,field_json FROM jenis_surat WHERE aktif=1 ORDER BY CAST(kode AS INTEGER),kode')
     .all().map(x => ({ ...x, fields: JSON.parse(x.field_json || '[]') }));
-  // Jenis surat hasil impor template Word (nama = nama yang kita simpan di Word)
   const extra = db.prepare(`
     SELECT t.id AS jenis_id, t.kode, t.nama, t.nama AS kategori, '[]' AS field_json
     FROM template_surat t
@@ -220,8 +211,68 @@ ipcMain.handle('surat:types', () => {
   return rows.concat(extra);
 });
 
-// Buat jenis surat otomatis dari template Word agar langsung muncul di
-// pilihan "Jenis Surat" pada menu Buat Surat.
+// ---------- Jenis Surat: Hapus / Nonaktifkan Semua ----------
+
+ipcMain.handle('surat:types:deleteAll', () => {
+  const usedCount = db.prepare(
+    'SELECT COUNT(*) c FROM surat WHERE jenis_surat_id IN (SELECT id FROM jenis_surat)'
+  ).get().c;
+
+  if (usedCount > 0) {
+    throw new Error(
+      `Tidak dapat menghapus semua jenis surat.\n\n` +
+      `Ada ${usedCount} surat di arsip yang masih menggunakan jenis surat ini.\n\n` +
+      `Silakan hapus dulu surat-surat tersebut dari menu Arsip Surat, ` +
+      `atau gunakan tombol "Nonaktifkan Semua" untuk menyembunyikannya.`
+    );
+  }
+
+  const before = db.prepare('SELECT COUNT(*) c FROM jenis_surat').get().c;
+  const tx = db.transaction(() => {
+    db.prepare('DELETE FROM jenis_surat').run();
+  });
+  tx();
+  return { deleted: before };
+});
+// Hapus jenis surat terpilih berdasarkan kode-nya
+ipcMain.handle('surat:types:deleteByIds', (_, kodes) => {
+  const list = Array.isArray(kodes) ? kodes.filter(Boolean) : [];
+  if (!list.length) return { deleted: 0 };
+
+  // Cek apakah ada di antara kode tsb yang masih dipakai surat di arsip
+  const ph = list.map(() => '?').join(',');
+  const usedRows = db.prepare(
+    `SELECT DISTINCT j.kode FROM jenis_surat j
+     JOIN surat s ON s.jenis_surat_id = j.id
+     WHERE j.kode IN (${ph})`
+  ).all(...list);
+
+  if (usedRows.length > 0) {
+    const kodes2 = usedRows.map(r => r.kode).join(', ');
+    throw new Error(
+      'Tidak dapat menghapus jenis surat berikut karena masih dipakai di arsip:\n\n' +
+      kodes2 + '\n\n' +
+      'Hapus dulu surat-suratnya di menu Arsip Surat, atau nonaktifkan saja.'
+    );
+  }
+
+  // Hapus dari jenis_surat & template_surat (jika kode-nya juga jadi template)
+  const tx = db.transaction(() => {
+    db.prepare(`DELETE FROM jenis_surat WHERE kode IN (${ph})`).run(...list);
+    db.prepare(`DELETE FROM template_surat WHERE kode IN (${ph})`).run(...list);
+  });
+  tx();
+
+  return { deleted: list.length };
+});
+ipcMain.handle('surat:types:deactivateAll', () => {
+  const before = db.prepare('SELECT COUNT(*) c FROM jenis_surat WHERE aktif=1').get().c;
+  db.prepare('UPDATE jenis_surat SET aktif=0').run();
+  return { deactivated: before };
+});
+
+// ---------- Helpers jenis surat dari Word ----------
+
 function ensureJenisFromWord(kode, nama) {
   const ex = db.prepare('SELECT id FROM jenis_surat WHERE kode=?').get(kode);
   if (ex) {
@@ -279,6 +330,33 @@ ipcMain.handle('arsip:list', (_, f = {}) => {
   if (f.dari) { s += ' AND tanggal_surat>=?'; p.push(f.dari); }
   if (f.sampai) { s += ' AND tanggal_surat<=?'; p.push(f.sampai); }
   return db.prepare(s + ' ORDER BY tanggal_surat DESC, id DESC LIMIT 1000').all(...p);
+});
+
+ipcMain.handle('arsip:get', (_, id) => {
+  const a = db.prepare('SELECT * FROM arsip_surat WHERE id=?').get(id);
+  if (!a) return null;
+  const s = db.prepare('SELECT s.*,j.nama jenis,j.kode kode FROM surat s JOIN jenis_surat j ON j.id=s.jenis_surat_id WHERE s.id=?').get(a.surat_id);
+  let form = {};
+  try { form = JSON.parse((s && s.data_form) || '{}'); } catch { form = {}; }
+  let penduduk = null;
+  if (s && s.penduduk_id) {
+    penduduk = db.prepare('SELECT * FROM penduduk WHERE id=?').get(s.penduduk_id) || null;
+  }
+  return {
+    ...a,
+    jenis: s ? s.jenis : a.jenis_surat,
+    kode_jenis: s ? s.kode : '',
+    jenis_id: s ? s.jenis_surat_id : null,
+    form,
+    penduduk,
+    nomor_surat: (s && s.nomor_surat) || a.nomor_surat,
+    tanggal_surat: (s && s.tanggal_surat) || a.tanggal_surat
+  };
+});
+
+ipcMain.handle('arsip:delete', (_, id) => {
+  db.prepare('DELETE FROM arsip_surat WHERE id=?').run(id);
+  return true;
 });
 
 ipcMain.handle('settings:get', () =>
@@ -359,7 +437,6 @@ ipcMain.handle('templates:save', (_, d) => {
     from_word: d.from_word ? 1 : 0
   };
   if (!p.nama) throw new Error('Nama template wajib diisi.');
-  // Kode boleh kosong saat impor Word -> buat kode unik otomatis
   if (!p.kode) {
     let n = 900;
     while (db.prepare('SELECT id FROM template_surat WHERE kode=?').get(String(n))) n++;
@@ -375,7 +452,6 @@ ipcMain.handle('templates:save', (_, d) => {
   const dup = db.prepare('SELECT id FROM template_surat WHERE kode=?').get(p.kode);
   if (dup) throw new Error('Template dengan kode ' + p.kode + ' sudah ada. Silakan edit template yang tersedia.');
   const r = db.prepare('INSERT INTO template_surat(kode,nama,judul,isi,ukuran_kertas,margin_atas,margin_bawah,margin_kiri,margin_kanan,aktif,from_word) VALUES(@kode,@nama,@judul,@isi,@ukuran_kertas,@margin_atas,@margin_bawah,@margin_kiri,@margin_kanan,@aktif,@from_word)').run(p);
-  // Template dari Word langsung masuk ke pilihan jenis surat dengan nama filenya
   if (p.from_word) ensureJenisFromWord(p.kode, p.nama);
   return db.prepare('SELECT * FROM template_surat WHERE id=?').get(r.lastInsertRowid);
 });
@@ -391,10 +467,8 @@ ipcMain.handle('templates:delete', (_, id) => {
 
 // ---------- Import Template dari file Word (.docx) ----------
 
-// Baca isi .docx (ZIP) -> teks per paragraf. Mendukung ZIP mode store & deflate.
 function readDocxParagraphs(filePath) {
   const buf = fs.readFileSync(filePath);
-  // cari End of Central Directory (signature 0x06054b50) dari belakang
   let eocd = -1;
   const minPos = Math.max(0, buf.length - 65557);
   for (let i = buf.length - 22; i >= minPos; i--) {
@@ -430,11 +504,11 @@ function readDocxParagraphs(filePath) {
   const paras = [];
   for (const pm of xml.matchAll(/<w:p[ >][\s\S]*?<\/w:p>|<w:p\/>/g)) {
     const p = pm[0];
-    if (/<w:instrText/.test(p)) continue; // skip isi field otomatis (TOC, dll.)
+    if (/<w:instrText/.test(p)) continue;
     let text = '';
     for (const rm of p.matchAll(/<w:r(?: [^>]*)?>([\s\S]*?)<\/w:r>/g)) {
       const r = rm[1];
-      if (/<w:strike\s*\/?>|<w:strike w:val="(true|1|on)"/i.test(r)) continue; // coret = instruksi, buang
+      if (/<w:strike\s*\/?>|<w:strike w:val="(true|1|on)"/i.test(r)) continue;
       let t = '';
       for (const tm of r.matchAll(/<w:t(?: [^>]*)?>([\s\S]*?)<\/w:t>/g)) t += tm[1];
       for (const im of r.matchAll(/<w:instrText(?: [^>]*)?>([\s\S]*?)<\/w:instrText>/g)) t += ' {{' + im[1].trim() + '}}';
@@ -451,7 +525,6 @@ function readDocxParagraphs(filePath) {
   return paras;
 }
 
-// Ubah placeholder model lama Word ({{Nomor}}, {{nama_panjang}}) ke kode aplikasi.
 function normalizeDocxPlaceholders(isi) {
   const alias = {
     nomor: 'nomor_surat', nomorsurat: 'nomor_surat', nosurat: 'nomor_surat', no_surat: 'nomor_surat',
@@ -471,17 +544,12 @@ function normalizeDocxPlaceholders(isi) {
     const key = raw.trim().toLowerCase().replace(/\s+/g, '_');
     if (known.has(key)) return '{{' + key + '}}';
     if (alias[key]) return '{{' + alias[key] + '}}';
-    return m; // biarkan apa adanya — ditampilkan utuh saat preview
+    return m;
   });
 }
 
-// ---------- Auto-fill: ubah teks template Word menjadi placeholder ----------
-// Saat data penduduk dipilih, {{nik}}, {{nama}}, dst terisi otomatis di surat.
+const WD = '\\s*[:;.]*\\s*';
 
-const WD = '\\s*[:;.]*\\s*'; // pemisah label:nilai khas surat Indonesia
-
-// Label dua kata ("Nama Ayah", "Nama Ibu", "Pengikut 1") -> field dinamis,
-// isinya diambil dari form tambahan surat (bukan dari data induk penduduk).
 const PAIR_TOKENS = [
   ['NAMA\\s+AYAH', 'ayah'], ['NAMA\\s+IBU', 'ibu'],
   ['NAMA\\s+SUAMI', 'suami'], ['NAMA\\s+ISTRI', 'istri'],
@@ -505,11 +573,8 @@ const PAIR_TOKENS = [
   ['(?:(?:No|NOMOR)\\.?|NIK)\\s+KARTU\\s+(?:SAYA|BERHASIL|GILA|HEBAT)', '__joke__'],
 ];
 
-// Kata per baris yang menandakan baris tersebut adalah pertanyaan pengisi,
-// bukan label identitas -> jangan diisi placeholder penduduk.
-const LINE_BLACKLIST = /(anak\\s+ke|jumlah\\s+anak|urutan|berapakah|berapa\\s+orang|cahaya|lembar|kolom|bulan\\s+ke|tahun\\s+anggaran)/i;
+const LINE_BLACKLIST = /(anak\s+ke|jumlah\s+anak|urutan|berapakah|berapa\s+orang|cahaya|lembar|kolom|bulan\s+ke|tahun\s+anggaran)/i;
 
-// Deteksi blok kop desa pada 8 baris pertama file Word.
 function detectKopBlock(paras) {
   const isGov = t => /pemerintah|kecamatan|kabupaten|sekretariat|desa\s+[a-z]|kepala\s+desa/i.test(t);
   const isContact = t => /(jalan|jl\.|email|website|surel|http|@)/i.test(t);
@@ -523,12 +588,8 @@ function detectKopBlock(paras) {
   return govCount >= 2 ? end : 0;
 }
 
-// Konversi paragraf hasil ekstrak .docx menjadi isi template bersetempat
-// dengan placeholder {{...}} milik aplikasi.
 function wordParasToTemplate(paras, settings) {
   const s = settings || {};
-  // Kata kunci kop lama yang diganti dengan placeholder Pengaturan Desa.
-  // Nilai default memakai data dari template desa bawaan (Desa Pusar).
   const def = {
     nama_desa: 'PUSAR', kecamatan: 'BATURAJA BARAT', kabupaten: 'OGAN KOMERING ULU',
     provinsi: 'SUMATERA SELATAN'
@@ -536,12 +597,9 @@ function wordParasToTemplate(paras, settings) {
   const val = k => String(s[k] ?? '').trim() || def[k];
   const escR = t => String(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  // 1) buang blok kop lama (aplikasi mencetak kop dari Pengaturan Desa)
   const kopEnd = detectKopBlock(paras);
   let body = paras.slice(kopEnd).map(t => String(t || '').replace(/\t/g, ' ').replace(/[ \u00A0]+/g, ' ').trim());
 
-  // 2) ganti penyebutan desa/kabupaten/kecamatan/provinsi/kades lama
-  //    menjadi placeholder -> otomatis mengikuti Pengaturan Desa Anda
   const setReps = [];
   const addRep = (re, ph) => setReps.push([re, ph]);
   const dNama = val('nama_desa'), dKec = val('kecamatan'),
@@ -566,7 +624,6 @@ function wordParasToTemplate(paras, settings) {
   addRep(/desapusar@okukab\.go\.id/gi, '');
   addRep(/https?:\/\/pusar\.[^\s,]*/gi, '');
 
-  // 3) sisipkan placeholder sesuai label identitas warga
   function inject(line) {
     if (LINE_BLACKLIST.test(line)) return line;
     let t = line;
@@ -574,9 +631,7 @@ function wordParasToTemplate(paras, settings) {
     if (/^ZAINUDDIN$/i.test(t.trim())) t = t.replace(/^ZAINUDDIN$/i, '{{kepala_desa}}');
     const L = t.toUpperCase();
     const put = re => re.lastIndex = 0, has = re => (put(re), re.test(t));
-    const atEnd = v => !L.slice(L.indexOf(v) + v.length).trim();
 
-    // NIK KTP harus dicek sebelum "NIK" berdiri sendiri
     if (has(new RegExp('NIK\\s+KTP' + WD))) {
       t = t.replace(new RegExp('NIK\\s+KTP' + WD, 'i'), 'NIK KTP\t: {{nik}}');
       return t;
@@ -591,11 +646,10 @@ function wordParasToTemplate(paras, settings) {
     if (has(new RegExp('STATUS\\s+PERKAWINAN' + WD))) { t = t.replace(new RegExp('STATUS\\s+PERKAWINAN' + WD, 'i'), 'Status Perkawinan\t: {{status_perkawinan}}'); return t; }
     if (has(new RegExp('KEWARGANEGARAAN' + WD))) { t = t.replace(new RegExp('KEWARGANEGARAAN' + WD, 'i'), 'Kewarganegaraan\t: {{kewarganegaraan}}'); return t; }
     if (has(new RegExp('NAMA\\s+LENGKAP' + WD))) { t = t.replace(new RegExp('NAMA\\s+LENGKAP' + WD, 'i'), 'Nama Lengkap\t: {{nama}}'); return t; }
-    if (has(new RegExp('ALAMAT\\s+(?:ASAL|KTP|PINDAH|TEMPAT\\s+TINGGAL)' + WD))) return t; // biarkan — diisi lewat form
+    if (has(new RegExp('ALAMAT\\s+(?:ASAL|KTP|PINDAH|TEMPAT\\s+TINGGAL)' + WD))) return t;
     if (has(new RegExp('(?:No|NOMOR)\\.?\\s*KTP' + WD))) { t = t.replace(new RegExp('(?:No|NOMOR)\\.?\\s*KTP' + WD, 'i'), 'No KTP\t: {{nik}}'); return t; }
     if (has(new RegExp('(?:No|NOMOR)\\.?\\s+KK' + WD))) { t = t.replace(new RegExp('(?:No|NOMOR)\\.?\\s+KK' + WD, 'i'), 'No KK\t: {{no_kk}}'); return t; }
 
-    // label dua kata -> field dinamis (ayah/ibu/pukul/alasan_pindah/dst)
     for (const [re, ph] of PAIR_TOKENS) {
       const R = new RegExp('(' + re + ')' + WD, 'i');
       const m = t.match(R);
@@ -617,14 +671,12 @@ function wordParasToTemplate(paras, settings) {
     if (has(new RegExp('KABUPATEN' + WD))) { t = t.replace(new RegExp('KABUPATEN' + WD, 'i'), 'Kabupaten\t: {{kabupaten_pindah}}'); return t; }
     if (has(new RegExp('PROV(?:INSI)?' + WD))) { t = t.replace(new RegExp('PROV(?:INSI)?' + WD, 'i'), 'Provinsi\t: {{provinsi_pindah}}'); return t; }
 
-    // Nama berdiri sendiri (label atau "Nama :" kosong)
     if (has(new RegExp('(^|\\b)NAMA\\b' + WD))) {
       t = t.replace(new RegExp('(^|\\b)NAMA\\b' + WD, 'i'), (mm, pre) => pre + 'Nama\t: {{nama}}');
       return t;
     }
     if (has(new RegExp('\\bNIK\\b' + WD))) { t = t.replace(new RegExp('\\bNIK\\b' + WD, 'i'), 'NIK\t: {{nik}}'); return t; }
 
-    // tanggal/hari/pukul peristiwa (kematian, kelahiran, pindah)
     if (/^TANGGAL\b/.test(L)) {
       const rest = L.slice('TANGGAL'.length);
       if (!/LAHIR|SURAT|LAHIR/.test(rest) && !/\{\{/.test(t)) t = t.replace(/^TANGGAL\b[\s.:;]*/i, 'Tanggal\t: {{tanggal_peristiwa}}');
@@ -646,7 +698,6 @@ function wordParasToTemplate(paras, settings) {
 
   body = body.map(inject);
 
-  // 4) blok tanda tangan: ganti kota & tanggal manual, tambahkan nama Kades
   for (let i = 0; i < body.length; i++) {
     const L = body[i].toUpperCase();
     if (/^(?:DI\s*)?KELUARKAN/.test(L)) {
@@ -661,17 +712,14 @@ function wordParasToTemplate(paras, settings) {
       body[i] = `Pada Tanggal   : {{tanggal_surat}}`;
     } else if (/^KEPALA\s+DESA\b/.test(L)) {
       body[i] = 'Kepala Desa {{nama_desa}}';
-      // pastikan ada baris nama kepala desa setelahnya
       const next = (body[i + 1] || '').trim();
       if (!next || /^\.{4,}|^_{4,}/.test(next)) body[i + 1] = '{{kepala_desa}}';
       else if (!/\{\{kepala_desa\}\}|ZAINUDDIN/i.test(next) && !/^{/.test(next)) body.splice(i + 1, 0, '{{kepala_desa}}');
     }
   }
 
-  // 5) buang titik-titik isian yang masih tersisa
   body = body.map(l => l.replace(/[ \t]{2,}/g, ' ').replace(/\s*\.{5,}\s*/g, ' ').replace(/\s*_{5,}\s*/g, ' ').trim());
 
-  // 6) susun ulang: judul + nomor otomatis dari aplikasi, lalu isi bersih
   const { title } = detectTitleNomor(body.filter(Boolean));
   const withoutDupTitle = body.filter(l => l && !(title && l.toUpperCase() === title.toUpperCase()));
   const head = [];
@@ -681,7 +729,6 @@ function wordParasToTemplate(paras, settings) {
   return head.concat(withoutDupTitle).join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
-// Tebak judul & nomor surat dari paragraf awal dokumen Word.
 function detectTitleNomor(paras) {
   const isNomor = t => /nomor\s*[:.]?\s*\S/i.test(t) && /\d|\/|\./.test(t);
   const isKop = t => /pemerintah|kecamatan|desa\s|kabupaten|sekretariat/i.test(String(t));
@@ -698,7 +745,6 @@ function detectTitleNomor(paras) {
   return { title, nomor };
 }
 
-// Folder "template surat desa" bawaan aplikasi (tempat Anda menaruh file Word).
 function getDesaTemplateDir() {
   const roots = [app.getAppPath(), path.resolve(__dirname, '..')];
   const names = ['template surat desa', 'templates/template surat desa'];
@@ -711,8 +757,6 @@ function getDesaTemplateDir() {
   return '';
 }
 
-// Kode jenis surat tetap untuk nama file tertentu (agar tidak dobel dengan seed),
-// sisanya dibuatkan kode otomatis dari nama file.
 const DESA_FILE_KODE = {
   'surat keterangan domisili new': '01',
   'surat pindah new': '04',
@@ -728,8 +772,6 @@ function normFileName(s) {
   return String(s).toLowerCase().replace(/\.(docx|doc|rtf)$/i, '').trim();
 }
 
-// Sinkron otomatis: setiap file .docx di folder "template surat desa"
-// dimasukkan/diperbarui sebagai template surat saat aplikasi start.
 function syncDesaTemplateFolder() {
   const dir = getDesaTemplateDir();
   if (!dir) return 0;
@@ -761,7 +803,6 @@ function syncDesaTemplateFolder() {
       }
     }
 
-    // cari template hasil impor file yang sama sebelumnya (nama file = nama template)
     const prev = db.prepare('SELECT id FROM template_surat WHERE from_word=1 AND lower(nama)=?').get(niceName.toLowerCase());
     if (prev) {
       db.prepare('UPDATE template_surat SET judul=?, isi=?, aktif=1 WHERE id=?').run(judul, isi, prev.id);
@@ -785,6 +826,18 @@ function syncDesaTemplateFolder() {
   return count;
 }
 
+ipcMain.handle('templates:syncDesaFolder', () => {
+  const dir = getDesaTemplateDir();
+  if (!dir) {
+    throw new Error('Folder "template surat desa" tidak ditemukan di folder aplikasi.');
+  }
+  let n = 0;
+  try { n = syncDesaTemplateFolder(); } catch (e) {
+    throw new Error('Gagal sinkron folder: ' + (e?.message || e));
+  }
+  return { dir, count: n };
+});
+
 ipcMain.handle('templates:importWord', async (e) => {
   const win = BrowserWindow.fromWebContents(e.sender) || undefined;
   const r = await dialog.showOpenDialog(win, {
@@ -803,7 +856,6 @@ ipcMain.handle('templates:importWord', async (e) => {
   const nonEmpty = paras.filter(t => t.trim() !== '');
   if (!nonEmpty.length) throw new Error('Dokumen Word kosong atau tidak ada paragraf teks yang dapat diekstrak.');
   const baseName = path.basename(src).replace(/\.docx$/i, '');
-  // Kode unik dari nama file Word: huruf/digit, dipendekkan, anti duplikat.
   let kode = String(baseName).toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 24) || 'WORD';
   let uniq = kode, i = 2;
   while (db.prepare('SELECT id FROM template_surat WHERE kode=?').get(uniq) || db.prepare('SELECT id FROM jenis_surat WHERE kode=?').get(uniq)) {
@@ -811,14 +863,10 @@ ipcMain.handle('templates:importWord', async (e) => {
   }
   kode = uniq;
   const { title, nomor } = detectTitleNomor(nonEmpty);
-  // Ubah isi Word menjadi template bersetempat: kop diganti placeholder
-  // pengaturan desa + label data warga diisi {{nik}} {{nama}} dst sehingga
-  // terisi OTOMATIS saat data penduduk dipilih di menu Buat Surat.
   let isi;
   try {
     isi = wordParasToTemplate(paras, getSettings());
   } catch (err) {
-    // fallback: cara lama (buang judul/nomor, gabung paragraf)
     const cleanParas = paras.map(t => String(t || '').trim()).filter(t => t && t !== title && t !== nomor);
     isi = normalizeDocxPlaceholders(cleanParas.join('\n')).replace(/^\n+/, '').replace(/\n{3,}/g, '\n\n');
   }
@@ -847,13 +895,12 @@ ipcMain.handle('restore', async () => {
   fs.copyFileSync(r.filePaths[0], current);
   db = new Database(current);
   db.pragma('journal_mode = WAL');
-  migrate(); // DB lama hasil restore mungkin belum punya kolom baru
+  migrate();
   return r.filePaths[0];
 });
 
 // ---------- Export Surat (Cetak / PDF / Word) ----------
 
-// CSS khusus dokumen: hasil PDF/Word rapi A4, tidak ikut gaya aplikasi.
 const LETTER_CSS = `
   @page { size: A4; margin: 0; }
   * { box-sizing: border-box; }
@@ -876,14 +923,10 @@ const LETTER_CSS = `
   .signature img.stempel { max-height: 85px; position: absolute; left: -10px; bottom: -18px; opacity: .95; }
 `;
 
-// Konversi path file gambar lokal menjadi data URI base64 agar logo/stempel/
-// tanda tangan ikut tampil di jendela tak terlihat saat render PDF, dan juga
-// saat dibuka di Microsoft Word.
 function imageToDataUri(p) {
   try {
     const raw = String(p || '').trim();
     if (!raw) return '';
-    // sudah berupa data URI? pakai apa adanya
     if (/^data:image\//i.test(raw)) return raw;
     let fp = raw.replace(/^file:\/\/\/?/i, '');
     try { fp = decodeURIComponent(fp); } catch (e) { /* biarkan */ }
@@ -897,9 +940,39 @@ function imageToDataUri(p) {
   }
 }
 
-// Bangun HTML surat lengkap dari isi preview + pengaturan desa.
-function buildLetterHtml(contentHtml, settings) {
+function stripKopBlocks(html) {
+  let out = String(html || '');
+  let guard = 0;
+  while (guard++ < 60) {
+    const idx = out.search(/<div[^>]*class="[^"]*\bkop\b[^"]*"[^>]*>/i);
+    if (idx < 0) break;
+    let depth = 0, i = idx, end = out.length;
+    const re = /<\/?div\b[^>]*>/gi;
+    re.lastIndex = idx;
+    let m;
+    while ((m = re.exec(out))) {
+      if (m[0][1] === '/') depth--; else depth++;
+      if (depth === 0) { end = re.lastIndex; break; }
+    }
+    out = out.slice(0, idx) + out.slice(end);
+  }
+  out = out.replace(/<hr[^>]*>/gi, '');
+  return out.trim();
+}
+
+function normalizePreviewMarkup(html) {
+  let out = String(html || '');
+  out = out.replace(/<h3([^>]*)class="([^"]*letter-title[^"]*)"([^>]*)>/i, '<h3 class="letter-title">');
+  out = out.replace(/<(p|div)([^>]*)class="([^"]*letter-number[^"]*)"([^>]*)>/i, '<$1 class="letter-number">');
+  out = out.replace(/<div([^>]*)class="([^"]*letter-body[^"]*)"([^>]*)>/i, '<div class="letter-body">');
+  out = out.replace(/<div([^>]*)class="([^"]*signature[^"]*)"([^>]*)>/i, '<div class="signature">');
+  out = out.replace(/<p([^>]*)style="margin:2px 0;white-space:pre-wrap"[^>]*>/gi, '<p>');
+  return out;
+}
+
+function buildLetterHtml(contentHtml, settings, template) {
   const s = settings || {};
+  const t = template || {};
   const logo = imageToDataUri(s.logo_path);
   const stempel = imageToDataUri(s.stempel_path);
   const ttd = imageToDataUri(s.tanda_tangan_path);
@@ -915,21 +988,32 @@ function buildLetterHtml(contentHtml, settings) {
       </div>
     </div>`;
 
-  let body = String(contentHtml || '');
-  // sisipkan gambar tanda tangan & stempel di area tanda tangan
+  let body = normalizePreviewMarkup(stripKopBlocks(contentHtml));
   if (ttd || stempel) {
-    body = body.replace(
-      /(<div class="signature">)/,
-      `$1<div class="ttd-space">${stempel ? `<img class="stempel" src="${stempel}" alt="">` : ''}${ttd ? `<img class="ttd" src="${ttd}" alt="">` : ''}</div>`
-    );
+    const overlay = `<div class="ttd-space">${stempel ? `<img class="stempel" src="${stempel}" alt="">` : ''}${ttd ? `<img class="ttd" src="${ttd}" alt="">` : ''}</div>`;
+    if (/<div class="signature">/.test(body)) {
+      body = body.replace(/(<div class="signature">)/, `$1${overlay}`);
+    } else {
+      body += `<div class="signature">${overlay}</div>`;
+    }
   }
+
+  const PAPER = { A4: '210mm 297mm', F4: '215mm 330mm', LEGAL: '215mm 330mm', LETTER: '215.9mm 279.4mm' };
+  const size = PAPER[String(t.ukuran_kertas || 'A4').toUpperCase()] || PAPER.A4;
+  const num = (v, d) => { const n = parseFloat(v); return Number.isFinite(n) && n > 0 ? n : d; };
+  const mt = num(t.margin_atas, 2), mb = num(t.margin_bawah, 2),
+        ml = num(t.margin_kiri, 3), mr = num(t.margin_kanan, 3);
+
+  const css = `${LETTER_CSS}
+  @page { size: ${size}; margin: 0; }
+  .sheet { width: ${size.split(' ')[0]}; min-height: ${size.split(' ')[1]}; padding: ${mt}cm ${mr}cm ${mb}cm ${ml}cm; }`;
 
   return `<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="utf-8">
 <title>Surat</title>
-<style>${LETTER_CSS}</style>
+<style>${css}</style>
 </head>
 <body><div class="sheet">${kop}
 ${body}
@@ -941,22 +1025,12 @@ function escHtml(v) {
   return String(v ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 }
 
-// Nama file aman dari karakter ilegal Windows/Linux.
 function safeFileName(name, ext) {
   let n = String(name || 'surat').trim();
   n = n.replace(/[<>:"/\\|?*\x00-\x1F]/g, '').replace(/\s+/g, '-').slice(0, 120) || 'surat';
   return `${n}.${ext}`;
 }
 
-async function getSettings() {
-  try {
-    return db.prepare('SELECT * FROM pengaturan_desa WHERE id=1').get() || {};
-  } catch (e) {
-    return {};
-  }
-}
-
-// Simpan HTML sementara agar gambar (logo/stempel/ttd) ikut termuat saat render.
 function writeTempHtml(html) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'banuakita-'));
   const f = path.join(dir, 'surat.html');
@@ -964,7 +1038,6 @@ function writeTempHtml(html) {
   return f;
 }
 
-// Render HTML surat ke PDF via jendela tak terlihat (isi penuh, bukan layar aplikasi).
 async function renderPdf(html) {
   const w = new BrowserWindow({
     show: false,
@@ -988,12 +1061,34 @@ async function renderPdf(html) {
   }
 }
 
+async function resolveTemplateForPrint(payload) {
+  try {
+    if (payload.template_id) {
+      const t = db.prepare('SELECT * FROM template_surat WHERE id=?').get(payload.template_id);
+      if (t) return t;
+    }
+    if (payload.template_kode) {
+      const t = db.prepare('SELECT * FROM template_surat WHERE kode=? AND aktif=1').get(String(payload.template_kode));
+      if (t) return t;
+    }
+    if (payload.jenis) {
+      const j = db.prepare('SELECT kode FROM jenis_surat WHERE id=?').get(payload.jenis);
+      if (j && j.kode) {
+        const t = db.prepare('SELECT * FROM template_surat WHERE kode=? AND aktif=1').get(String(j.kode));
+        if (t) return t;
+      }
+    }
+  } catch (e) { /* pakai default */ }
+  return null;
+}
+
 ipcMain.handle('print', async (e, payload) => {
   const w = BrowserWindow.fromWebContents(e.sender);
   if (payload && payload.html) {
-    // cetak lewat jendela dokumen terpisah agar hasilnya sama dengan PDF
+    const settings = payload.settings || await getSettings();
+    const template = await resolveTemplateForPrint(payload);
     const dw = new BrowserWindow({ show: false, webPreferences: { sandbox: true } });
-    const tmpFile = writeTempHtml(buildLetterHtml(payload.html, payload.settings));
+    const tmpFile = writeTempHtml(buildLetterHtml(payload.html, settings, template));
     await dw.loadFile(tmpFile);
     return new Promise(res => {
       dw.webContents.print({ silent: false, printBackground: true }, ok => {
@@ -1017,7 +1112,8 @@ ipcMain.handle('pdf', async (e, payload = {}) => {
   if (r.canceled || !r.filePath) return null;
   let buf;
   try {
-    buf = await renderPdf(buildLetterHtml(contentHtml, settings));
+    const template = await resolveTemplateForPrint(payload);
+    buf = await renderPdf(buildLetterHtml(contentHtml, settings, template));
   } catch (err) {
     throw new Error('Gagal merender PDF: ' + (err?.message || err));
   }
@@ -1031,32 +1127,19 @@ ipcMain.handle('pdf', async (e, payload = {}) => {
   return r.filePath;
 });
 
-// ---------- Sinkron folder "template surat desa" dari menu aplikasi ----------
-ipcMain.handle('templates:syncDesaFolder', () => {
-  const dir = getDesaTemplateDir();
-  if (!dir) {
-    throw new Error('Folder "template surat desa" tidak ditemukan di folder aplikasi.');
-  }
-  let n = 0;
-  try { n = syncDesaTemplateFolder(); } catch (e) {
-    throw new Error('Gagal sinkron folder: ' + (e?.message || e));
-  }
-  return { dir, count: n };
-});
-
 ipcMain.handle('word', async (e, payload = {}) => {
-  // dukung pemanggilan lama: word(htmlString)
   const htmlArg = typeof payload === 'string' ? { html: payload } : (payload || {});
   const contentHtml = htmlArg.html || '';
   if (!String(contentHtml).trim()) throw new Error('Konten surat kosong, buat preview terlebih dahulu.');
   const win = BrowserWindow.fromWebContents(e.sender) || undefined;
   const settings = htmlArg.settings || await getSettings();
+  const template = await resolveTemplateForPrint(htmlArg);
   const defName = safeFileName(htmlArg.fileName || 'surat', 'docx');
   const r = await dialog.showSaveDialog(win, { title: 'Simpan Word', defaultPath: defName, filters: [{ name: 'Microsoft Word', extensions: ['docx'] }] });
   if (r.canceled || !r.filePath) return null;
   let doc;
   try {
-    doc = buildWordDoc(contentHtml, settings);
+    doc = buildWordDoc(contentHtml, settings, template);
   } catch (err) {
     throw new Error('Gagal membuat Word: ' + (err?.message || err));
   }
@@ -1066,15 +1149,13 @@ ipcMain.handle('word', async (e, payload = {}) => {
   return r.filePath;
 });
 
-// ---------- Word (.docx) : bangun paket OOXML minimal tanpa dependency ----------
+// ---------- Word (.docx) : OOXML minimal ----------
 
 function xmlEscape(v) {
   return String(v ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 }
 
-// HTML -> daftar run Word sederhana (bold/underline per bagian teks).
 function htmlRunsToText(html) {
-  // ganti tag <br> jadi newline, buang tag lain
   let t = String(html || '')
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/p>/gi, '\n')
@@ -1083,78 +1164,175 @@ function htmlRunsToText(html) {
   return t;
 }
 
-function paraXml(text, opts = {}) {
+function htmlToRuns(html) {
+  let t = String(html || '');
+  t = t.replace(/<(\/?)(?:b|strong)\b[^>]*>/gi, '**');
+  t = t.replace(/<(\/?)(?:u|ins)\b[^>]*>/gi, '__');
+  t = t.replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n');
+  t = t.replace(/<[^>]+>/g, '');
+  t = t.replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+       .replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&amp;/g, '&');
   const runs = [];
-  // pisahkan bagian **bold** dan __underline__ sederhana bila ada
-  const parts = String(text).split(/(\*\*[^*]+\*\*|__[^_]+__)/g).filter(Boolean);
+  const parts = t.split(/(\*\*[^*]+\*\*|__[^_]+__)/g).filter(x => x !== '');
   for (const p of parts) {
-    let txt = p, bold = !!opts.bold, underline = !!opts.underline;
+    let txt = p, bold = false, underline = false;
     if (/^\*\*[\s\S]+\*\*$/.test(p)) { txt = p.slice(2, -2); bold = true; }
     else if (/^__[\s\S]+__$/.test(p)) { txt = p.slice(2, -2); underline = true; }
-    const lines = txt.split('\n');
-    lines.forEach((ln, i) => {
-      const rPr = [];
-      if (bold) rPr.push('<w:b/>');
-      if (underline) rPr.push('<w:u w:val="single"/>');
-      runs.push(`<w:r>${rPr.length ? `<w:rPr>${rPr.join('')}</w:rPr>` : ''}${i > 0 ? '<w:br/>' : ''}<w:t xml:space="preserve">${xmlEscape(ln)}</w:t></w:r>`);
-    });
+    if (txt === '') continue;
+    runs.push({ text: txt, bold, underline });
   }
-  const pPr = [];
-  if (opts.align) pPr.push(`<w:jc w:val="${opts.align}"/>`);
-  if (opts.spaceAfter != null) pPr.push(`<w:spacing w:after="${opts.spaceAfter}"/>`);
-  return `<w:p>${pPr.length ? `<w:pPr>${pPr.join('')}</w:pPr>` : ''}${runs.join('')}</w:p>`;
+  return runs;
 }
 
-function buildWordDoc(contentHtml, settings) {
+let imageRegistry = {};
+
+function dataUriToBuffer(dataUri) {
+  try {
+    const m = String(dataUri || '').match(/^data:image\/([a-zA-Z0-9.+-]+);base64,(.+)$/);
+    if (!m) return null;
+    const buf = Buffer.from(m[2], 'base64');
+    if (!buf.length) return null;
+    return { data: buf, ext: (m[1] === 'jpeg' ? 'jpg' : m[1]).toLowerCase() };
+  } catch (e) { return null; }
+}
+
+function imageExt(img) { return img.ext; }
+function imageMime(img) { return img.ext === 'jpg' ? 'jpeg' : img.ext; }
+
+function inlineDrawing(id, cx, cy, name) {
+  return `<w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="1" name="${xmlEscape(name || id)}"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="0" name="${xmlEscape(name || id)}"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${id}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing>`;
+}
+
+function paraXml(text, opts = {}) {
+  const runsXml = [];
+  const pushRun = (r, baseBold, baseU) => {
+    const lines = String(r.text).split('\n');
+    lines.forEach((ln, i) => {
+      const rPr = [];
+      if (baseBold || r.bold) rPr.push('<w:b/>');
+      if (baseU || r.underline) rPr.push('<w:u w:val="single"/>');
+      if (opts.size) rPr.push(`<w:sz w:val="${opts.size}"/><w:szCs w:val="${opts.size}"/>`);
+      runsXml.push(`<w:r>${rPr.length ? `<w:rPr>${rPr.join('')}</w:rPr>` : ''}${i > 0 ? '<w:br/>' : ''}<w:t xml:space="preserve">${xmlEscape(ln)}</w:t></w:r>`);
+    });
+  };
+  if (Array.isArray(text)) text.forEach(r => pushRun(r, !!opts.bold, !!opts.underline));
+  else pushRun({ text }, !!opts.bold, !!opts.underline);
+
+  const pPr = [];
+  if (opts.indentFirst != null) pPr.push(`<w:ind w:firstLine="${opts.indentFirst}"/>`);
+  if (opts.align) pPr.push(`<w:jc w:val="${opts.align}"/>`);
+  if (opts.spaceAfter != null) pPr.push(`<w:spacing w:after="${opts.spaceAfter}"/>`);
+  return `<w:p>${pPr.length ? `<w:pPr>${pPr.join('')}</w:pPr>` : ''}${runsXml.join('')}</w:p>`;
+}
+
+function wordKopParagraphs(s, logoDataUri) {
+  const upper = v => String(v || '').toUpperCase();
+  const out = [];
+  const logoBuf = dataUriToBuffer(logoDataUri);
+  const textParas = [
+    { text: `PEMERINTAH KABUPATEN ${upper(s.kabupaten)}`, size: 28, bold: true },
+    { text: `KECAMATAN ${upper(s.kecamatan)}`, size: 24, bold: true },
+    { text: `DESA ${upper(s.nama_desa)}`, size: 24, bold: true },
+    { text: (s.alamat || '') + (s.kode_pos ? `, Kode Pos ${s.kode_pos}` : ''), size: 20, bold: false }
+  ];
+  if (logoBuf) {
+    const id = 'logo1';
+    imageRegistry[id] = logoBuf;
+    const drawing = inlineDrawing(id, 1143000, 1143000, 'LogoDesa');
+    const cellP = p => `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="0"/></w:pPr><w:r>${p.bold ? '<w:rPr><w:b/><w:sz w:val="' + p.size + '"/><w:szCs w:val="' + p.size + '"/></w:rPr>' : '<w:rPr><w:sz w:val="' + p.size + '"/><w:szCs w:val="' + p.size + '"/></w:rPr>'}<w:t xml:space="preserve">${xmlEscape(p.text)}</w:t></w:r></w:p>`;
+    out.push(`<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:tblLayout w:type="fixed"/></w:tblPr><w:tr>` +
+      `<w:tc><w:tcPr><w:tcW w:w="1500" w:type="pct"/><w:vAlign w:val="center"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="0"/></w:pPr><w:r>${drawing}</w:r></w:p></w:tc>` +
+      `<w:tc><w:tcPr><w:tcW w:w="8500" w:type="pct"/><w:vAlign w:val="center"/></w:tcPr>${textParas.map(cellP).join('')}</w:tc>` +
+      `</w:tr></w:tbl>`);
+  } else {
+    textParas.forEach(p => out.push(paraXml(p.text, { align: 'center', bold: p.bold, size: p.size, spaceAfter: 0 })));
+  }
+  out.push(`<w:p><w:pPr><w:pBdr><w:bottom w:val="double" w:sz="12" w:space="1" w:color="000000"/></w:pBdr><w:spacing w:before="120" w:after="360"/></w:pPr></w:p>`);
+  return out;
+}
+
+function buildWordDoc(contentHtml, settings, template) {
   const s = settings || {};
-  const body = String(contentHtml || '');
+  const t = template || {};
+  const body = stripKopBlocks(normalizePreviewMarkup(String(contentHtml || '')));
 
   const paragraphs = [];
 
-  // KOP SURAT
-  const upper = v => String(v || '').toUpperCase();
-  paragraphs.push(paraXml(`PEMERINTAH KABUPATEN ${upper(s.kabupaten)}`, { align: 'center', bold: true, spaceAfter: 0 }));
-  paragraphs.push(paraXml(`KECAMATAN ${upper(s.kecamatan)}`, { align: 'center', bold: true, spaceAfter: 0 }));
-  paragraphs.push(paraXml(`DESA ${upper(s.nama_desa)}`, { align: 'center', bold: true, spaceAfter: 0 }));
-  if (s.alamat) paragraphs.push(paraXml(s.alamat + (s.kode_pos ? `, Kode Pos ${s.kode_pos}` : ''), { align: 'center', spaceAfter: 240 }));
-  else paragraphs.push(paraXml('', { align: 'center', spaceAfter: 240 }));
-  // garis ganda kop disimulasikan dengan paragrais bergaris bawah ganda
-  paragraphs.push(`<w:p><w:pPr><w:pBdr><w:bottom w:val="double" w:sz="10" w:space="1" w:color="000000"/></w:pBdr><w:spacing w:after="360"/></w:pPr></w:p>`);
+  paragraphs.push(...wordKopParagraphs(s, imageToDataUri(s.logo_path)));
 
-  // JUDUL & NOMOR dari konten
   const titleM = body.match(/<h3[^>]*class="letter-title"[^>]*>([\s\S]*?)<\/h3>/i);
   const nomorM = body.match(/<p[^>]*class="letter-number"[^>]*>([\s\S]*?)<\/p>/i);
-  if (titleM) paragraphs.push(paraXml(htmlRunsToText(titleM[1]), { align: 'center', bold: true, underline: true, spaceAfter: 60 }));
-  if (nomorM) paragraphs.push(paraXml(htmlRunsToText(nomorM[1]), { align: 'center', spaceAfter: 360 }));
+  if (titleM) paragraphs.push(paraXml(htmlToRuns(titleM[1]), { align: 'center', bold: true, underline: true, spaceAfter: 60 }));
+  if (nomorM) paragraphs.push(paraXml(htmlToRuns(nomorM[1]), { align: 'center', spaceAfter: 360 }));
 
-  // ISI (setiap <p>/<br> jadi paragraf)
-  const bodyM = body.match(/<div[^>]*class="letter-body"[^>]*>([\s\S]*?)<\/div>\s*<div[^>]*class="signature"/i);
-  const bodyHtml = bodyM ? bodyM[1] : body.replace(/<div[^>]*class="kop"[^>]*>[\s\S]*?<\/div>/i, '').replace(/<h3[^>]*>[\s\S]*?<\/h3>/i, '').replace(/<p[^>]*class="letter-number"[^>]*>[\s\S]*?<\/p>/i, '').replace(/<div[^>]*class="signature"[^>]*>[\s\S]*?<\/div>/i, '');
-  // pisahkan per <p>...</p>; isi di luar <p> dianggap paragraf terpisah
+  const bodyM = body.match(/<div[^>]*class="letter-body"[^>]*>([\s\S]*?)<\/div>\s*(?:<div[^>]*class="ttd-space"[^>]*>[\s\S]*?<\/div>)?\s*<div[^>]*class="signature"/i);
+  const bodyHtml = bodyM ? bodyM[1] : body
+    .replace(/<h3[^>]*>[\s\S]*?<\/h3>/i, '')
+    .replace(/<p[^>]*class="letter-number"[^>]*>[\s\S]*?<\/p>/i, '')
+    .replace(/<div[^>]*class="signature"[^>]*>[\s\S]*?<\/div>/i, '');
   const chunks = bodyHtml
     .replace(/<p([^>]*)>/gi, '\u0001P$1>').replace(/<\/p>/gi, '\u0001')
     .split('\u0001').filter(c => c.trim() !== '');
   for (const c of chunks) {
-    const isNoIndent = /text-align:\s*(center|right)/i.test(c);
-    paragraphs.push(paraXml(htmlRunsToText(c), { align: isNoIndent ? 'center' : 'both', spaceAfter: 120 }));
+    const isCenter = /text-align:\s*center/i.test(c);
+    const isRight = /text-align:\s*right/i.test(c);
+    const plain = htmlRunsToText(c);
+    const mId = plain.match(/^([A-Za-z()\/.\s]{2,40}?)\s*[:;.]\s+(.*)$/);
+    if (!isCenter && !isRight && mId && plain.length <= 90 && !/[.!?]$/.test(plain.trim())) {
+      paragraphs.push(`<w:p><w:pPr><w:spacing w:after="60"/><w:tabs><w:tab w:val="left" w:pos="2550"/></w:tabs></w:pPr>` +
+        htmlToRuns(mId[1] + ' :').map(r => `<w:r>${r.bold ? '<w:rPr><w:b/></w:rPr>' : ''}<w:t xml:space="preserve">${xmlEscape(r.text)}</w:t></w:r>`).join('') +
+        `<w:r><w:tab/></w:r>` +
+        htmlToRuns(mId[2]).map(r => `<w:r>${(r.bold ? '<w:rPr><w:b/></w:rPr>' : '') + (r.underline ? '<w:rPr><w:u w:val="single"/></w:rPr>' : '')}<w:t xml:space="preserve">${xmlEscape(r.text)}</w:t></w:r>`).join('') +
+        `</w:p>`);
+    } else {
+      paragraphs.push(paraXml(htmlToRuns(c), {
+        align: isCenter ? 'center' : isRight ? 'right' : 'both',
+        indentFirst: (!isCenter && !isRight) ? 709 : undefined,
+        spaceAfter: 120
+      }));
+    }
   }
 
-  // TANDA TANGAN
   const sigM = body.match(/<div[^>]*class="signature"[^>]*>([\s\S]*?)<\/div>/i);
-  if (sigM) {
-    const sigLines = htmlRunsToText(sigM[1]).split('\n').map(l => l.trim()).filter(Boolean);
+  const stempelBuf = dataUriToBuffer(imageToDataUri(s.stempel_path));
+  const ttdBuf = dataUriToBuffer(imageToDataUri(s.tanda_tangan_path));
+  if (sigM || stempelBuf || ttdBuf) {
+    const sigLines = sigM ? htmlRunsToText(sigM[1].replace(/<div[^>]*class="ttd-space"[^>]*>[\s\S]*?<\/div>/i, '')).split('\n').map(l => l.trim()).filter(Boolean) : [];
+    for (let k = 0; k < 3; k++) paragraphs.push(paraXml('', { spaceAfter: 0 }));
+    let insertedImage = false;
     sigLines.forEach((ln, i) => {
-      const last = i === sigLines.length - 1;
-      paragraphs.push(paraXml(ln, { align: 'right', bold: last, underline: last, spaceAfter: 0 }));
-      if (i === 0) { paragraphs.push(paraXml('', { spaceAfter: 0 })); paragraphs.push(paraXml('', { spaceAfter: 0 })); paragraphs.push(paraXml('', { spaceAfter: 0 })); }
+      const isName = i === sigLines.length - 1;
+      if (isName && (stempelBuf || ttdBuf)) {
+        const ids = [];
+        if (stempelBuf) { imageRegistry['stempel1'] = stempelBuf; ids.push('stempel1'); }
+        if (ttdBuf) { imageRegistry['ttd1'] = ttdBuf; ids.push('ttd1'); }
+        const drawings = ids.map(id => `<w:r>${inlineDrawing(id, id === 'stempel1' ? 1400000 : 1600000, id === 'stempel1' ? 900000 : 750000)}</w:r>`).join('');
+        paragraphs.push(`<w:p><w:pPr><w:jc w:val="right"/><w:spacing w:after="0"/></w:pPr><w:r><w:rPr><w:noProof/></w:rPr>${drawings}</w:r></w:p>`);
+        insertedImage = true;
+      }
+      paragraphs.push(paraXml(htmlToRuns(ln), { align: 'right', bold: isName, underline: isName, spaceAfter: 0 }));
     });
+    if (!insertedImage && (stempelBuf || ttdBuf)) {
+      const ids = [];
+      if (stempelBuf) { imageRegistry['stempel1'] = stempelBuf; ids.push('stempel1'); }
+      if (ttdBuf) { imageRegistry['ttd1'] = ttdBuf; ids.push('ttd1'); }
+      const drawings = ids.map(id => `<w:r><w:rPr><w:noProof/></w:rPr>${inlineDrawing(id, 1400000, 900000)}</w:r>`).join('');
+      paragraphs.push(`<w:p><w:pPr><w:jc w:val="right"/><w:spacing w:after="0"/></w:pPr>${drawings}</w:p>`);
+    }
   }
+
+  const PAPER_TWIPS = { A4: [11906, 16838], F4: [12189, 18795], LEGAL: [12189, 18795], LETTER: [12240, 15840] };
+  const paperKey = String(t.ukuran_kertas || 'A4').toUpperCase();
+  const [pw, ph] = PAPER_TWIPS[paperKey] || PAPER_TWIPS.A4;
+  const numv = (v, d) => { const n = parseFloat(v); return Number.isFinite(n) && n > 0 ? n : d; };
+  const tw = (cm) => Math.round(numv(cm, 2) * 567);
+  const sectPr = `<w:sectPr><w:pgSz w:w="${pw}" w:h="${ph}"/><w:pgMar w:top="${tw(t.margin_atas)}" w:right="${tw(t.margin_kanan)}" w:bottom="${tw(t.margin_bawah)}" w:left="${tw(t.margin_kiri)}" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr>`;
 
   const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
 <w:body>
 ${paragraphs.join('\n')}
-<w:sectPr><pgSz w:w="11906" w:h="16838"/><pgMar w:top="1134" w:right="1417" w:bottom="1417" w:left="1701" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr>
+${sectPr}
 </w:body>
 </w:document>`;
 
@@ -1164,12 +1342,25 @@ ${paragraphs.join('\n')}
 <w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>
 </w:styles>`;
 
+  const imgRels = Object.keys(imageRegistry).map((id, i) =>
+    `<Relationship Id="${id}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${id}.${imageExt(imageRegistry[id])}"/>`
+  ).join('');
+  const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+${imgRels}
+</Relationships>`;
+
+  const imgOverrides = Object.keys(imageRegistry).map(id =>
+    `<Override PartName="/word/media/${id}.${imageExt(imageRegistry[id])}" ContentType="image/${imageMime(imageRegistry[id])}"/>`
+  ).join('');
   const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
 <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
 <Default Extension="xml" ContentType="application/xml"/>
 <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
 <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+${imgOverrides}
 </Types>`;
 
   const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -1177,10 +1368,8 @@ ${paragraphs.join('\n')}
 <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
 </Relationships>`;
 
-  const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-</Relationships>`;
+  const imagesUsed = imageRegistry;
+  imageRegistry = {};
 
   const entries = [
     ['[Content_Types].xml', contentTypes],
@@ -1189,11 +1378,13 @@ ${paragraphs.join('\n')}
     ['word/_rels/document.xml.rels', docRels],
     ['word/styles.xml', stylesXml]
   ];
+  for (const [id, img] of Object.entries(imagesUsed)) {
+    entries.push([`word/media/${id}.${img.ext}`, img.data]);
+  }
 
   return zipStore(entries);
 }
 
-// ZIP (store) minimal — cukup untuk .docx yang dibaca Word/LibreOffice.
 function crc32(buf) {
   let table = crc32.table;
   if (!table) {
@@ -1216,16 +1407,16 @@ function zipStore(entries) {
   const dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xFFFF;
   const dosDate = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
 
-  for (const [nameStr, contentStr] of entries) {
+  for (const [nameStr, content] of entries) {
     const name = Buffer.from(nameStr, 'utf8');
-    const data = Buffer.from(String(contentStr), 'utf8');
+    const data = Buffer.isBuffer(content) ? content : Buffer.from(String(content), 'utf8');
     const crc = crc32(data);
 
     const local = Buffer.alloc(30);
     local.writeUInt32LE(0x04034b50, 0);
-    local.writeUInt16LE(20, 4);          // version needed
-    local.writeUInt16LE(0x0800, 6);      // UTF-8 flag
-    local.writeUInt16LE(0, 8);           // method: store
+    local.writeUInt16LE(20, 4);
+    local.writeUInt16LE(0x0800, 6);
+    local.writeUInt16LE(0, 8);
     local.writeUInt16LE(dosTime, 10);
     local.writeUInt16LE(dosDate, 12);
     local.writeUInt32LE(crc, 14);

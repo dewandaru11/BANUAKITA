@@ -16,6 +16,9 @@ let suratTypes = [];
 let lastPreview = '';
 let cachedPenduduk = [];
 let currentTemplate = null;
+let lastAutoFilledValues = {};
+let manuallyEditedFields = new Set();
+let manualLetterFieldValues = {};
 
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
@@ -27,6 +30,44 @@ const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({
   '"': '&quot;',
   "'": '&#039;'
 }[m]));
+
+
+function markDynamicFieldEdited(fieldKey, value) {
+  manuallyEditedFields.add(fieldKey);
+  manualLetterFieldValues[fieldKey] = value;
+}
+
+
+window.fillLetterFieldsFromPenduduk = function fillLetterFieldsFromPenduduk() {
+  if (getPendudukMode() !== 'db') return;
+
+  const pid = $('#pid');
+  const penduduk = pid && pid.value
+    ? cachedPenduduk.find(x => x.id == pid.value)
+    : null;
+
+  $$('#dyn input, #dyn textarea, #dyn select').forEach(el => {
+    if (!el.id || !el.id.startsWith('f_')) return;
+
+    const fieldKey = el.id.slice(2);
+    if (manuallyEditedFields.has(fieldKey)) return;
+
+    const hasValue = penduduk &&
+      Object.prototype.hasOwnProperty.call(penduduk, fieldKey) &&
+      penduduk[fieldKey] !== null &&
+      penduduk[fieldKey] !== undefined;
+    const nextValue = hasValue ? String(penduduk[fieldKey]) : '';
+    const hadAutofill = Object.prototype.hasOwnProperty.call(lastAutoFilledValues, fieldKey);
+    const stillAutofilled = hadAutofill && el.value === lastAutoFilledValues[fieldKey];
+
+    if (el.value === '' || stillAutofilled) {
+      if (hasValue || stillAutofilled) {
+        el.value = nextValue;
+        lastAutoFilledValues[fieldKey] = nextValue;
+      }
+    }
+  });
+};
 
 
 /* =========================================================
@@ -288,31 +329,22 @@ async function loadP(q) {
    FORM FIELD
    ========================================================= */
 
-// Opsi standar (seperti form pelayanan desa)
-const OPT_JK = 'Laki-laki|Perempuan';
-const OPT_AGAMA = 'Islam|Kristen|Katolik|Hindu|Buddha|Konghucu|Kepercayaan';
-const OPT_STATUS = 'Belum Kawin|Kawin|Cerai Hidup|Cerai Mati';
-const OPT_PEKERJAAN = 'Belum/Tidak Bekerja|Pelajar/Mahasiswa|Ibu Rumah Tangga|Pensiunan|PNS|TNI|Polri|Petani|Nelayan|Pedagang|Wiraswasta|Karyawan Swasta|Buruh|Guru|Tenaga Kesehatan|Perangkat Desa|Lainnya';
-
 function fld(
   id,
   label,
   type = 'text',
   opts = '',
-  value = '',
-  hint = '',
-  placeholder = ''
+  value = ''
 ) {
 
   const v = esc(value);
-  const ph = esc(placeholder || '');
 
   let x;
 
   if (type === 'textarea') {
 
     x = `
-      <textarea id="${id}" placeholder="${ph}" rows="3">${v}</textarea>
+      <textarea id="${id}">${v}</textarea>
     `;
 
   } else if (type === 'select') {
@@ -320,9 +352,9 @@ function fld(
     x = `
       <select id="${id}">
         <option value="">-- pilih --</option>
+
         ${opts
           .split('|')
-          .filter(Boolean)
           .map(o => `
             <option
               value="${esc(o)}"
@@ -333,6 +365,7 @@ function fld(
           `)
           .join('')
         }
+
       </select>
     `;
 
@@ -343,60 +376,16 @@ function fld(
         id="${id}"
         type="${type}"
         value="${v}"
-        placeholder="${ph}"
       >
     `;
   }
 
   return `
-    <div class="form-field">
-      <label for="${id}">${label}</label>
+    <div>
+      <label>${label}</label>
       ${x}
-      ${hint ? `<small class="field-hint">${esc(hint)}</small>` : ''}
     </div>
   `;
-}
-
-/** Field dinamis pintar: pakai select untuk field yang dikenal */
-function fldSmart(id, label, tipe, value = '') {
-  const key = String(id || '').replace(/^f_/, '').toLowerCase();
-  const lab = (label || key).replaceAll('_', ' ');
-
-  if (key === 'jenis_kelamin' || /jenis.?kelamin|jk/i.test(lab)) {
-    return fld(id, lab, 'select', OPT_JK, value);
-  }
-  if (key === 'agama') {
-    return fld(id, lab, 'select', OPT_AGAMA, value);
-  }
-  if (key === 'status_perkawinan' || /status.?perkawinan/i.test(lab)) {
-    return fld(id, lab, 'select', OPT_STATUS, value);
-  }
-  if (key === 'pekerjaan') {
-    return fld(id, lab, 'select', OPT_PEKERJAAN, value);
-  }
-  if (tipe === 'DATE' || /tanggal/i.test(key)) {
-    return fld(id, lab, 'date', '', value, 'Contoh: 01/01/1990');
-  }
-  if (/alamat/i.test(key)) {
-    return fld(id, lab, 'textarea', '', value, '', 'Alamat lengkap');
-  }
-  if (key === 'nik') {
-    return fld(id, lab, 'text', '', value, '16 digit angka', 'NIK');
-  }
-  if (key === 'rt' || key === 'rw') {
-    return fld(id, lab, 'text', '', value, 'Contoh: 001', key.toUpperCase());
-  }
-  if (/keperluan/i.test(key)) {
-    return fld(id, lab, 'text', '', value, 'Contoh: Beasiswa Sekolah', 'Keperluan');
-  }
-
-  return fld(
-    id,
-    lab,
-    tipe === 'DATE' ? 'date' : 'text',
-    '',
-    value
-  );
 }
 
 
@@ -455,25 +444,49 @@ function addP() {
 
       </div>
 
-      <div class="form-section-title">Data Penduduk</div>
-      <div class="grid form-grid-2">
-        ${fld('nama', 'Nama Lengkap *', 'text', '', '', '', 'Nama sesuai KTP')}
-        ${fld('tempat_lahir', 'Tempat Lahir', 'text', '', '', '', 'Tempat lahir')}
-        ${fld('tanggal_lahir', 'Tanggal Lahir', 'date', '', '', 'Contoh: 1 Januari 1990')}
-        ${fld('nik', 'NIK *', 'text', '', '', '16 digit angka', 'NIK')}
-        ${fld('no_kk', 'Nomor KK', 'text', '', '', '', 'Nomor Kartu Keluarga')}
-        ${fld('jenis_kelamin', 'Jenis Kelamin', 'select', OPT_JK)}
-        ${fld('agama', 'Agama', 'select', OPT_AGAMA)}
-        ${fld('status_perkawinan', 'Status Perkawinan', 'select', OPT_STATUS)}
-        ${fld('pekerjaan', 'Pekerjaan', 'select', OPT_PEKERJAAN)}
-        ${fld('pendidikan', 'Pendidikan', 'text', '', '', '', 'Pendidikan terakhir')}
-        ${fld('alamat', 'Alamat', 'textarea', '', '', '', 'Alamat lengkap')}
-        ${fld('rt', 'RT', 'text', '', '', 'Contoh: 001', '001')}
-        ${fld('rw', 'RW', 'text', '', '', 'Contoh: 001', '001')}
-        ${fld('desa', 'Desa', 'text', '', '', '', 'Nama desa')}
-        ${fld('kecamatan', 'Kecamatan', 'text', '', '', '', 'Nama kecamatan')}
-        ${fld('kabupaten', 'Kabupaten', 'text', '', '', '', 'Nama kabupaten')}
-        ${fld('provinsi', 'Provinsi', 'text', '', '', '', 'Nama provinsi')}
+      <div class="grid">
+
+        ${fld('nik', 'NIK *')}
+
+        ${fld('no_kk', 'No. KK')}
+
+        ${fld('nama', 'Nama Lengkap *')}
+
+        ${fld('tempat_lahir', 'Tempat Lahir')}
+
+        ${fld('tanggal_lahir', 'Tanggal Lahir', 'date')}
+
+        ${fld(
+          'jenis_kelamin',
+          'Jenis Kelamin',
+          'select',
+          'Laki-laki|Perempuan'
+        )}
+
+        ${fld('agama', 'Agama')}
+
+        ${fld('pendidikan', 'Pendidikan')}
+
+        ${fld('pekerjaan', 'Pekerjaan')}
+
+        ${fld('status_perkawinan', 'Status Perkawinan')}
+
+        ${fld('rt', 'RT')}
+
+        ${fld('rw', 'RW')}
+
+        ${fld('desa', 'Desa')}
+
+        ${fld('kecamatan', 'Kecamatan')}
+
+        ${fld('kabupaten', 'Kabupaten')}
+
+        ${fld('provinsi', 'Provinsi')}
+
+        <div class="full">
+          ${fld('alamat', 'Alamat', 'textarea')}
+        </div>
+
       </div>
 
       <div class="actions">
@@ -1157,6 +1170,10 @@ async function suratTypesPage() {
 
 async function buat() {
 
+  lastAutoFilledValues = {};
+  manuallyEditedFields = new Set();
+  manualLetterFieldValues = {};
+
   suratTypes = await window.desaAPI.surat.types() || [];
 
   cachedPenduduk =
@@ -1197,11 +1214,11 @@ async function buat() {
           </label>
         </div>
 
-        <!-- Pilih dari database -->
+        <!-- Mode Database -->
         <div id="mode-db">
-          <label>Pilih Penduduk (isi otomatis)</label>
-          <select id="pid" onchange="onPendudukChange()">
-            <option value="">-- pilih penduduk / kosongkan untuk isi manual --</option>
+          <label>Penduduk</label>
+          <select id="pid" onchange="window.fillLetterFieldsFromPenduduk()">
+            <option value="">-- pilih penduduk --</option>
             ${
               cachedPenduduk.map(x => `
                 <option value="${x.id}">
@@ -1210,81 +1227,115 @@ async function buat() {
               `).join('')
             }
           </select>
-          <div id="penduduk-info" style="display:none;margin-top:8px;padding:10px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;font-size:13px"></div>
         </div>
 
-        <!-- SCAN KTP -->
-        <div class="panel" style="margin:14px 0;background:#f8fafc;border:1px dashed #94a3b8;padding:12px">
-          <h3 style="margin:0 0 8px 0;font-size:15px">📷 Scan KTP (OCR)</h3>
-          <p class="hint" style="margin-bottom:10px;font-size:13px">Upload foto/scan KTP agar form terisi otomatis.</p>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">
-            <div>
-              <input type="file" id="m_ktp_file" accept="image/*" capture="environment" onchange="previewKtp(this, 'm_')">
-              <div style="margin-top:8px">
-                <button class="primary" id="m_btn_ocr" onclick="scanKtpOcr('m_')" disabled>Scan KTP Sekarang</button>
+        <!-- Mode Manual -->
+        <div id="mode-manual" style="display:none">
+
+          <!-- SCAN KTP untuk Input Manual -->
+          <div class="panel" style="margin:12px 0;background:#f8fafc;border:1px dashed #94a3b8;padding:12px">
+            <h3 style="margin:0 0 8px 0;font-size:15px">📷 Scan KTP (OCR)</h3>
+            <p class="hint" style="margin-bottom:10px;font-size:13px">
+              Upload foto/scan KTP agar data terisi otomatis.
+            </p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">
+              <div>
+                <input
+                  type="file"
+                  id="m_ktp_file"
+                  accept="image/*"
+                  capture="environment"
+                  onchange="previewKtp(this, 'm_')"
+                >
+                <div style="margin-top:8px">
+                  <button
+                    class="primary"
+                    id="m_btn_ocr"
+                    onclick="scanKtpOcr('m_')"
+                    disabled
+                  >
+                    Scan KTP Sekarang
+                  </button>
+                </div>
+                <div id="m_ocr_status" style="margin-top:8px;font-size:13px;color:#64748b"></div>
               </div>
-              <div id="m_ocr_status" style="margin-top:8px;font-size:13px;color:#64748b"></div>
+              <div id="m_ktp_preview_wrap" style="display:none">
+                <img
+                  id="m_ktp_preview"
+                  style="max-width:220px;max-height:140px;border:1px solid #cbd5e1;border-radius:6px"
+                >
+              </div>
             </div>
-            <div id="m_ktp_preview_wrap" style="display:none">
-              <img id="m_ktp_preview" style="max-width:220px;max-height:140px;border:1px solid #cbd5e1;border-radius:6px">
+          </div>
+
+          <div class="grid" style="margin-top:8px">
+            ${fld('m_nik', 'NIK *')}
+            ${fld('m_nama', 'Nama Lengkap *')}
+            ${fld('m_no_kk', 'No. KK')}
+            ${fld('m_tempat_lahir', 'Tempat Lahir')}
+            ${fld('m_tanggal_lahir', 'Tanggal Lahir', 'date')}
+            ${fld('m_jenis_kelamin', 'Jenis Kelamin', 'select', 'Laki-laki|Perempuan')}
+            ${fld('m_agama', 'Agama')}
+            ${fld('m_pekerjaan', 'Pekerjaan')}
+            ${fld('m_status_perkawinan', 'Status Perkawinan')}
+            ${fld('m_rt', 'RT')}
+            ${fld('m_rw', 'RW')}
+            ${fld('m_desa', 'Desa')}
+            ${fld('m_kecamatan', 'Kecamatan')}
+            ${fld('m_kabupaten', 'Kabupaten')}
+            ${fld('m_provinsi', 'Provinsi')}
+            <div class="full">
+              ${fld('m_alamat', 'Alamat', 'textarea')}
             </div>
           </div>
         </div>
 
-        <!-- FORM PENGISIAN (seperti contoh) -->
-        <div class="form-section-title" style="text-align:center;border:none;margin-top:8px">Form Pengajuan Surat</div>
+        <label>Jenis Surat</label>
 
-        <div class="grid form-grid-2" style="margin-top:8px">
-          ${fld('m_nama', 'Nama Lengkap', 'text', '', '', '', 'Nama sesuai KTP')}
-          ${fld('m_tempat_lahir', 'Tempat Lahir', 'text', '', '', '', 'Tempat lahir')}
-          ${fld('m_tanggal_lahir', 'Tanggal Lahir', 'date', '', '', 'Contoh: 1 Januari 1990')}
-          ${fld('m_nik', 'NIK', 'text', '', '', '16 digit angka', 'NIK')}
-          ${fld('m_no_kk', 'Nomor KK', 'text', '', '', '', 'Nomor Kartu Keluarga')}
-          ${fld('m_jenis_kelamin', 'Jenis Kelamin', 'select', OPT_JK)}
-          ${fld('m_agama', 'Agama', 'select', OPT_AGAMA)}
-          ${fld('m_status_perkawinan', 'Status Perkawinan', 'select', OPT_STATUS)}
-          ${fld('m_pekerjaan', 'Pekerjaan', 'select', OPT_PEKERJAAN)}
-          ${fld('m_alamat', 'Alamat', 'textarea', '', '', '', 'Alamat')}
-          ${fld('m_rt', 'RT', 'text', '', '', 'Contoh: 001', '001')}
-          ${fld('m_rw', 'RW', 'text', '', '', 'Contoh: 001', '001')}
-          ${fld('m_desa', 'Desa', 'text', '', '', '', 'Nama desa')}
-          ${fld('m_kecamatan', 'Kecamatan', 'text', '', '', '', 'Nama kecamatan')}
-          ${fld('m_kabupaten', 'Kabupaten', 'text', '', '', '', 'Nama kabupaten')}
-          ${fld('m_provinsi', 'Provinsi', 'text', '', '', '', 'Nama provinsi')}
-        </div>
+        <select
+          id="tid"
+          onchange="dynamicFields()"
+        >
+          <option value="">-- pilih jenis surat --</option>
+          ${
+            suratTypes.map(x => `
+              <option value="${x.id}">
+                ${esc(x.kode)} - ${esc(x.nama)}
+              </option>
+            `).join('')
+          }
+        </select>
 
-        <div class="form-section-title" style="color:#dc2626;border-color:#fecaca">Kontak Pemohon</div>
-        <div class="grid form-grid-2">
-          ${fld('m_nama_pemohon', 'Nama Pemohon', 'text', '', '', '', 'Nama pemohon')}
-          ${fld('m_telp', 'No. Tlp / WhatsApp', 'text', '', '', 'Wajib diisi', '08xxxxxxxxxx')}
-          ${fld('m_email', 'Email (jika ada)', 'text', '', '', '', 'nama@domain.com')}
-          ${fld('m_keperluan', 'Keperluan', 'text', '', '', 'Contoh: Beasiswa Sekolah', 'Keperluan surat')}
-        </div>
+        <label>Nomor Surat</label>
 
-        <div class="form-section-title">Jenis & Nomor Surat</div>
-        <div class="grid form-grid-2">
-          <div class="form-field">
-            <label>Jenis Surat</label>
-            <select id="tid" onchange="onJenisSuratChange()">
-              <option value="">-- pilih jenis surat --</option>
-              ${
-                suratTypes.map(x => `
-                  <option value="${x.id}">
-                    ${esc(x.kode)} - ${esc(x.nama)}
-                  </option>
-                `).join('')
-              }
-            </select>
-          </div>
-          ${fld('nomor', 'Nomor Surat', 'text', '', '', '', 'Otomatis / isi manual')}
-          ${fld('tanggal', 'Tanggal', 'date', '', tgl)}
-        </div>
+        <input
+          id="nomor"
+          placeholder="001/DESA/2025"
+        >
+
+        <label>Tanggal</label>
+
+        <input
+          id="tanggal"
+          type="date"
+          value="${tgl}"
+        >
 
         <div id="dyn"></div>
 
-        <div class="actions" style="margin-top:18px">
-          <button class="primary" onclick="saveLetter()">Simpan</button>
-          <button onclick="preview()">Preview</button>
+        <div class="actions">
+
+          <button
+            class="primary"
+            onclick="saveLetter()"
+          >
+            Simpan
+          </button>
+
+          <button onclick="preview()">
+            Preview
+          </button>
+
         </div>
 
       </div>
@@ -1310,174 +1361,32 @@ async function buat() {
 }
 
 
-/* =========================================================
-   AUTO-FILL SAAT PILIH PENDUDUK / JENIS SURAT
-   ========================================================= */
-
-function getSelectedPenduduk() {
-  const pid = $('#pid');
-  if (!pid || !pid.value) return null;
-  return cachedPenduduk.find(x => String(x.id) === String(pid.value)) || null;
-}
-
-function setVal(id, val) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  if (val === undefined || val === null) return;
-  el.value = val;
-}
-
-function onPendudukChange() {
-  const p = getSelectedPenduduk();
-  const info = $('#penduduk-info');
-
-  if (!p) {
-    if (info) {
-      info.style.display = 'none';
-      info.innerHTML = '';
-    }
-    return;
-  }
-
-  if (info) {
-    info.style.display = '';
-    info.innerHTML = `<b style="color:#166534">✓ Data penduduk dipilih — form terisi otomatis</b>`;
-  }
-
-  // Isi form utama (mirip form pengajuan)
-  setVal('m_nama', p.nama);
-  setVal('m_nik', p.nik);
-  setVal('m_no_kk', p.no_kk);
-  setVal('m_tempat_lahir', p.tempat_lahir);
-  setVal('m_tanggal_lahir', p.tanggal_lahir);
-  setVal('m_jenis_kelamin', p.jenis_kelamin);
-  setVal('m_agama', p.agama);
-  setVal('m_status_perkawinan', p.status_perkawinan);
-  setVal('m_pekerjaan', p.pekerjaan);
-  setVal('m_alamat', p.alamat);
-  setVal('m_rt', p.rt);
-  setVal('m_rw', p.rw);
-  setVal('m_desa', p.desa);
-  setVal('m_kecamatan', p.kecamatan);
-  setVal('m_kabupaten', p.kabupaten);
-  setVal('m_provinsi', p.provinsi);
-  setVal('m_nama_pemohon', p.nama);
-
-  // Isi juga field dinamis
-  fillDynFromPenduduk(p);
-}
-
-function fillDynFromPenduduk(p) {
-  if (!p) return;
-
-  const map = {
-    nama: p.nama,
-    nik: p.nik,
-    no_kk: p.no_kk,
-    tempat_lahir: p.tempat_lahir,
-    tanggal_lahir: p.tanggal_lahir,
-    jenis_kelamin: p.jenis_kelamin,
-    agama: p.agama,
-    pendidikan: p.pendidikan,
-    pekerjaan: p.pekerjaan,
-    status_perkawinan: p.status_perkawinan,
-    alamat: p.alamat,
-    rt: p.rt,
-    rw: p.rw,
-    desa: p.desa,
-    kecamatan: p.kecamatan,
-    kabupaten: p.kabupaten,
-    provinsi: p.provinsi
-  };
-
-  Object.entries(map).forEach(([key, val]) => {
-    if (val === undefined || val === null || val === '') return;
-    // form dinamis (f_) dan form utama (m_)
-    setVal('f_' + key, val);
-    setVal('m_' + key, val);
-  });
-}
-
-async function onJenisSuratChange() {
-  await dynamicFields();
-  await cekTemplateStatus();
-  await autoNomorSurat();
-
-  // Setelah form dinamis muncul, isi lagi dari penduduk terpilih
-  const p = getSelectedPenduduk();
-  if (p) fillDynFromPenduduk(p);
-}
-
-async function autoNomorSurat() {
-  const nomorEl = $('#nomor');
-  const tanggalEl = $('#tanggal');
-  const tid = $('#tid');
-
-  if (!nomorEl || !tid || !tid.value) return;
-
-  // Jangan timpa jika user sudah isi manual (kecuali masih kosong / placeholder)
-  const current = (nomorEl.value || '').trim();
-  if (current && !/otomatis/i.test(current)) {
-    // tetap boleh regenerate jika kosong; jika sudah ada isi biarkan
-    // (user bisa hapus isi untuk generate ulang)
-  }
-
-  const x = suratTypes.find(t => String(t.id) === String(tid.value));
-  if (!x) return;
-
-  const tanggal = (tanggalEl && tanggalEl.value) || new Date().toISOString().slice(0, 10);
-
-  try {
-    if (window.desaAPI.surat && typeof window.desaAPI.surat.nextNomor === 'function') {
-      const no = await window.desaAPI.surat.nextNomor(tanggal, x.kode);
-      if (no) nomorEl.value = no;
-      return;
-    }
-  } catch (e) {
-    console.warn('nextNomor gagal, pakai fallback:', e);
-  }
-
-  // Fallback lokal jika API belum ada
-  const year = tanggal.slice(0, 4);
-  const month = tanggal.slice(5, 7);
-  nomorEl.value = `001/${x.kode}/${month}/${year}`;
-}
-
-
 function togglePendudukMode() {
-  // Form isian selalu tampil.
-  // Mode "Dari Database" menampilkan dropdown pilih penduduk.
+
   const mode =
     document.querySelector(
       'input[name="sumber_penduduk"]:checked'
     )?.value || 'db';
 
   const modeDb = $('#mode-db');
+  const modeManual = $('#mode-manual');
+
   if (modeDb) {
-    modeDb.style.display = mode === 'db' ? '' : 'none';
+    modeDb.style.display =
+      mode === 'db' ? '' : 'none';
   }
 
-  // Jika pindah ke manual, kosongkan pilihan penduduk
-  if (mode === 'manual') {
-    const pid = $('#pid');
-    if (pid) pid.value = '';
-    const info = $('#penduduk-info');
-    if (info) {
-      info.style.display = 'none';
-      info.innerHTML = '';
-    }
+  if (modeManual) {
+    modeManual.style.display =
+      mode === 'manual' ? '' : 'none';
   }
 }
 
 
 function getPendudukMode() {
-  // Jika ada penduduk terpilih → db, selain itu manual (form m_)
-  const pid = $('#pid');
-  if (pid && pid.value) return 'db';
-  const radio = document.querySelector(
+  return document.querySelector(
     'input[name="sumber_penduduk"]:checked'
-  )?.value;
-  return radio || 'manual';
+  )?.value || 'db';
 }
 
 
@@ -1515,27 +1424,40 @@ async function dynamicFields() {
     );
 
   dyn.innerHTML =
-    '<div class="form-section-title">Form Pengajuan / Data Tambahan</div>' +
+    '<h3>Form Dinamis</h3>' +
     (
       fields.length
-        ? `<div class="grid form-grid-2">${fields.map(f =>
-            fldSmart(
+        ? fields.map(f =>
+            fld(
               'f_' + f.field,
-              f.label || f.field,
-              f.tipe,
-              ''
+              (f.label || f.field)
+                .replaceAll('_', ' '),
+              f.tipe === 'DATE'
+                ? 'date'
+                : 'text',
+              '',
+              Object.prototype.hasOwnProperty.call(manualLetterFieldValues, f.field)
+                ? manualLetterFieldValues[f.field]
+                : ''
             )
-          ).join('')}</div>`
+          ).join('')
         : `
           <p class="hint">
-            Tidak ada field tambahan. Data penduduk akan dipakai otomatis di surat.
+            Tidak ada field tambahan untuk surat ini.
           </p>
         `
     );
 
-  // Auto-isi field dinamis dari penduduk yang sedang dipilih
-  const p = getSelectedPenduduk();
-  if (p) fillDynFromPenduduk(p);
+  $$('#dyn input, #dyn textarea, #dyn select').forEach(el => {
+    if (!el.id || !el.id.startsWith('f_')) return;
+
+    const fieldKey = el.id.slice(2);
+    const markEdited = () => markDynamicFieldEdited(fieldKey, el.value);
+    el.addEventListener('input', markEdited);
+    el.addEventListener('change', markEdited);
+  });
+
+  window.fillLetterFieldsFromPenduduk();
 
   await cekTemplateStatus();
 }
@@ -1585,61 +1507,77 @@ function buildDataMap() {
 
   const nomorEl = $('#nomor');
   const tanggalEl = $('#tanggal');
+  const mode = getPendudukMode();
 
-  // Selalu ambil dari form isian (sudah auto-isi jika pilih penduduk)
-  const map = {
-    nik: 'm_nik',
-    nama: 'm_nama',
-    no_kk: 'm_no_kk',
-    tempat_lahir: 'm_tempat_lahir',
-    tanggal_lahir: 'm_tanggal_lahir',
-    jenis_kelamin: 'm_jenis_kelamin',
-    agama: 'm_agama',
-    pekerjaan: 'm_pekerjaan',
-    status_perkawinan: 'm_status_perkawinan',
-    rt: 'm_rt',
-    rw: 'm_rw',
-    desa: 'm_desa',
-    kecamatan: 'm_kecamatan',
-    kabupaten: 'm_kabupaten',
-    provinsi: 'm_provinsi',
-    alamat: 'm_alamat'
-  };
+  let p = {};
 
-  const p = {};
-  Object.entries(map).forEach(([key, id]) => {
-    const el = document.getElementById(id);
-    if (el) p[key] = (el.value || '').trim();
-  });
+  if (mode === 'manual') {
 
-  // Fallback: jika form kosong tapi penduduk dipilih, ambil dari cache
-  const pid = $('#pid');
-  if (pid && pid.value && !p.nama) {
-    const row = cachedPenduduk.find(x => String(x.id) === String(pid.value));
-    if (row) Object.assign(p, row);
+    // Ambil data dari form manual
+    const map = {
+      nik: 'm_nik',
+      nama: 'm_nama',
+      no_kk: 'm_no_kk',
+      tempat_lahir: 'm_tempat_lahir',
+      tanggal_lahir: 'm_tanggal_lahir',
+      jenis_kelamin: 'm_jenis_kelamin',
+      agama: 'm_agama',
+      pekerjaan: 'm_pekerjaan',
+      status_perkawinan: 'm_status_perkawinan',
+      rt: 'm_rt',
+      rw: 'm_rw',
+      desa: 'm_desa',
+      kecamatan: 'm_kecamatan',
+      kabupaten: 'm_kabupaten',
+      provinsi: 'm_provinsi',
+      alamat: 'm_alamat'
+    };
+
+    Object.entries(map).forEach(([key, id]) => {
+      const el = $('#' + id);
+      if (el) p[key] = (el.value || '').trim();
+    });
+
+  } else {
+
+    // Ambil dari database
+    const pid = $('#pid');
+    p =
+      (pid && pid.value)
+        ? (cachedPenduduk.find(
+            x => x.id == pid.value
+          ) || {})
+        : {};
   }
 
   const fields = {};
-  $$('#dyn input, #dyn textarea, #dyn select').forEach(e => {
-    if (e.id && e.id.startsWith('f_')) {
-      fields[e.id.slice(2)] = e.value;
-    }
-  });
 
-  const keperluanEl = document.getElementById('m_keperluan');
-  const telpEl = document.getElementById('m_telp');
-  const emailEl = document.getElementById('m_email');
-  const namaPemohonEl = document.getElementById('m_nama_pemohon');
+  $$('#dyn input, #dyn textarea, #dyn select')
+    .forEach(e => {
+
+      if (e.id && e.id.startsWith('f_')) {
+        const value = String(e.value ?? '');
+        if (value.trim()) {
+          fields[e.id.slice(2)] = value;
+        }
+      }
+
+    });
 
   return {
+
     ...p,
+
     ...fields,
-    keperluan: (keperluanEl && keperluanEl.value) || fields.keperluan || '',
-    telp: (telpEl && telpEl.value) || '',
-    email: (emailEl && emailEl.value) || '',
-    nama_pemohon: (namaPemohonEl && namaPemohonEl.value) || p.nama || '',
-    nomor_surat: (nomorEl && nomorEl.value) || '',
-    tanggal_surat: (tanggalEl && tanggalEl.value) || ''
+
+    keperluan:
+      fields.keperluan || '',
+
+    nomor_surat:
+      (nomorEl && nomorEl.value) || '',
+
+    tanggal_surat:
+      (tanggalEl && tanggalEl.value) || ''
   };
 }
 
@@ -1670,132 +1608,206 @@ function replacePlaceholders(isi, data) {
    ========================================================= */
 
 async function preview() {
-  try {
 
-  let s = {};
-  try {
-    s = await window.desaAPI.settings.get() || {};
-  } catch (e) {
-    console.warn('settings.get gagal:', e);
-  }
+  const s =
+    await window.desaAPI.settings.get();
 
   const tid = $('#tid');
+  const mode = getPendudukMode();
 
   if (!tid || !tid.value) {
     return alert('Pilih jenis surat dulu.');
   }
 
-  // Data selalu dari form (auto-isi jika pilih penduduk)
-  const data = buildDataMap();
+  if (mode === 'db') {
+    const pid = $('#pid');
+    if (!pid || !pid.value) {
+      return alert('Pilih penduduk dulu.');
+    }
+  } else {
+    // Validasi input manual
+    const nik = ($('#m_nik')?.value || '').trim();
+    const nama = ($('#m_nama')?.value || '').trim();
 
-  if (!data.nama || !data.nik) {
-    return alert('Nama dan NIK wajib diisi.\nPilih penduduk atau isi form terlebih dahulu.');
-  }
+    if (!nik || !nama) {
+      return alert('NIK dan Nama wajib diisi (mode manual).');
+    }
 
-  const nikClean = String(data.nik).replace(/\D/g, '');
-  if (nikClean.length !== 16) {
-    return alert('NIK harus 16 digit angka.\nSaat ini: ' + nikClean.length + ' digit.');
-  }
-  data.nik = nikClean;
-
-  // Lengkapi data desa dari pengaturan jika form kosong
-  if (!data.desa && s.nama_desa) data.desa = s.nama_desa;
-  if (!data.kecamatan && s.kecamatan) data.kecamatan = s.kecamatan;
-  if (!data.kabupaten && s.kabupaten) data.kabupaten = s.kabupaten;
-  if (!data.provinsi && s.provinsi) data.provinsi = s.provinsi;
-
-  const x = suratTypes.find(t => String(t.id) === String(tid.value));
-  if (!x) {
-    return alert('Jenis surat tidak ditemukan. Pilih ulang jenis surat.');
-  }
-
-  // Muat template sesuai kode jenis surat
-  await cekTemplateStatus();
-
-  // Jika template belum ter-load, coba lagi langsung
-  if (!currentTemplate || !currentTemplate.isi) {
-    try {
-      if (window.desaAPI.templates && typeof window.desaAPI.templates.getByKode === 'function') {
-        currentTemplate = await window.desaAPI.templates.getByKode(x.kode);
-      }
-    } catch (e) {
-      console.warn('Template getByKode gagal:', e);
+    if (!/^\d{16}$/.test(nik)) {
+      return alert('NIK harus 16 digit angka.');
     }
   }
 
-  let bodyHtml = '';
+  const x =
+    suratTypes.find(
+      t => t.id == tid.value
+    );
+
+  if (!x) {
+    return alert(
+      'Pilih jenis surat dulu.'
+    );
+  }
+
+  await cekTemplateStatus();
+
+  const data =
+    buildDataMap();
+
+  let bodyHtml;
   let usedTemplate = false;
 
-  if (currentTemplate && currentTemplate.isi) {
+  if (
+    currentTemplate &&
+    currentTemplate.isi
+  ) {
+
     usedTemplate = true;
-    // Jangan double-escape isi template yang sudah berisi data
-    const filled = replacePlaceholders(currentTemplate.isi, data);
-    bodyHtml = filled
+
+    bodyHtml =
+      replacePlaceholders(
+        currentTemplate.isi,
+        data
+      )
       .split('\n')
-      .map(l => {
-        const t = l.trim();
-        if (t === '') return '<br>';
-        // baris sudah plain text dari template + data
-        return `<p style="margin:2px 0;white-space:pre-wrap">${esc(t)}</p>`;
-      })
-      .join('');
-  } else {
-    // Fallback format dasar
-    const extra = Object.entries(data)
-      .filter(([k, v]) => v && !['nama','nik','alamat','nomor_surat','tanggal_surat','desa','kecamatan','kabupaten','provinsi'].includes(k))
-      .slice(0, 12)
-      .map(([k, v]) => `<p><b>${esc(k.replaceAll('_', ' '))}:</b> ${esc(v)}</p>`)
+      .map(
+        l =>
+          l.trim() === ''
+            ? '<br>'
+            : `<p>${esc(l)}</p>`
+      )
       .join('');
 
+  } else {
+
+    const fields = {};
+
+    $$('#dyn input, #dyn textarea, #dyn select')
+      .forEach(e => {
+
+        if (e.id.startsWith('f_')) {
+          fields[e.id.slice(2)] =
+            e.value;
+        }
+
+      });
+
+    const body =
+      Object.entries(fields)
+        .filter(a => a[1])
+        .map(
+          a =>
+            `<p>
+              <b>
+                ${esc(
+                  a[0]
+                    .replaceAll('_', ' ')
+                )}:
+              </b>
+              ${esc(a[1])}
+            </p>`
+        )
+        .join('');
+
     bodyHtml = `
-      <p>Yang bertanda tangan di bawah ini menerangkan bahwa:</p>
+
+      <p>
+        Yang bertanda tangan di bawah ini
+        menerangkan bahwa:
+      </p>
+
       <p>
         <b>${esc(data.nama || '')}</b><br>
         NIK: ${esc(data.nik || '')}<br>
         Alamat: ${esc(data.alamat || '')}
       </p>
-      ${extra}
-      <p>Demikian surat ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
+
+      ${body}
+
+      <p>
+        Demikian surat ini dibuat untuk
+        dipergunakan sebagaimana mestinya.
+      </p>
     `;
   }
 
-  // Kop resmi Desa Pusar (sesuai template Word)
   const kop = `
-    <div class="kop" style="text-align:center;line-height:1.35;margin-bottom:8px">
-      <div style="font-weight:bold;font-size:13pt">PEMERINTAH KABUPATEN ${esc((s.kabupaten || '').toUpperCase())}</div>
-      <div style="font-weight:bold;font-size:12pt">KECAMATAN ${esc((s.kecamatan || '').toUpperCase())}</div>
-      <div style="font-weight:bold;font-size:12pt">DESA ${esc((s.nama_desa || '').toUpperCase())}</div>
-      <div style="font-size:10pt">${esc(s.alamat || '')}</div>
-      <hr style="border:none;border-top:3px double #000;margin:8px 0 4px 0">
+
+    <div class="kop">
+
+      <b>
+        PEMERINTAH DESA
+        ${esc(
+          (s.nama_desa || '')
+            .toUpperCase()
+        )}
+      </b>
+
+      <br>
+
+      KECAMATAN
+      ${esc(
+        (s.kecamatan || '')
+          .toUpperCase()
+      )}
+
+      <br>
+
+      KABUPATEN
+      ${esc(
+        (s.kabupaten || '')
+          .toUpperCase()
+      )}
+
+      <br>
+
+      ${esc(s.alamat || '')}
+
     </div>
   `;
 
-  const judulSurat = (currentTemplate && currentTemplate.judul)
-    ? currentTemplate.judul
-    : (x.nama || 'SURAT').toUpperCase();
-
   lastPreview = `
+
     ${kop}
 
-    <h3 class="letter-title" style="text-align:center;text-decoration:underline;margin:12px 0 4px;font-size:13pt">
-      ${esc(judulSurat)}
+    <h3 class="letter-title">
+      ${esc(
+        x.nama.toUpperCase()
+      )}
     </h3>
 
-    <p class="letter-number" style="text-align:center;margin:0 0 16px">
-      Nomor : ${esc(data.nomor_surat || '........................')}
+    <p class="letter-number">
+      Nomor:
+      ${esc(
+        data.nomor_surat ||
+        '........................'
+      )}
     </p>
 
-    <div class="letter-body" style="text-align:justify">
+    <div class="letter-body">
       ${bodyHtml}
     </div>
 
-    <div class="signature" style="width:45%;margin-left:auto;text-align:center;margin-top:28px;line-height:1.4">
-      Dikeluarkan di : ${esc(s.nama_desa || '')}<br>
-      Pada Tanggal &nbsp;: ${esc(data.tanggal_surat || '')}
-      <br><br>
-      KEPALA DESA ${esc((s.nama_desa || '').toUpperCase())}
+    <div class="signature">
+
+      ${esc(s.nama_desa || '')},
+      ${esc(data.tanggal_surat || '')}
+
+      <br>
+
+      Kepala Desa
+
       <br><br><br><br>
-      <b><u>${esc(s.kepala_desa || '........................')}</u></b>
+
+      <b>
+        <u>
+          ${esc(
+            s.kepala_desa ||
+            '........................'
+          )}
+        </u>
+      </b>
+
     </div>
   `;
 
@@ -1824,82 +1836,30 @@ async function preview() {
       status +
       lastPreview +
       `
+
         <div class="actions preview-actions">
-          <button class="primary" onclick="doPrint()">Cetak</button>
-          <button onclick="doPdf()">PDF</button>
-          <button onclick="doWord()">Word</button>
+
+          <button
+            class="primary"
+            onclick="window.desaAPI.print()"
+          >
+            Cetak
+          </button>
+
+          <button
+            onclick="window.desaAPI.pdf()"
+          >
+            PDF
+          </button>
+
+          <button
+            onclick="window.desaAPI.word(lastPreview)"
+          >
+            Word
+          </button>
+
         </div>
       `;
-  }
-
-  } catch (err) {
-    console.error('preview error:', err);
-    alert('Gagal membuat preview:\n' + (err?.message || err));
-  }
-}
-
-
-/* =========================================================
-   CETAK / PDF / WORD HELPERS
-   ========================================================= */
-
-function ensurePreviewContent() {
-  if (!lastPreview || !String(lastPreview).trim()) {
-    alert('Konten surat masih kosong.\n\nKlik tombol Preview terlebih dahulu, lalu coba lagi.');
-    return false;
-  }
-  return true;
-}
-
-async function getPrintPayload() {
-  let settings = {};
-  try {
-    settings = await window.desaAPI.settings.get() || {};
-  } catch (e) { /* abaikan */ }
-  return {
-    html: lastPreview,
-    settings,
-    fileName: 'surat'
-  };
-}
-
-async function doPrint() {
-  if (!ensurePreviewContent()) return;
-  try {
-    const payload = await getPrintPayload();
-    // dukung API lama (string) dan baru (object)
-    await window.desaAPI.print(payload);
-  } catch (e) {
-    console.error(e);
-    alert('Gagal mencetak:\n' + (e?.message || e));
-  }
-}
-
-async function doPdf() {
-  if (!ensurePreviewContent()) return;
-  try {
-    const payload = await getPrintPayload();
-    const path = await window.desaAPI.pdf(payload);
-    if (path) {
-      alert('PDF berhasil disimpan:\n' + path);
-    }
-  } catch (e) {
-    console.error(e);
-    alert('Gagal membuat PDF:\n' + (e?.message || e));
-  }
-}
-
-async function doWord() {
-  if (!ensurePreviewContent()) return;
-  try {
-    const payload = await getPrintPayload();
-    const path = await window.desaAPI.word(payload);
-    if (path) {
-      alert('File Word berhasil disimpan:\n' + path);
-    }
-  } catch (e) {
-    console.error(e);
-    alert('Gagal membuat Word:\n' + (e?.message || e));
   }
 }
 
@@ -1913,49 +1873,119 @@ async function saveLetter() {
   const tid = $('#tid');
   const nomorEl = $('#nomor');
   const tanggalEl = $('#tanggal');
+  const mode = getPendudukMode();
 
   if (!tid || !tid.value) {
     return alert('Pilih jenis surat.');
   }
 
-  const data = buildDataMap();
+  let pendudukId = 0;
+  let manualData = {};
 
-  if (!data.nama || !data.nik) {
-    return alert('Nama dan NIK wajib diisi.\nPilih penduduk atau isi form manual.');
+  if (mode === 'db') {
+    const pid = $('#pid');
+    if (!pid || !pid.value) {
+      return alert('Pilih penduduk.');
+    }
+    pendudukId = Number(pid.value);
+  } else {
+    // Validasi & ambil data manual
+    const nik = ($('#m_nik')?.value || '').trim();
+    const nama = ($('#m_nama')?.value || '').trim();
+
+    if (!nik || !nama) {
+      return alert('NIK dan Nama wajib diisi (mode manual).');
+    }
+
+    if (!/^\d{16}$/.test(nik)) {
+      return alert('NIK harus 16 digit angka.');
+    }
+
+    const map = {
+      nik: 'm_nik',
+      nama: 'm_nama',
+      no_kk: 'm_no_kk',
+      tempat_lahir: 'm_tempat_lahir',
+      tanggal_lahir: 'm_tanggal_lahir',
+      jenis_kelamin: 'm_jenis_kelamin',
+      agama: 'm_agama',
+      pekerjaan: 'm_pekerjaan',
+      status_perkawinan: 'm_status_perkawinan',
+      rt: 'm_rt',
+      rw: 'm_rw',
+      desa: 'm_desa',
+      kecamatan: 'm_kecamatan',
+      kabupaten: 'm_kabupaten',
+      provinsi: 'm_provinsi',
+      alamat: 'm_alamat'
+    };
+
+    Object.entries(map).forEach(([key, id]) => {
+      const el = $('#' + id);
+      if (el) manualData[key] = (el.value || '').trim();
+    });
   }
 
-  if (!/^\d{16}$/.test(String(data.nik).replace(/\D/g, ''))) {
-    return alert('NIK harus 16 digit angka.');
-  }
+  const x =
+    suratTypes.find(
+      t => t.id == tid.value
+    );
 
-  const pid = $('#pid');
-  const pendudukId = (pid && pid.value) ? Number(pid.value) : null;
+  if (!x) {
+    return alert(
+      'Pilih jenis surat.'
+    );
+  }
 
   const fields = {};
-  $$('#dyn input, #dyn textarea, #dyn select').forEach(e => {
-    if (e.id && e.id.startsWith('f_')) {
-      fields[e.id.slice(2)] = e.value;
-    }
-  });
 
+  $$('#dyn input, #dyn textarea, #dyn select')
+    .forEach(e => {
+
+      if (e.id && e.id.startsWith('f_')) {
+        fields[e.id.slice(2)] =
+          e.value;
+      }
+
+    });
+
+  // Gabungkan data manual ke form agar tersimpan di arsip
   const formData = {
-    ...data,
-    ...fields
+    ...fields,
+    ...(mode === 'manual' ? manualData : {})
   };
 
   try {
 
     await window.desaAPI.surat.save({
-      nomor: (nomorEl && nomorEl.value) || data.nomor_surat || '',
-      jenis: Number(tid.value),
-      penduduk: pendudukId,
-      tanggal: (tanggalEl && tanggalEl.value) || data.tanggal_surat || '',
-      keperluan: data.keperluan || fields.keperluan || '',
-      form: formData,
-      is_manual: !pendudukId
+
+      nomor:
+        (nomorEl && nomorEl.value) || '',
+
+      jenis:
+        Number(tid.value),
+
+      penduduk:
+        pendudukId,          // 0 jika manual
+
+      tanggal:
+        (tanggalEl && tanggalEl.value) || '',
+
+      keperluan:
+        fields.keperluan || '',
+
+      form:
+        formData,
+
+      // Flag agar backend tahu ini data manual
+      is_manual:
+        mode === 'manual'
+
     });
 
-    alert('Surat disimpan dan masuk arsip.');
+    alert(
+      'Surat disimpan dan masuk arsip.'
+    );
 
     await preview();
 
@@ -2234,9 +2264,17 @@ async function loadArsipPreview(id) {
 
     const kop = `
       <div class="kop">
-        <b>PEMERINTAH KABUPATEN ${esc((s.kabupaten || '').toUpperCase())}</b><br>
-        <b>KECAMATAN ${esc((s.kecamatan || '').toUpperCase())}</b><br>
-        <b>DESA ${esc((s.nama_desa || '').toUpperCase())}</b><br>
+        <b>
+          PEMERINTAH DESA
+          ${esc((s.nama_desa || '').toUpperCase())}
+        </b>
+        <br>
+        KECAMATAN
+        ${esc((s.kecamatan || '').toUpperCase())}
+        <br>
+        KABUPATEN
+        ${esc((s.kabupaten || '').toUpperCase())}
+        <br>
         ${esc(s.alamat || '')}
       </div>
     `;
@@ -2252,7 +2290,8 @@ async function loadArsipPreview(id) {
       </h3>
 
       <p class="letter-number">
-        Nomor : ${esc(data.nomor_surat || '........................')}
+        Nomor:
+        ${esc(data.nomor_surat || '........................')}
       </p>
 
       <div class="letter-body">
@@ -2260,10 +2299,10 @@ async function loadArsipPreview(id) {
       </div>
 
       <div class="signature">
-        Dikeluarkan di : ${esc(s.nama_desa || '')}<br>
-        Pada Tanggal   : ${esc(data.tanggal_surat || '')}
-        <br><br>
-        KEPALA DESA ${esc((s.nama_desa || '').toUpperCase())}
+        ${esc(s.nama_desa || '')},
+        ${esc(data.tanggal_surat || '')}
+        <br>
+        Kepala Desa
         <br><br><br><br>
         <b>
           <u>
@@ -2293,7 +2332,7 @@ async function cetakArsip(id) {
   if (!ok) return;
 
   try {
-    await doPrint();
+    await window.desaAPI.print();
   } catch (e) {
     alert('Gagal mencetak: ' + (e?.message || e));
   }
@@ -2306,10 +2345,11 @@ async function unduhArsip(id) {
   if (!ok) return;
 
   try {
-    await doPdf();
+    await window.desaAPI.pdf();
   } catch (e) {
+    // fallback ke Word jika PDF belum tersedia
     try {
-      await doWord();
+      await window.desaAPI.word(lastPreview);
     } catch (e2) {
       alert(
         'Gagal mengunduh.\n' +
@@ -3327,91 +3367,200 @@ document.addEventListener(
         'Administrasi Desa';
     }
 
-    // Style form + footer
-    if (!document.getElementById('bk-form-style')) {
-      const style = document.createElement('style');
-      style.id = 'bk-form-style';
-      style.textContent = `
-        .form-grid-2 {
-          display: grid !important;
-          grid-template-columns: 1fr 1fr;
-          gap: 14px 20px;
-        }
-        @media (max-width: 700px) {
-          .form-grid-2 { grid-template-columns: 1fr !important; }
-        }
-        .form-field label {
-          display: block;
-          font-size: 13px;
-          font-weight: 600;
-          color: #334155;
-          margin-bottom: 5px;
-        }
-        .form-field input,
-        .form-field select,
-        .form-field textarea {
-          width: 100%;
-          box-sizing: border-box;
-          padding: 9px 12px;
-          border: 1px solid #cbd5e1;
-          border-radius: 8px;
-          font-size: 14px;
-          background: #fff;
-          transition: border-color .15s, box-shadow .15s;
-        }
-        .form-field input:focus,
-        .form-field select:focus,
-        .form-field textarea:focus {
-          outline: none;
-          border-color: #6366f1;
-          box-shadow: 0 0 0 3px rgba(99,102,241,.15);
-        }
-        .form-field .field-hint {
-          display: block;
-          margin-top: 4px;
-          font-size: 12px;
-          color: #94a3b8;
-        }
-        .form-section-title {
-          grid-column: 1 / -1;
-          font-size: 14px;
-          font-weight: 700;
-          color: #0f172a;
-          margin: 16px 0 4px;
-          padding-bottom: 6px;
-          border-bottom: 1px solid #e2e8f0;
-        }
-        #penduduk-info {
-          font-size: 13px;
-        }
-        #bk-footer {
-          position: fixed;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          z-index: 9999;
-          text-align: center;
-          padding: 8px 12px;
-          font-size: 12px;
-          color: #64748b;
-          background: rgba(255,255,255,0.92);
-          border-top: 1px solid #e2e8f0;
-          letter-spacing: 0.2px;
-          pointer-events: none;
-        }
-        #bk-footer span { pointer-events: auto; }
-        body { padding-bottom: 36px !important; }
-      `;
-      document.head.appendChild(style);
-    }
-
-    if (!document.getElementById('bk-footer')) {
-      const footer = document.createElement('div');
-      footer.id = 'bk-footer';
-      footer.innerHTML = '<span>BK Tech · Support Adha H.Y</span>';
-      document.body.appendChild(footer);
-    }
-
     await page('dashboard');
   }
 );
+/* =========================================================
+   PATCH v2: PILIH + HAPUS JENIS SURAT
+   ========================================================= */
+
+(function () {
+
+  console.log('[BK-Patch2] loaded');
+
+  function isTypesPage() {
+    var t = document.getElementById('title');
+    return t && /Jenis Surat/i.test(t.textContent || '');
+  }
+
+  function rowCode(tr) {
+    var td = tr.querySelector('td');
+    return td ? td.textContent.trim() : '';
+  }
+
+  function getAllRows() {
+    return Array.prototype.slice
+      .call(document.querySelectorAll('#content table.table tbody tr'))
+      .filter(function (tr) { return tr.querySelectorAll('td').length >= 4; });
+  }
+
+  function injectCheckboxes() {
+    if (!isTypesPage()) return;
+
+    getAllRows().forEach(function (tr) {
+      if (tr.querySelector('.bk-chk')) return;
+      var td = tr.querySelector('td');
+      if (!td) return;
+
+      var kode = rowCode(tr);
+
+      var wrap = document.createElement('label');
+      wrap.style.cssText = 'display:inline-flex;align-items:center;gap:8px;cursor:pointer';
+
+      var chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.className = 'bk-chk';
+      chk.dataset.kode = kode;
+      chk.style.cssText = 'cursor:pointer;width:16px;height:16px;flex-shrink:0';
+
+      var span = document.createElement('span');
+      span.textContent = kode;
+
+      wrap.appendChild(chk);
+      wrap.appendChild(span);
+
+      td.innerHTML = '';
+      td.appendChild(wrap);
+    });
+
+    injectToolbar();
+  }
+
+  function injectToolbar() {
+    if (document.getElementById('bk-toolbar')) return;
+    if (!isTypesPage()) return;
+
+    var content = document.getElementById('content');
+    if (!content) return;
+    var panel = content.querySelector('.panel');
+    if (!panel) return;
+
+    var bar = document.createElement('div');
+    bar.id = 'bk-toolbar';
+    bar.style.cssText = [
+      'display:flex',
+      'gap:10px',
+      'flex-wrap:wrap',
+      'align-items:center',
+      'margin:10px 0 14px',
+      'padding:10px 12px',
+      'background:#f8fafc',
+      'border:1px solid #e2e8f0',
+      'border-radius:8px'
+    ].join(';');
+
+    bar.innerHTML =
+      '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600">' +
+        '<input type="checkbox" id="bk-pilih-semua" style="width:16px;height:16px;cursor:pointer">' +
+        'Pilih Semua' +
+      '</label>' +
+      '<span id="bk-jumlah" style="color:#64748b;font-size:13px;margin-left:6px">0 dipilih</span>' +
+      '<div style="flex:1"></div>' +
+      '<button id="bk-hapus-terpilih" style="background:#dc2626;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-weight:600;cursor:pointer">' +
+        'Hapus Terpilih' +
+      '</button>' +
+      '<button id="bk-hapus-semua" style="background:#991b1b;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-weight:600;cursor:pointer">' +
+        'Hapus Semua' +
+      '</button>';
+
+    var table = panel.querySelector('table.table');
+    if (table && table.parentNode) {
+      table.parentNode.insertBefore(bar, table);
+    } else {
+      panel.appendChild(bar);
+    }
+
+    document.getElementById('bk-pilih-semua').addEventListener('change', function () {
+      var checked = this.checked;
+      document.querySelectorAll('.bk-chk').forEach(function (c) { c.checked = checked; });
+      updateJumlah();
+    });
+
+    document.getElementById('bk-hapus-terpilih').addEventListener('click', hapusTerpilih);
+    document.getElementById('bk-hapus-semua').addEventListener('click', hapusSemua);
+
+    document.querySelectorAll('.bk-chk').forEach(function (c) {
+      c.addEventListener('change', updateJumlah);
+    });
+
+    updateJumlah();
+  }
+
+  function updateJumlah() {
+    var n = document.querySelectorAll('.bk-chk:checked').length;
+    var el = document.getElementById('bk-jumlah');
+    if (el) el.textContent = n + ' dipilih';
+  }
+
+  function kodeTerpilih() {
+    return Array.prototype.slice
+      .call(document.querySelectorAll('.bk-chk:checked'))
+      .map(function (c) { return c.dataset.kode; })
+      .filter(Boolean);
+  }
+
+  async function hapusTerpilih() {
+    var kodes = kodeTerpilih();
+    if (!kodes.length) {
+      alert('Pilih dulu minimal 1 jenis surat.');
+      return;
+    }
+    if (!confirm('Hapus ' + kodes.length + ' jenis surat terpilih?\n\n' + kodes.join(', '))) return;
+
+    if (!window.desaAPI || !window.desaAPI.surat || typeof window.desaAPI.surat.deleteByIds !== 'function') {
+      alert('API deleteByIds belum ada di preload.js.\n\nPastikan preload.js sudah diupdate dan aplikasi sudah di-restart.');
+      return;
+    }
+
+    try {
+      var r = await window.desaAPI.surat.deleteByIds(kodes);
+      alert('Berhasil menghapus ' + (r && r.deleted ? r.deleted : kodes.length) + ' jenis surat.');
+      if (typeof page === 'function') await page('types');
+    } catch (e) {
+      alert('Gagal:\n' + (e && e.message ? e.message : e));
+    }
+  }
+
+  async function hapusSemua() {
+    if (!confirm('PERINGATAN!\n\nHapus PERMANEN semua jenis surat?\n\nLanjutkan?')) return;
+    var jw = prompt('Ketik "HAPUS" (huruf kapital) untuk konfirmasi:');
+    if (jw !== 'HAPUS') { alert('Dibatalkan.'); return; }
+
+    if (!window.desaAPI || !window.desaAPI.surat || typeof window.desaAPI.surat.deleteAllTypes !== 'function') {
+      alert('API deleteAllTypes belum ada di preload.js.\n\nPastikan preload.js sudah diupdate dan aplikasi sudah di-restart.');
+      return;
+    }
+
+    try {
+      var r = await window.desaAPI.surat.deleteAllTypes();
+      alert('Berhasil menghapus ' + (r && r.deleted ? r.deleted : 0) + ' jenis surat.');
+      if (typeof page === 'function') await page('types');
+    } catch (e) {
+      alert('Gagal:\n' + (e && e.message ? e.message : e));
+    }
+  }
+
+  var mo = new MutationObserver(function () {
+    if (isTypesPage()) injectCheckboxes();
+  });
+
+  function start() {
+    var c = document.getElementById('content');
+    if (!c) { setTimeout(start, 500); return; }
+
+    mo.observe(c, { childList: true, subtree: true });
+
+    // hapus FAB lama biar tidak dobel
+    var oldFab = document.getElementById('bk-fab-clear');
+    if (oldFab) oldFab.remove();
+
+    injectCheckboxes();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+
+})();
