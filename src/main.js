@@ -18,14 +18,20 @@ function init() {
   db.exec(fs.readFileSync(path.join(__dirname, '..', 'database', 'schema.sql'), 'utf8'));
   migrate();
   require(path.join(__dirname, '..', 'database', 'seed.js'))(db);
-  // Template resmi Desa Pusar (dari dokumen Word)
+  // Template resmi Desa Pusar — sinkron dengan folder "template surat desa"
   try {
     const seedTpl = path.join(__dirname, '..', 'database', 'templates-seed.js');
     if (fs.existsSync(seedTpl)) {
-      require(seedTpl)(db);
+      require(seedTpl)(db, { app });
     }
   } catch (e) {
     console.warn('templates-seed skip:', e.message);
+  }
+  // Sinkron ulang file Word yang ada di folder "template surat desa"
+  try {
+    syncDesaTemplateFolder();
+  } catch (e) {
+    console.warn('sinkron folder template desa skip:', e.message);
   }
   ensureAdmin();
 }
@@ -692,6 +698,93 @@ function detectTitleNomor(paras) {
   return { title, nomor };
 }
 
+// Folder "template surat desa" bawaan aplikasi (tempat Anda menaruh file Word).
+function getDesaTemplateDir() {
+  const roots = [app.getAppPath(), path.resolve(__dirname, '..')];
+  const names = ['template surat desa', 'templates/template surat desa'];
+  for (const root of roots) {
+    for (const n of names) {
+      const p = path.join(root, n);
+      try { if (fs.existsSync(p) && fs.statSync(p).isDirectory()) return p; } catch (e) { /* skip */ }
+    }
+  }
+  return '';
+}
+
+// Kode jenis surat tetap untuk nama file tertentu (agar tidak dobel dengan seed),
+// sisanya dibuatkan kode otomatis dari nama file.
+const DESA_FILE_KODE = {
+  'surat keterangan domisili new': '01',
+  'surat pindah new': '04',
+  'surat keterangan kelahiran': '07',
+  'surat ket kematian': '08',
+  'surat keterangan usaha new': '13',
+  'surat keterangan tidak mampu': '19',
+  'surat keterangan tidak mampu (kis)': '19-KIS',
+  'surat keterangan tidak mampu pelajar (kip)': '19-KIP'
+};
+
+function normFileName(s) {
+  return String(s).toLowerCase().replace(/\.(docx|doc|rtf)$/i, '').trim();
+}
+
+// Sinkron otomatis: setiap file .docx di folder "template surat desa"
+// dimasukkan/diperbarui sebagai template surat saat aplikasi start.
+function syncDesaTemplateFolder() {
+  const dir = getDesaTemplateDir();
+  if (!dir) return 0;
+  let files;
+  try { files = fs.readdirSync(dir); } catch (e) { return 0; }
+  const docxFiles = files.filter(f => /\.docx$/i.test(f));
+  let count = 0;
+  for (const f of docxFiles) {
+    let paras;
+    try { paras = readDocxParagraphs(path.join(dir, f)); } catch (e) { continue; }
+    if (!paras.filter(t => t.trim() !== '').length) continue;
+    let isi;
+    try { isi = wordParasToTemplate(paras, getSettings()); } catch (e) { continue; }
+    if (!isi || !/\{\{/.test(isi)) continue;
+
+    const baseName = f.replace(/\.docx$/i, '');
+    const niceName = baseName.charAt(0).toUpperCase() + baseName.slice(1).toLowerCase();
+    const fixedKode = DESA_FILE_KODE[normFileName(f)];
+    const { title } = detectTitleNomor(paras.filter(t => t.trim()));
+    const judul = (title || niceName).toUpperCase();
+
+    if (fixedKode) {
+      const row = db.prepare('SELECT id FROM template_surat WHERE kode=?').get(fixedKode);
+      if (row) {
+        db.prepare('UPDATE template_surat SET nama=?, judul=?, isi=?, aktif=1 WHERE kode=?')
+          .run(niceName, judul, isi, fixedKode);
+        count++;
+        continue;
+      }
+    }
+
+    // cari template hasil impor file yang sama sebelumnya (nama file = nama template)
+    const prev = db.prepare('SELECT id FROM template_surat WHERE from_word=1 AND lower(nama)=?').get(niceName.toLowerCase());
+    if (prev) {
+      db.prepare('UPDATE template_surat SET judul=?, isi=?, aktif=1 WHERE id=?').run(judul, isi, prev.id);
+      count++;
+      continue;
+    }
+
+    let kode = String(baseName).toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 24) || 'WORD';
+    if (fixedKode) kode = fixedKode;
+    let uniq = kode, i = 2;
+    while (db.prepare('SELECT id FROM template_surat WHERE kode=?').get(uniq) || db.prepare('SELECT id FROM jenis_surat WHERE kode=?').get(uniq)) {
+      uniq = kode + '_' + i++;
+    }
+    const r = db.prepare(`INSERT INTO template_surat(kode,nama,judul,isi,ukuran_kertas,margin_atas,margin_bawah,margin_kiri,margin_kanan,aktif,from_word)
+      VALUES(?,?,?,?, 'A4', 2, 2, 3, 3, 1, 1)`).run(uniq, niceName, judul, isi);
+    ensureJenisFromWord(uniq, niceName);
+    void r;
+    count++;
+  }
+  if (count) console.log(`Sinkron folder "template surat desa": ${count} template diperbarui/dibuat.`);
+  return count;
+}
+
 ipcMain.handle('templates:importWord', async (e) => {
   const win = BrowserWindow.fromWebContents(e.sender) || undefined;
   const r = await dialog.showOpenDialog(win, {
@@ -929,9 +1022,26 @@ ipcMain.handle('pdf', async (e, payload = {}) => {
     throw new Error('Gagal merender PDF: ' + (err?.message || err));
   }
   if (!buf || !buf.length) throw new Error('Hasil PDF kosong, silakan coba lagi.');
-  fs.writeFileSync(r.filePath, buf);
+  try {
+    fs.writeFileSync(r.filePath, buf);
+  } catch (err) {
+    throw new Error('Gagal menyimpan PDF: ' + (err?.message || err));
+  }
   try { shell.showItemInFolder(r.filePath); } catch (e2) { /* abaikan */ }
   return r.filePath;
+});
+
+// ---------- Sinkron folder "template surat desa" dari menu aplikasi ----------
+ipcMain.handle('templates:syncDesaFolder', () => {
+  const dir = getDesaTemplateDir();
+  if (!dir) {
+    throw new Error('Folder "template surat desa" tidak ditemukan di folder aplikasi.');
+  }
+  let n = 0;
+  try { n = syncDesaTemplateFolder(); } catch (e) {
+    throw new Error('Gagal sinkron folder: ' + (e?.message || e));
+  }
+  return { dir, count: n };
 });
 
 ipcMain.handle('word', async (e, payload = {}) => {

@@ -41,12 +41,14 @@ contextBridge.exposeInMainWorld('desaAPI', {
     get: id => ipcRenderer.invoke('templates:get', id),
     getByKode: kode => ipcRenderer.invoke('templates:getByKode', kode),
     save: d => ipcRenderer.invoke('templates:save', d),
-    remove: id => ipcRenderer.invoke('templates:delete', id)
+    remove: id => ipcRenderer.invoke('templates:delete', id),
+    importWord: () => ipcRenderer.invoke('templates:importWord'),
+    syncDesaFolder: () => ipcRenderer.invoke('templates:syncDesaFolder')
   },
 
   backup: () => ipcRenderer.invoke('backup'),
   restore: () => ipcRenderer.invoke('restore'),
-  print: () => ipcRenderer.invoke('print'),
-  pdf: () => ipcRenderer.invoke('pdf'),
+  print: payload => ipcRenderer.invoke('print', payload),
+  pdf: payload => ipcRenderer.invoke('pdf', payload),
   word: h => ipcRenderer.invoke('word', h)
 });

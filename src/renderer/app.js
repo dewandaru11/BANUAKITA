@@ -1826,10 +1826,21 @@ async function doPrint() {
 async function doPdf() {
   if (!ensurePreviewContent()) return;
   try {
-    const path = await window.desaAPI.pdf(lastPreview);
+
+    const s = await window.desaAPI.settings.get() || {};
+
+    const fn = (lastPreviewFileName && String(lastPreviewFileName).trim())
+      ? lastPreviewFileName
+      : 'surat';
+
+    const path = await window.desaAPI.pdf({ html: lastPreview, settings: s, fileName: fn });
+
     if (path) {
+
       alert('PDF berhasil disimpan:\n' + path);
+
     }
+
   } catch (e) {
     console.error(e);
     alert('Gagal membuat PDF:\n' + (e?.message || e));
