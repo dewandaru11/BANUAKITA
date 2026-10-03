@@ -1,0 +1,15 @@
+PEMBARUAN DROPDOWN BANUAKITA
+
+Perubahan:
+- Jenis kelamin sudah menggunakan dropdown (Laki-laki/Perempuan).
+- Pekerjaan pada Data Penduduk dan formulir surat tertentu menggunakan dropdown.
+- Status perkawinan pada Data Penduduk dan surat terkait menggunakan dropdown.
+- Pilihan meliputi Belum/Tidak Bekerja, Pelajar/Mahasiswa, Mengurus Rumah Tangga, Pensiunan, PNS, TNI, POLRI, Guru, Tenaga Kesehatan, Karyawan Swasta, Wiraswasta, Petani/Pekebun, Nelayan, Buruh Harian Lepas, Pedagang, Sopir, Perangkat Desa, Lainnya; status perkawinan Belum Kawin, Kawin, Cerai Hidup, Cerai Mati.
+
+Pemasangan:
+1. Cadangkan folder aplikasi lama.
+2. Salin file form_surat_desa.js ini ke folder yang sama dengan index.html.
+3. Ganti file JavaScript lama.
+4. Tutup lalu buka kembali index.html.
+
+Catatan: pilihan dropdown dapat disesuaikan lagi dengan kebutuhan administrasi desa. Periksa data OCR sebelum disimpan.

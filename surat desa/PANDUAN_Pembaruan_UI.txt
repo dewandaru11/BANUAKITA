@@ -1,0 +1,8 @@
+PANDUAN PEMBARUAN UI APLIKASI SURAT DESA
+
+1. Ekstrak ZIP ini.
+2. Salin form_surat_desa_ktp.js ke folder aplikasi yang berisi index.html.
+3. Agar index.html tetap cocok, ubah nama file menjadi form_surat_desa.js dan izinkan penggantian file lama.
+4. Tutup tab aplikasi lama, lalu buka kembali index.html. Jika tampilan masih lama, muat ulang halaman.
+
+Pembaruan: tampilan responsif, header gradasi, panel lebih rapi, input dengan fokus jelas, tombol modern, dan pratinjau surat tetap berformat dokumen resmi saat dicetak. Fitur OCR KTP dan ekspor Word tetap disertakan.

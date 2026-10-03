@@ -1,0 +1,25 @@
+BANUAKITA - FITUR DATA PENDUDUK, PENGATURAN DESA, IMPORT TEMPLATE WORD
+
+Pemasangan:
+1. Cadangkan folder aplikasi sebelumnya.
+2. Ekstrak paket ini.
+3. Gunakan index.html dan form_surat_desa.js dari paket ini dalam satu folder.
+4. Buka index.html di browser. Internet diperlukan saat pertama kali memakai OCR KTP atau import Word karena pustaka dimuat dari CDN.
+
+Data Penduduk:
+- Isi NIK, nomor KK, nama, tempat/tanggal lahir, jenis kelamin, agama, pekerjaan, status perkawinan, dan alamat.
+- Pilih foto KTP dan tekan Baca KTP (OCR), lalu periksa/koreksi hasilnya.
+- Tekan Simpan Penduduk. Data dapat diedit, dicari, dan dihapus.
+
+Pengaturan Desa:
+- Isi nama kabupaten, kecamatan, desa, kepala desa, alamat kantor, dan kontak.
+- Tekan Simpan Pengaturan Desa. Data kop dan nama kepala desa dipakai pada pratinjau surat.
+
+Template Surat:
+- Pilih file Word .docx, tekan Import Word. Teks dokumen akan diekstrak ke kolom isi.
+- Rapikan teks, lalu gunakan placeholder seperti {{nama}}, {{nik}}, {{alamat}} untuk kolom isian otomatis.
+- Isi nama jenis surat dan tekan Simpan sebagai Pilihan Surat.
+- Template tersimpan akan muncul di menu Buat Surat. Tata letak Word kompleks, tabel, logo, dan tanda tangan mungkin tidak ikut terbawa sempurna karena yang diimpor adalah teks.
+
+Penyimpanan:
+Data disimpan di localStorage browser/perangkat yang digunakan. Data tidak otomatis tersinkron ke komputer lain atau server. Bersihkan data browser dapat menghapus data, jadi buat cadangan secara berkala. OCR dan hasil impor harus diperiksa sebelum dipakai resmi.

@@ -1,0 +1,16 @@
+PANDUAN MEMASANG FITUR BACA KTP
+
+1. Tutup tab aplikasi surat desa.
+2. Simpan salinan cadangan file form_surat_desa.js yang lama.
+3. Salin file form_surat_desa_ktp.js ke folder aplikasi.
+4. Ganti nama file baru menjadi form_surat_desa.js, lalu setujui Replace/Ganti.
+5. Pastikan index.html dan form_surat_desa.js berada dalam folder yang sama.
+6. Buka kembali index.html di Chrome.
+7. Pilih gambar KTP, klik "Baca KTP", periksa teks OCR, lalu klik "Masukkan data ke formulir".
+8. Periksa dan koreksi data secara manual sebelum membuat atau mencetak surat.
+
+Catatan:
+- Perlu koneksi internet untuk memuat pustaka OCR Tesseract.js.
+- Hasil pembacaan otomatis tidak selalu benar, terutama pada foto buram, miring, silau, atau resolusi rendah.
+- Foto KTP diproses oleh pustaka OCR yang dimuat dari CDN di browser. Gunakan hanya pada komputer tepercaya dan hapus foto jika sudah tidak diperlukan.
+- Fitur ini mengisi kolom yang tersedia pada jenis surat terpilih; kolom yang tidak ada di jenis surat tersebut tidak akan diisi.

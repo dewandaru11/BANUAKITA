@@ -1,0 +1,12 @@
+PEMBARUAN BANUAKITA: SUMBER DATA SURAT
+
+Fitur baru di menu Buat Surat:
+1. Pilih "Input manual" untuk mengisi semua kolom surat sendiri.
+2. Pilih "Isi otomatis dari Data Penduduk" untuk mengambil data warga yang sudah tersimpan.
+3. Pilih nama/NIK dari daftar, lalu klik "Ambil Data Penduduk".
+4. Data akan dimasukkan ke kolom surat yang cocok. Kolom yang sudah berisi tidak ditimpa.
+5. Periksa kembali dan isi kolom khusus surat sebelum memperbarui pratinjau, mencetak PDF, atau mengunduh Word.
+
+Data penduduk harus dibuat/disimpan terlebih dahulu melalui menu Data Penduduk. Penyimpanan menggunakan localStorage browser di perangkat ini, bukan server. Gunakan browser/perangkat yang sama dan lakukan backup secara berkala.
+
+Untuk menjalankan: letakkan index.html dan form_surat_desa.js di folder yang sama, lalu buka index.html. OCR KTP membutuhkan koneksi internet untuk memuat pustaka OCR. Selalu periksa hasil OCR dan data surat sebelum digunakan resmi.

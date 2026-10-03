@@ -1,0 +1,24 @@
+PANDUAN APLIKASI SURAT DESA PUSAR
+
+File utama: form_surat_desa_lengkap.js
+
+Pemasangan:
+1. Cadangkan file aplikasi lama.
+2. Salin file JavaScript ini ke folder yang sama dengan index.html.
+3. Jika index.html memanggil form_surat_desa.js, ubah nama file ini menjadi form_surat_desa.js.
+4. Buka ulang index.html di browser.
+5. Pilih jenis surat, isi data, periksa pratinjau, lalu cetak/Simpan PDF atau Unduh Word.
+
+Jenis surat tambahan berstatus DRAF:
+- Surat Keterangan Kelahiran
+- Surat Tugas ke Puskesmas
+- Surat Pengantar Nikah (Laki-laki)
+- Surat Pengantar Nikah (Perempuan)
+- Undangan Penyerahan Beasiswa Berprestasi
+
+Catatan penting:
+- Kop yang digunakan adalah Desa Pusar, Kecamatan Baturaja Barat, Kabupaten Ogan Komering Ulu.
+- Kelima jenis baru merupakan draf karena template Word resmi belum diberikan. Periksa dan sesuaikan redaksi, dasar hukum, nomor surat, daftar persyaratan, pejabat penandatangan, serta prosedur setempat sebelum digunakan secara resmi.
+- Nama Kepala Desa pada contoh aplikasi adalah Zainuddin, sesuai dokumen contoh yang tersedia; pastikan masih benar sebelum surat ditandatangani.
+- Aplikasi tidak mengedit dokumen Word asli; fitur Word membuat dokumen baru berdasarkan data yang diisi.
+- Fitur Unduh Word membutuhkan koneksi internet untuk memuat pustaka docx dari CDN.

@@ -1,0 +1,22 @@
+PANDUAN PEMASANGAN MENU BANUAKITA
+
+1. Cadangkan folder aplikasi yang sekarang.
+2. Ekstrak ZIP ini.
+3. Salin file form_surat_desa.js dari ZIP ke folder aplikasi, menggantikan file lama.
+4. Pastikan index.html tetap memanggil file dengan nama form_surat_desa.js.
+5. Buka ulang index.html. Jika masih terlihat tampilan lama, muat ulang halaman.
+
+MENU YANG DITAMBAHKAN
+- Dashboard
+- Data Penduduk
+- Buat Surat
+- Arsip Surat
+- Jenis Surat
+- Template Surat
+- Pengaturan Desa
+- Pengguna
+- Backup / Restore
+
+CATATAN
+Tampilan menu dibuat mengikuti contoh BanuaKita. Menu Buat Surat tetap memakai fitur formulir surat, pratinjau, cetak/Simpan PDF, unduh HTML/Word, dan OCR KTP yang sudah ada.
+Menu Data Penduduk, Arsip Surat, Template Surat, Pengaturan Desa, Pengguna, serta Backup/Restore saat ini berupa halaman informasi/tampilan awal; belum terhubung ke database, login, penyimpanan arsip otomatis, atau backup database. Dashboard statistik adalah informasi dasar, bukan data produksi.
