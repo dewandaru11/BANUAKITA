@@ -1,0 +1,34 @@
+const Database=require('better-sqlite3');const fs=require('fs'),path=require('path');
+const db=new Database(':memory:');
+db.exec(fs.readFileSync('database/schema.sql','utf8'));
+require(path.resolve('database/seed.js'))(db);
+let dialogResult={canceled:true};const dialog={showSaveDialog:async()=>dialogResult,showOpenDialog:async()=>dialogResult};
+const handlers={};const ipcMain={handle:(n,f)=>{handlers[n]=f}};
+const mainSrc=fs.readFileSync('src/main.js','utf8');
+const s=mainSrc.indexOf('function migrate');const e=mainSrc.indexOf('app.whenReady()');
+eval(mainSrc.slice(s,e));
+migrate(db);
+const saved=handlers['templates:save'](null,{kode:'',nama:'Surat Keterangan Usaha Baru',judul:'SURAT KETERANGAN USAHA',isi:'Isi {{nama}}',from_word:1});
+console.log('1 template saved:',saved.kode,saved.nama,'from_word=',saved.from_word);
+const types=handlers['surat:types'](null);
+const found=types.find(t=>t.kode===saved.kode);
+console.log('2 jenis surat contains:',JSON.stringify(found));
+const tpl=handlers['templates:getByKode'](null,saved.kode);
+console.log('3 template by kode ok:',!!tpl, tpl&&tpl.isi);
+const saved2=handlers['templates:save'](null,{kode:'',nama:'Surat Keterangan Usaha Baru',isi:'x',from_word:1});
+console.log('4 dup kode unik:',saved2.kode!==saved.kode, saved2.kode);
+const plain=handlers['templates:save'](null,{kode:'',nama:'Template Manual',isi:'y'});
+const types2=handlers['surat:types'](null);
+const plainInTypes = types2.some(t=>t.kode===plain.kode && t.nama==='Template Manual');
+console.log('5 plain manual also appears (auto-kode):',plainInTypes,'plain kode=',plain.kode);
+handlers['templates:save'](null,{...saved,nama:'SK Usaha Updated'});
+const types3=handlers['surat:types'](null);
+console.log('6 updated name:',types3.find(t=>t.kode===saved.kode).nama);
+// hapus template word -> hilang dari jenis surat
+handlers['templates:delete'](null,saved.id);
+const types4=handlers['surat:types'](null);
+console.log('7 after delete gone:', !types4.some(t=>t.kode===saved.kode));
+// simpan surat dengan jenis word id
+const jid=found.id;
+const sr=handlers['surat:save'](null,{jenis:jid,penduduk_id:null,tanggal_surat:'2026-10-03',keperluan:'test',nomor_surat:'9/2026'});
+console.log('8 surat saved jenis:',sr.jenis);

@@ -288,22 +288,31 @@ async function loadP(q) {
    FORM FIELD
    ========================================================= */
 
+// Opsi standar (seperti form pelayanan desa)
+const OPT_JK = 'Laki-laki|Perempuan';
+const OPT_AGAMA = 'Islam|Kristen|Katolik|Hindu|Buddha|Konghucu|Kepercayaan';
+const OPT_STATUS = 'Belum Kawin|Kawin|Cerai Hidup|Cerai Mati';
+const OPT_PEKERJAAN = 'Belum/Tidak Bekerja|Pelajar/Mahasiswa|Ibu Rumah Tangga|Pensiunan|PNS|TNI|Polri|Petani|Nelayan|Pedagang|Wiraswasta|Karyawan Swasta|Buruh|Guru|Tenaga Kesehatan|Perangkat Desa|Lainnya';
+
 function fld(
   id,
   label,
   type = 'text',
   opts = '',
-  value = ''
+  value = '',
+  hint = '',
+  placeholder = ''
 ) {
 
   const v = esc(value);
+  const ph = esc(placeholder || '');
 
   let x;
 
   if (type === 'textarea') {
 
     x = `
-      <textarea id="${id}">${v}</textarea>
+      <textarea id="${id}" placeholder="${ph}" rows="3">${v}</textarea>
     `;
 
   } else if (type === 'select') {
@@ -311,9 +320,9 @@ function fld(
     x = `
       <select id="${id}">
         <option value="">-- pilih --</option>
-
         ${opts
           .split('|')
+          .filter(Boolean)
           .map(o => `
             <option
               value="${esc(o)}"
@@ -324,7 +333,6 @@ function fld(
           `)
           .join('')
         }
-
       </select>
     `;
 
@@ -335,16 +343,60 @@ function fld(
         id="${id}"
         type="${type}"
         value="${v}"
+        placeholder="${ph}"
       >
     `;
   }
 
   return `
-    <div>
-      <label>${label}</label>
+    <div class="form-field">
+      <label for="${id}">${label}</label>
       ${x}
+      ${hint ? `<small class="field-hint">${esc(hint)}</small>` : ''}
     </div>
   `;
+}
+
+/** Field dinamis pintar: pakai select untuk field yang dikenal */
+function fldSmart(id, label, tipe, value = '') {
+  const key = String(id || '').replace(/^f_/, '').toLowerCase();
+  const lab = (label || key).replaceAll('_', ' ');
+
+  if (key === 'jenis_kelamin' || /jenis.?kelamin|jk/i.test(lab)) {
+    return fld(id, lab, 'select', OPT_JK, value);
+  }
+  if (key === 'agama') {
+    return fld(id, lab, 'select', OPT_AGAMA, value);
+  }
+  if (key === 'status_perkawinan' || /status.?perkawinan/i.test(lab)) {
+    return fld(id, lab, 'select', OPT_STATUS, value);
+  }
+  if (key === 'pekerjaan') {
+    return fld(id, lab, 'select', OPT_PEKERJAAN, value);
+  }
+  if (tipe === 'DATE' || /tanggal/i.test(key)) {
+    return fld(id, lab, 'date', '', value, 'Contoh: 01/01/1990');
+  }
+  if (/alamat/i.test(key)) {
+    return fld(id, lab, 'textarea', '', value, '', 'Alamat lengkap');
+  }
+  if (key === 'nik') {
+    return fld(id, lab, 'text', '', value, '16 digit angka', 'NIK');
+  }
+  if (key === 'rt' || key === 'rw') {
+    return fld(id, lab, 'text', '', value, 'Contoh: 001', key.toUpperCase());
+  }
+  if (/keperluan/i.test(key)) {
+    return fld(id, lab, 'text', '', value, 'Contoh: Beasiswa Sekolah', 'Keperluan');
+  }
+
+  return fld(
+    id,
+    lab,
+    tipe === 'DATE' ? 'date' : 'text',
+    '',
+    value
+  );
 }
 
 
@@ -403,49 +455,25 @@ function addP() {
 
       </div>
 
-      <div class="grid">
-
-        ${fld('nik', 'NIK *')}
-
-        ${fld('no_kk', 'No. KK')}
-
-        ${fld('nama', 'Nama Lengkap *')}
-
-        ${fld('tempat_lahir', 'Tempat Lahir')}
-
-        ${fld('tanggal_lahir', 'Tanggal Lahir', 'date')}
-
-        ${fld(
-          'jenis_kelamin',
-          'Jenis Kelamin',
-          'select',
-          'Laki-laki|Perempuan'
-        )}
-
-        ${fld('agama', 'Agama')}
-
-        ${fld('pendidikan', 'Pendidikan')}
-
-        ${fld('pekerjaan', 'Pekerjaan')}
-
-        ${fld('status_perkawinan', 'Status Perkawinan')}
-
-        ${fld('rt', 'RT')}
-
-        ${fld('rw', 'RW')}
-
-        ${fld('desa', 'Desa')}
-
-        ${fld('kecamatan', 'Kecamatan')}
-
-        ${fld('kabupaten', 'Kabupaten')}
-
-        ${fld('provinsi', 'Provinsi')}
-
-        <div class="full">
-          ${fld('alamat', 'Alamat', 'textarea')}
-        </div>
-
+      <div class="form-section-title">Data Penduduk</div>
+      <div class="grid form-grid-2">
+        ${fld('nama', 'Nama Lengkap *', 'text', '', '', '', 'Nama sesuai KTP')}
+        ${fld('tempat_lahir', 'Tempat Lahir', 'text', '', '', '', 'Tempat lahir')}
+        ${fld('tanggal_lahir', 'Tanggal Lahir', 'date', '', '', 'Contoh: 1 Januari 1990')}
+        ${fld('nik', 'NIK *', 'text', '', '', '16 digit angka', 'NIK')}
+        ${fld('no_kk', 'Nomor KK', 'text', '', '', '', 'Nomor Kartu Keluarga')}
+        ${fld('jenis_kelamin', 'Jenis Kelamin', 'select', OPT_JK)}
+        ${fld('agama', 'Agama', 'select', OPT_AGAMA)}
+        ${fld('status_perkawinan', 'Status Perkawinan', 'select', OPT_STATUS)}
+        ${fld('pekerjaan', 'Pekerjaan', 'select', OPT_PEKERJAAN)}
+        ${fld('pendidikan', 'Pendidikan', 'text', '', '', '', 'Pendidikan terakhir')}
+        ${fld('alamat', 'Alamat', 'textarea', '', '', '', 'Alamat lengkap')}
+        ${fld('rt', 'RT', 'text', '', '', 'Contoh: 001', '001')}
+        ${fld('rw', 'RW', 'text', '', '', 'Contoh: 001', '001')}
+        ${fld('desa', 'Desa', 'text', '', '', '', 'Nama desa')}
+        ${fld('kecamatan', 'Kecamatan', 'text', '', '', '', 'Nama kecamatan')}
+        ${fld('kabupaten', 'Kabupaten', 'text', '', '', '', 'Nama kabupaten')}
+        ${fld('provinsi', 'Provinsi', 'text', '', '', '', 'Nama provinsi')}
       </div>
 
       <div class="actions">
@@ -1172,7 +1200,7 @@ async function buat() {
         <!-- Mode Database -->
         <div id="mode-db">
           <label>Penduduk</label>
-          <select id="pid">
+          <select id="pid" onchange="onPendudukChange()">
             <option value="">-- pilih penduduk --</option>
             ${
               cachedPenduduk.map(x => `
@@ -1182,6 +1210,7 @@ async function buat() {
               `).join('')
             }
           </select>
+          <div id="penduduk-info" style="display:none;margin-top:10px;padding:12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;font-size:13px;line-height:1.6"></div>
         </div>
 
         <!-- Mode Manual -->
@@ -1223,25 +1252,24 @@ async function buat() {
             </div>
           </div>
 
-          <div class="grid" style="margin-top:8px">
-            ${fld('m_nik', 'NIK *')}
-            ${fld('m_nama', 'Nama Lengkap *')}
-            ${fld('m_no_kk', 'No. KK')}
-            ${fld('m_tempat_lahir', 'Tempat Lahir')}
-            ${fld('m_tanggal_lahir', 'Tanggal Lahir', 'date')}
-            ${fld('m_jenis_kelamin', 'Jenis Kelamin', 'select', 'Laki-laki|Perempuan')}
-            ${fld('m_agama', 'Agama')}
-            ${fld('m_pekerjaan', 'Pekerjaan')}
-            ${fld('m_status_perkawinan', 'Status Perkawinan')}
-            ${fld('m_rt', 'RT')}
-            ${fld('m_rw', 'RW')}
-            ${fld('m_desa', 'Desa')}
-            ${fld('m_kecamatan', 'Kecamatan')}
-            ${fld('m_kabupaten', 'Kabupaten')}
-            ${fld('m_provinsi', 'Provinsi')}
-            <div class="full">
-              ${fld('m_alamat', 'Alamat', 'textarea')}
-            </div>
+          <div class="form-section-title">Data Pemohon</div>
+          <div class="grid form-grid-2" style="margin-top:8px">
+            ${fld('m_nama', 'Nama Lengkap *', 'text', '', '', '', 'Nama sesuai KTP')}
+            ${fld('m_tempat_lahir', 'Tempat Lahir', 'text', '', '', '', 'Tempat lahir')}
+            ${fld('m_tanggal_lahir', 'Tanggal Lahir', 'date', '', '', 'Contoh: 1 Januari 1990')}
+            ${fld('m_nik', 'NIK *', 'text', '', '', '16 digit angka', 'NIK')}
+            ${fld('m_no_kk', 'Nomor KK', 'text', '', '', '', 'Nomor Kartu Keluarga')}
+            ${fld('m_jenis_kelamin', 'Jenis Kelamin', 'select', OPT_JK)}
+            ${fld('m_agama', 'Agama', 'select', OPT_AGAMA)}
+            ${fld('m_status_perkawinan', 'Status Perkawinan', 'select', OPT_STATUS)}
+            ${fld('m_pekerjaan', 'Pekerjaan', 'select', OPT_PEKERJAAN)}
+            ${fld('m_alamat', 'Alamat', 'textarea', '', '', '', 'Alamat lengkap')}
+            ${fld('m_rt', 'RT', 'text', '', '', 'Contoh: 001', '001')}
+            ${fld('m_rw', 'RW', 'text', '', '', 'Contoh: 001', '001')}
+            ${fld('m_desa', 'Desa', 'text', '', '', '', 'Nama desa')}
+            ${fld('m_kecamatan', 'Kecamatan', 'text', '', '', '', 'Nama kecamatan')}
+            ${fld('m_kabupaten', 'Kabupaten', 'text', '', '', '', 'Nama kabupaten')}
+            ${fld('m_provinsi', 'Provinsi', 'text', '', '', '', 'Nama provinsi')}
           </div>
         </div>
 
@@ -1249,7 +1277,7 @@ async function buat() {
 
         <select
           id="tid"
-          onchange="dynamicFields()"
+          onchange="onJenisSuratChange()"
         >
           <option value="">-- pilih jenis surat --</option>
           ${
@@ -1265,7 +1293,7 @@ async function buat() {
 
         <input
           id="nomor"
-          placeholder="001/DESA/2025"
+          placeholder="Otomatis / isi manual"
         >
 
         <label>Tanggal</label>
@@ -1274,6 +1302,7 @@ async function buat() {
           id="tanggal"
           type="date"
           value="${tgl}"
+          onchange="autoNomorSurat()"
         >
 
         <div id="dyn"></div>
@@ -1313,6 +1342,125 @@ async function buat() {
 
   await dynamicFields();
   await cekTemplateStatus();
+}
+
+
+/* =========================================================
+   AUTO-FILL SAAT PILIH PENDUDUK / JENIS SURAT
+   ========================================================= */
+
+function getSelectedPenduduk() {
+  const pid = $('#pid');
+  if (!pid || !pid.value) return null;
+  return cachedPenduduk.find(x => String(x.id) === String(pid.value)) || null;
+}
+
+function onPendudukChange() {
+  const p = getSelectedPenduduk();
+  const info = $('#penduduk-info');
+
+  if (!info) return;
+
+  if (!p) {
+    info.style.display = 'none';
+    info.innerHTML = '';
+    return;
+  }
+
+  // Tampilkan ringkasan data penduduk
+  info.style.display = '';
+  info.innerHTML = `
+    <b style="color:#166534">✓ Data terpilih (otomatis terisi di surat)</b><br>
+    <b>Nama:</b> ${esc(p.nama)} &nbsp;|&nbsp;
+    <b>NIK:</b> ${esc(p.nik)}<br>
+    <b>No. KK:</b> ${esc(p.no_kk || '-')} &nbsp;|&nbsp;
+    <b>JK:</b> ${esc(p.jenis_kelamin || '-')}<br>
+    <b>TTL:</b> ${esc(p.tempat_lahir || '-')} , ${esc(p.tanggal_lahir || '-')}<br>
+    <b>Alamat:</b> ${esc(p.alamat || '-')}<br>
+    <b>RT/RW:</b> ${esc(p.rt || '-')} / ${esc(p.rw || '-')} &nbsp;|&nbsp;
+    <b>Desa:</b> ${esc(p.desa || '-')}
+  `;
+
+  // Isi otomatis field dinamis yang namanya sama dengan kolom penduduk
+  fillDynFromPenduduk(p);
+}
+
+function fillDynFromPenduduk(p) {
+  if (!p) return;
+
+  // Map field form dinamis -> key data penduduk
+  const map = {
+    nama: p.nama,
+    nik: p.nik,
+    no_kk: p.no_kk,
+    tempat_lahir: p.tempat_lahir,
+    tanggal_lahir: p.tanggal_lahir,
+    jenis_kelamin: p.jenis_kelamin,
+    agama: p.agama,
+    pendidikan: p.pendidikan,
+    pekerjaan: p.pekerjaan,
+    status_perkawinan: p.status_perkawinan,
+    alamat: p.alamat,
+    rt: p.rt,
+    rw: p.rw,
+    desa: p.desa,
+    kecamatan: p.kecamatan,
+    kabupaten: p.kabupaten,
+    provinsi: p.provinsi
+  };
+
+  Object.entries(map).forEach(([key, val]) => {
+    if (val === undefined || val === null || val === '') return;
+    const el = document.getElementById('f_' + key);
+    if (el && !el.value) {
+      el.value = val;
+    }
+  });
+}
+
+async function onJenisSuratChange() {
+  await dynamicFields();
+  await cekTemplateStatus();
+  await autoNomorSurat();
+
+  // Setelah form dinamis muncul, isi lagi dari penduduk terpilih
+  const p = getSelectedPenduduk();
+  if (p) fillDynFromPenduduk(p);
+}
+
+async function autoNomorSurat() {
+  const nomorEl = $('#nomor');
+  const tanggalEl = $('#tanggal');
+  const tid = $('#tid');
+
+  if (!nomorEl || !tid || !tid.value) return;
+
+  // Jangan timpa jika user sudah isi manual (kecuali masih kosong / placeholder)
+  const current = (nomorEl.value || '').trim();
+  if (current && !/otomatis/i.test(current)) {
+    // tetap boleh regenerate jika kosong; jika sudah ada isi biarkan
+    // (user bisa hapus isi untuk generate ulang)
+  }
+
+  const x = suratTypes.find(t => String(t.id) === String(tid.value));
+  if (!x) return;
+
+  const tanggal = (tanggalEl && tanggalEl.value) || new Date().toISOString().slice(0, 10);
+
+  try {
+    if (window.desaAPI.surat && typeof window.desaAPI.surat.nextNomor === 'function') {
+      const no = await window.desaAPI.surat.nextNomor(tanggal, x.kode);
+      if (no) nomorEl.value = no;
+      return;
+    }
+  } catch (e) {
+    console.warn('nextNomor gagal, pakai fallback:', e);
+  }
+
+  // Fallback lokal jika API belum ada
+  const year = tanggal.slice(0, 4);
+  const month = tanggal.slice(5, 7);
+  nomorEl.value = `001/${x.kode}/${month}/${year}`;
 }
 
 
@@ -1379,25 +1527,27 @@ async function dynamicFields() {
     );
 
   dyn.innerHTML =
-    '<h3>Form Dinamis</h3>' +
+    '<div class="form-section-title">Form Pengajuan / Data Tambahan</div>' +
     (
       fields.length
-        ? fields.map(f =>
-            fld(
+        ? `<div class="grid form-grid-2">${fields.map(f =>
+            fldSmart(
               'f_' + f.field,
-              (f.label || f.field)
-                .replaceAll('_', ' '),
-              f.tipe === 'DATE'
-                ? 'date'
-                : 'text'
+              f.label || f.field,
+              f.tipe,
+              ''
             )
-          ).join('')
+          ).join('')}</div>`
         : `
           <p class="hint">
-            Tidak ada field tambahan untuk surat ini.
+            Tidak ada field tambahan. Data penduduk akan dipakai otomatis di surat.
           </p>
         `
     );
+
+  // Auto-isi field dinamis dari penduduk yang sedang dipilih
+  const p = getSelectedPenduduk();
+  if (p) fillDynFromPenduduk(p);
 
   await cekTemplateStatus();
 }
@@ -1813,10 +1963,24 @@ function ensurePreviewContent() {
   return true;
 }
 
+async function getPrintPayload() {
+  let settings = {};
+  try {
+    settings = await window.desaAPI.settings.get() || {};
+  } catch (e) { /* abaikan */ }
+  return {
+    html: lastPreview,
+    settings,
+    fileName: 'surat'
+  };
+}
+
 async function doPrint() {
   if (!ensurePreviewContent()) return;
   try {
-    await window.desaAPI.print(lastPreview);
+    const payload = await getPrintPayload();
+    // dukung API lama (string) dan baru (object)
+    await window.desaAPI.print(payload);
   } catch (e) {
     console.error(e);
     alert('Gagal mencetak:\n' + (e?.message || e));
@@ -1826,7 +1990,8 @@ async function doPrint() {
 async function doPdf() {
   if (!ensurePreviewContent()) return;
   try {
-    const path = await window.desaAPI.pdf(lastPreview);
+    const payload = await getPrintPayload();
+    const path = await window.desaAPI.pdf(payload);
     if (path) {
       alert('PDF berhasil disimpan:\n' + path);
     }
@@ -1839,7 +2004,8 @@ async function doPdf() {
 async function doWord() {
   if (!ensurePreviewContent()) return;
   try {
-    const path = await window.desaAPI.word(lastPreview);
+    const payload = await getPrintPayload();
+    const path = await window.desaAPI.word(payload);
     if (path) {
       alert('File Word berhasil disimpan:\n' + path);
     }
@@ -3352,10 +3518,63 @@ document.addEventListener(
         'Administrasi Desa';
     }
 
-    // Footer kredit
-    if (!document.getElementById('bk-footer')) {
+    // Style form + footer
+    if (!document.getElementById('bk-form-style')) {
       const style = document.createElement('style');
+      style.id = 'bk-form-style';
       style.textContent = `
+        .form-grid-2 {
+          display: grid !important;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px 20px;
+        }
+        @media (max-width: 700px) {
+          .form-grid-2 { grid-template-columns: 1fr !important; }
+        }
+        .form-field label {
+          display: block;
+          font-size: 13px;
+          font-weight: 600;
+          color: #334155;
+          margin-bottom: 5px;
+        }
+        .form-field input,
+        .form-field select,
+        .form-field textarea {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 9px 12px;
+          border: 1px solid #cbd5e1;
+          border-radius: 8px;
+          font-size: 14px;
+          background: #fff;
+          transition: border-color .15s, box-shadow .15s;
+        }
+        .form-field input:focus,
+        .form-field select:focus,
+        .form-field textarea:focus {
+          outline: none;
+          border-color: #6366f1;
+          box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+        }
+        .form-field .field-hint {
+          display: block;
+          margin-top: 4px;
+          font-size: 12px;
+          color: #94a3b8;
+        }
+        .form-section-title {
+          grid-column: 1 / -1;
+          font-size: 14px;
+          font-weight: 700;
+          color: #0f172a;
+          margin: 16px 0 4px;
+          padding-bottom: 6px;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        #penduduk-info {
+          font-size: 13px;
+        }
         #bk-footer {
           position: fixed;
           left: 0;
@@ -3371,15 +3590,13 @@ document.addEventListener(
           letter-spacing: 0.2px;
           pointer-events: none;
         }
-        #bk-footer span {
-          pointer-events: auto;
-        }
-        body {
-          padding-bottom: 36px !important;
-        }
+        #bk-footer span { pointer-events: auto; }
+        body { padding-bottom: 36px !important; }
       `;
       document.head.appendChild(style);
+    }
 
+    if (!document.getElementById('bk-footer')) {
       const footer = document.createElement('div');
       footer.id = 'bk-footer';
       footer.innerHTML = '<span>BK Tech · Support Adha H.Y</span>';
