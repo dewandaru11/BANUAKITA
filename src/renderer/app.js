@@ -1,10 +1,11 @@
 /* =========================================================
-   BANUAKITA - Renderer (TANPA LOGIN)
+   BANUAKITA - Renderer
+   TANPA LOGIN
    ========================================================= */
 
 document.title = 'BanuaKita - Administrasi Desa';
 
-const user = {
+let user = {
   id: 0,
   username: 'admin',
   nama: 'Administrasi Desa',
@@ -15,34 +16,9 @@ let suratTypes = [];
 let lastPreview = '';
 let cachedPenduduk = [];
 let currentTemplate = null;
-let editingTemplateId = null;
-let editSuratId = null;
 
-var $ = s => document.querySelector(s);
-var $$ = s => document.querySelectorAll(s);
-
-/* =========================================================
-   SAFETY NETS
-   Tanpa ini, satu error kecil membuat SEMUA tombol menu
-   mati ("tidak bisa diklik apa-apa").
-   ========================================================= */
-
-if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-  window.addEventListener('error', ev => {
-    const c = document.querySelector('#content');
-    if (c && !c.innerHTML) {
-      c.innerHTML = '<div class="panel"><b>Terjadi kesalahan:</b><br>' +
-        String(ev.message || '') + '</div>';
-    }
-  });
-}
-
-// Fallback: jika DOMContentLoaded terlewat (script dimuat telat), tetap render.
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
-}
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({
   '&': '&amp;',
@@ -78,24 +54,16 @@ async function page(x) {
     title.textContent = titles[x] || x;
   }
 
-  // breadcrumb + highlight menu aktif di sidebar
-  const crumb = $('#crumb-page');
-  if (crumb) crumb.textContent = '/ ' + (titles[x] || x);
-
-  $$('.nav-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.page === x);
-  });
-
   const routes = {
-    dashboard,
-    penduduk,
-    buat,
-    arsip,
+    dashboard: dashboard,
+    penduduk: penduduk,
+    buat: buat,
+    arsip: arsip,
     types: suratTypesPage,
-    templates,
-    settings,
-    users,
-    backup
+    templates: templates,
+    settings: settings,
+    users: users,
+    backup: backup
   };
 
   const fn = routes[x];
@@ -114,7 +82,9 @@ async function page(x) {
   try {
     await fn();
   } catch (e) {
+
     console.error('Page error:', e);
+
     if (content) {
       content.innerHTML = `
         <div class="panel">
@@ -140,27 +110,23 @@ async function dashboard() {
     $('#content').innerHTML = `
       <div class="cards">
 
-        <div class="card" style="--accent:#0e9f6e">
-          <div class="card-ico" style="background:#e6f6ef">👥</div>
-          Penduduk Terdaftar
+        <div class="card">
+          Penduduk
           <div class="num">${d?.penduduk ?? 0}</div>
         </div>
 
-        <div class="card" style="--accent:#2563eb">
-          <div class="card-ico" style="background:#e8effc">📄</div>
+        <div class="card">
           Surat Hari Ini
           <div class="num">${d?.suratHariIni ?? 0}</div>
         </div>
 
-        <div class="card" style="--accent:#b45309">
-          <div class="card-ico" style="background:#fdf1e0">🗓️</div>
+        <div class="card">
           Surat Bulan Ini
           <div class="num">${d?.suratBulanIni ?? 0}</div>
         </div>
 
-        <div class="card" style="--accent:#7c3aed">
-          <div class="card-ico" style="background:#f1ecfd">🗄️</div>
-          Total Arsip
+        <div class="card">
+          Arsip
           <div class="num">${d?.arsip ?? 0}</div>
         </div>
 
@@ -168,18 +134,13 @@ async function dashboard() {
 
       <div class="panel" style="margin-top:18px">
 
-        <h2>Selamat Datang di BanuaKita 👋</h2>
+        <h2>Selamat Datang di BANUAKITA</h2>
 
         <p>
           Sistem Administrasi Desa untuk membantu pengelolaan
           data penduduk, surat, arsip, template, pengaturan,
           pengguna, dan backup database.
         </p>
-
-        <div class="actions" style="margin-top:14px">
-          <button class="primary" onclick="page('buat')">✉️ Buat Surat Baru</button>
-          <button onclick="page('penduduk')">👥 Tambah Penduduk</button>
-        </div>
 
       </div>
     `;
@@ -193,11 +154,17 @@ async function dashboard() {
 
         <h2>Selamat Datang di BANUAKITA</h2>
 
-        <p>Sistem Administrasi Desa.</p>
+        <p>
+          Sistem Administrasi Desa.
+        </p>
 
-        <p>Statistik dashboard belum dapat ditampilkan.</p>
+        <p>
+          Statistik dashboard belum dapat ditampilkan.
+        </p>
 
-        <small>${esc(e?.message || e)}</small>
+        <small>
+          ${esc(e?.message || e)}
+        </small>
 
       </div>
     `;
@@ -211,7 +178,7 @@ async function dashboard() {
 
 async function penduduk() {
 
-  const r = await window.desaAPI.penduduk.list('');
+  const r = await window.desaAPI.penduduk.list('') || [];
 
   $('#content').innerHTML = `
     <div class="panel">
@@ -224,11 +191,10 @@ async function penduduk() {
           oninput="loadP(this.value)"
         >
 
-        <button class="ktp" onclick="uploadKtpManual()">
-          🪪 Upload KTP + Scan OCR
-        </button>
-
-        <button class="primary" onclick="addP()">
+        <button
+          class="primary"
+          onclick="addP()"
+        >
           + Tambah Penduduk
         </button>
 
@@ -250,7 +216,13 @@ async function penduduk() {
         <tbody id="pr">
           ${
             r.map(pRow).join('') ||
-            `<tr><td colspan="6" class="empty">Belum ada data</td></tr>`
+            `
+            <tr>
+              <td colspan="6" class="empty">
+                Belum ada data
+              </td>
+            </tr>
+            `
           }
         </tbody>
 
@@ -265,15 +237,29 @@ function pRow(r) {
 
   return `
     <tr>
+
       <td>${esc(r.nik)}</td>
+
       <td>${esc(r.nama)}</td>
+
       <td>${esc(r.no_kk)}</td>
+
       <td>${esc(r.jenis_kelamin)}</td>
+
       <td>${esc(r.alamat)}</td>
+
       <td>
-        <button onclick="editP(${r.id})">Edit</button>
-        <button onclick="hapusP(${r.id})">Nonaktif</button>
+
+        <button onclick="editP(${r.id})">
+          Edit
+        </button>
+
+        <button onclick="hapusP(${r.id})">
+          Nonaktif
+        </button>
+
       </td>
+
     </tr>
   `;
 }
@@ -281,18 +267,20 @@ function pRow(r) {
 
 async function loadP(q) {
 
-  const box = $('#pr');
-  if (!box) return;
+  const pr = $('#pr');
+  if (!pr) return;
 
-  try {
-    const r = await window.desaAPI.penduduk.list(q);
-    box.innerHTML =
-      r.map(pRow).join('') ||
-      `<tr><td colspan="6" class="empty">Tidak ditemukan</td></tr>`;
-  } catch (e) {
-    box.innerHTML =
-      `<tr><td colspan="6" class="empty">${esc(e?.message || e)}</td></tr>`;
-  }
+  const r = await window.desaAPI.penduduk.list(q) || [];
+
+  pr.innerHTML =
+    r.map(pRow).join('') ||
+    `
+      <tr>
+        <td colspan="6" class="empty">
+          Tidak ditemukan
+        </td>
+      </tr>
+    `;
 }
 
 
@@ -300,34 +288,55 @@ async function loadP(q) {
    FORM FIELD
    ========================================================= */
 
-function fld(id, label, type = 'text', opts = '', value = '') {
+function fld(
+  id,
+  label,
+  type = 'text',
+  opts = '',
+  value = ''
+) {
 
   const v = esc(value);
+
   let x;
 
   if (type === 'textarea') {
 
-    x = `<textarea id="${id}">${v}</textarea>`;
+    x = `
+      <textarea id="${id}">${v}</textarea>
+    `;
 
   } else if (type === 'select') {
 
     x = `
       <select id="${id}">
         <option value="">-- pilih --</option>
+
         ${opts
           .split('|')
           .map(o => `
-            <option value="${esc(o)}" ${o === String(value) ? 'selected' : ''}>
+            <option
+              value="${esc(o)}"
+              ${o === value ? 'selected' : ''}
+            >
               ${esc(o)}
             </option>
           `)
-          .join('')}
+          .join('')
+        }
+
       </select>
     `;
 
   } else {
 
-    x = `<input id="${id}" type="${type}" value="${v}">`;
+    x = `
+      <input
+        id="${id}"
+        type="${type}"
+        value="${v}"
+      >
+    `;
   }
 
   return `
@@ -340,198 +349,117 @@ function fld(id, label, type = 'text', opts = '', value = '') {
 
 
 /* =========================================================
-   TAMBAH / EDIT PENDUDUK
+   TAMBAH PENDUDUK
    ========================================================= */
 
-const PENDUDUK_FIELDS = [
-  'nik', 'no_kk', 'nama', 'tempat_lahir', 'tanggal_lahir',
-  'jenis_kelamin', 'agama', 'pendidikan', 'pekerjaan',
-  'status_perkawinan', 'alamat', 'rt', 'rw', 'desa',
-  'kecamatan', 'kabupaten', 'provinsi'
-];
+function addP() {
 
-/* =========================================================
-   UPLOAD KTP + OCR (isi form otomatis)
-   ========================================================= */
+  $('#content').innerHTML = `
 
-let ktpScannedPath = '';
+    <div class="panel">
 
-function ktpBoxHtml(p = {}) {
+      <h2>Tambah Penduduk</h2>
 
-  ktpScannedPath = p.ktp_path || '';
+      <!-- SCAN KTP -->
+      <div class="panel" style="margin-bottom:18px;background:#f8fafc;border:1px dashed #94a3b8">
 
-  const img = ktpScannedPath && window.desaAPI.fileUrl
-    ? `<img id="ktpimg" src="${esc(window.desaAPI.fileUrl(ktpScannedPath))}" alt="KTP">`
-    : `<span class="ktp-placeholder"><b>🪪</b><br>Belum ada gambar KTP</span>`;
+        <h3 style="margin-top:0">📷 Scan KTP (OCR)</h3>
 
-  return `
-    <div class="full ktp-box">
-
-      <div class="ktp-preview" id="ktpbox">${img}</div>
-
-      <div class="ktp-side">
-
-        <b>Upload KTP</b>
-
-        <p class="hint">
-          Pilih foto/scan KTP, lalu tekan "Scan KTP" — NIK, Nama, TTL,
-          Agama, Alamat dll. akan terisi otomatis. Periksa kembali hasilnya.
+        <p class="hint" style="margin-bottom:12px">
+          Upload foto/scan KTP. Sistem akan mencoba membaca data secara otomatis.
         </p>
 
-        <div class="actions">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">
 
-          <button type="button" onclick="uploadKtp()">📁 Pilih Gambar KTP</button>
+          <div>
+            <input
+              type="file"
+              id="ktp_file"
+              accept="image/*"
+              capture="environment"
+              onchange="previewKtp(this, '')"
+            >
+            <div style="margin-top:8px">
+              <button
+                class="primary"
+                id="btn_ocr"
+                onclick="scanKtpOcr('')"
+                disabled
+              >
+                Scan KTP Sekarang
+              </button>
+            </div>
+            <div id="ocr_status" style="margin-top:8px;font-size:13px;color:#64748b"></div>
+          </div>
 
-          <button type="button" class="primary" id="btnscan" onclick="scanKtp()">🔍 Scan KTP</button>
+          <div id="ktp_preview_wrap" style="display:none">
+            <img
+              id="ktp_preview"
+              style="max-width:280px;max-height:180px;border:1px solid #cbd5e1;border-radius:6px"
+            >
+          </div>
 
         </div>
 
-        <div id="ktpstatus" class="ktp-status"></div>
-
       </div>
-
-    </div>
-  `;
-}
-
-async function uploadKtp() {
-
-  const status = $('#ktpstatus');
-  if (!window.desaAPI?.ktpUpload) {
-    if (status) status.textContent = 'Fitur upload butuh aplikasi desktop (Electron).';
-    return;
-  }
-
-  try {
-    const path = await window.desaAPI.ktpUpload();
-    if (!path) return; // batal
-
-    ktpScannedPath = path;
-
-    const box = $('#ktpbox');
-    if (box) {
-      box.innerHTML = `<img id="ktpimg" src="${esc(window.desaAPI.fileUrl(path))}" alt="KTP">`;
-    }
-    if (status) status.innerHTML = '<span class="ok">✓ Gambar KTP dipilih. Tekan "Scan KTP".</span>';
-
-  } catch (e) {
-    if (status) status.innerHTML = `<span class="err">Gagal upload: ${esc(e?.message || e)}</span>`;
-  }
-}
-
-// Tombol di daftar penduduk: upload → scan OCR → langsung buka form terisi
-async function uploadKtpManual() {
-
-  if (!window.desaAPI?.ktpUpload) return alert('Fitur upload butuh aplikasi desktop (Electron).');
-
-  let path;
-  try {
-    path = await window.desaAPI.ktpUpload();
-  } catch (e) {
-    return alert('Gagal memilih file: ' + (e?.message || e));
-  }
-  if (!path) return; // batal
-
-  addP();
-  ktpScannedPath = path;
-
-  const box = $('#ktpbox');
-  if (box) box.innerHTML = `<img id="ktpimg" src="${esc(window.desaAPI.fileUrl(path))}" alt="KTP">`;
-
-  await scanKtp();
-}
-
-async function scanKtp() {
-
-  const status = $('#ktpstatus');
-  const btn = $('#btnscan');
-
-  if (!ktpScannedPath) {
-    if (status) status.innerHTML = '<span class="err">Pilih gambar KTP dulu.</span>';
-    return;
-  }
-
-  if (typeof window.KtpOcr === 'undefined') {
-    if (status) status.innerHTML = '<span class="err">Modul OCR tidak tersedia.</span>';
-    return;
-  }
-
-  if (btn) btn.disabled = true;
-  if (status) status.textContent = 'Memuat mesin OCR…';
-
-  try {
-
-    const text = await window.KtpOcr.runOcr(
-      window.desaAPI.fileUrl(ktpScannedPath),
-      pct => { if (status) status.textContent = `Membaca KTP… ${pct}%`; }
-    );
-
-    if (status) status.textContent = 'Mengurai hasil bacaan…';
-
-    const d = window.KtpOcr.parseKtpText(text);
-
-    let filled = 0;
-    Object.entries(d).forEach(([k, v]) => {
-      const el = $('#' + k);
-      if (el && v) { el.value = v; filled++; }
-    });
-
-    if (filled === 0) {
-      if (status) status.innerHTML =
-        '<span class="err">Tidak ada data yang terbaca. Pastikan gambar KTP jelas / tidak miring, atau isi manual.</span>';
-    } else {
-      if (status) status.innerHTML =
-        `<span class="ok">✓ ${filled} field terisi otomatis. Silakan periksa &amp; lengkapi sebelum simpan.</span>`;
-    }
-
-  } catch (e) {
-    if (status) status.innerHTML = `<span class="err">OCR gagal: ${esc(e?.message || e)}</span>`;
-  } finally {
-    if (btn) btn.disabled = false;
-  }
-}
-
-function pendudukFormHtml(title, p = {}) {
-
-  return `
-    <div class="panel">
-
-      <h2>${title}</h2>
 
       <div class="grid">
 
-        ${ktpBoxHtml(p)}
+        ${fld('nik', 'NIK *')}
 
-        ${fld('nik', 'NIK *', 'text', '', p.nik)}
-        ${fld('no_kk', 'No. KK', 'text', '', p.no_kk)}
-        ${fld('nama', 'Nama Lengkap *', 'text', '', p.nama)}
-        ${fld('tempat_lahir', 'Tempat Lahir', 'text', '', p.tempat_lahir)}
-        ${fld('tanggal_lahir', 'Tanggal Lahir', 'date', '', p.tanggal_lahir)}
-        ${fld('jenis_kelamin', 'Jenis Kelamin', 'select', 'Laki-laki|Perempuan', p.jenis_kelamin)}
-        ${fld('agama', 'Agama', 'text', '', p.agama)}
-        ${fld('pendidikan', 'Pendidikan', 'text', '', p.pendidikan)}
-        ${fld('pekerjaan', 'Pekerjaan', 'text', '', p.pekerjaan)}
-        ${fld('status_perkawinan', 'Status Perkawinan', 'text', '', p.status_perkawinan)}
-        ${fld('rt', 'RT', 'text', '', p.rt)}
-        ${fld('rw', 'RW', 'text', '', p.rw)}
-        ${fld('desa', 'Desa', 'text', '', p.desa)}
-        ${fld('kecamatan', 'Kecamatan', 'text', '', p.kecamatan)}
-        ${fld('kabupaten', 'Kabupaten', 'text', '', p.kabupaten)}
-        ${fld('provinsi', 'Provinsi', 'text', '', p.provinsi)}
+        ${fld('no_kk', 'No. KK')}
+
+        ${fld('nama', 'Nama Lengkap *')}
+
+        ${fld('tempat_lahir', 'Tempat Lahir')}
+
+        ${fld('tanggal_lahir', 'Tanggal Lahir', 'date')}
+
+        ${fld(
+          'jenis_kelamin',
+          'Jenis Kelamin',
+          'select',
+          'Laki-laki|Perempuan'
+        )}
+
+        ${fld('agama', 'Agama')}
+
+        ${fld('pendidikan', 'Pendidikan')}
+
+        ${fld('pekerjaan', 'Pekerjaan')}
+
+        ${fld('status_perkawinan', 'Status Perkawinan')}
+
+        ${fld('rt', 'RT')}
+
+        ${fld('rw', 'RW')}
+
+        ${fld('desa', 'Desa')}
+
+        ${fld('kecamatan', 'Kecamatan')}
+
+        ${fld('kabupaten', 'Kabupaten')}
+
+        ${fld('provinsi', 'Provinsi')}
 
         <div class="full">
-          ${fld('alamat', 'Alamat', 'textarea', '', p.alamat)}
+          ${fld('alamat', 'Alamat', 'textarea')}
         </div>
 
       </div>
 
       <div class="actions">
 
-        <button class="primary" onclick="saveP(${p.id ? p.id : ''})">
-          ${p.id ? 'Update' : 'Simpan'}
+        <button
+          class="primary"
+          onclick="saveP()"
+        >
+          Simpan
         </button>
 
-        <button onclick="penduduk()">Batal</button>
+        <button onclick="penduduk()">
+          Batal
+        </button>
 
       </div>
 
@@ -539,17 +467,142 @@ function pendudukFormHtml(title, p = {}) {
   `;
 }
 
-function addP() {
-  $('#content').innerHTML = pendudukFormHtml('Tambah Penduduk');
-}
+
+/* =========================================================
+   EDIT PENDUDUK
+   ========================================================= */
 
 async function editP(id) {
 
   const p = await window.desaAPI.penduduk.get(id);
 
-  if (!p) return alert('Data tidak ditemukan');
+  if (!p) {
+    return alert('Data tidak ditemukan');
+  }
 
-  $('#content').innerHTML = pendudukFormHtml('Edit Penduduk', p);
+  $('#content').innerHTML = `
+
+    <div class="panel">
+
+      <h2>Edit Penduduk</h2>
+
+      <div class="grid">
+
+        ${fld('nik', 'NIK *', 'text', '', p.nik)}
+
+        ${fld('no_kk', 'No. KK', 'text', '', p.no_kk)}
+
+        ${fld('nama', 'Nama Lengkap *', 'text', '', p.nama)}
+
+        ${fld(
+          'tempat_lahir',
+          'Tempat Lahir',
+          'text',
+          '',
+          p.tempat_lahir
+        )}
+
+        ${fld(
+          'tanggal_lahir',
+          'Tanggal Lahir',
+          'date',
+          '',
+          p.tanggal_lahir
+        )}
+
+        ${fld(
+          'jenis_kelamin',
+          'Jenis Kelamin',
+          'select',
+          'Laki-laki|Perempuan',
+          p.jenis_kelamin
+        )}
+
+        ${fld('agama', 'Agama', 'text', '', p.agama)}
+
+        ${fld(
+          'pendidikan',
+          'Pendidikan',
+          'text',
+          '',
+          p.pendidikan
+        )}
+
+        ${fld(
+          'pekerjaan',
+          'Pekerjaan',
+          'text',
+          '',
+          p.pekerjaan
+        )}
+
+        ${fld(
+          'status_perkawinan',
+          'Status Perkawinan',
+          'text',
+          '',
+          p.status_perkawinan
+        )}
+
+        ${fld('rt', 'RT', 'text', '', p.rt)}
+
+        ${fld('rw', 'RW', 'text', '', p.rw)}
+
+        ${fld('desa', 'Desa', 'text', '', p.desa)}
+
+        ${fld(
+          'kecamatan',
+          'Kecamatan',
+          'text',
+          '',
+          p.kecamatan
+        )}
+
+        ${fld(
+          'kabupaten',
+          'Kabupaten',
+          'text',
+          '',
+          p.kabupaten
+        )}
+
+        ${fld(
+          'provinsi',
+          'Provinsi',
+          'text',
+          '',
+          p.provinsi
+        )}
+
+        <div class="full">
+          ${fld(
+            'alamat',
+            'Alamat',
+            'textarea',
+            '',
+            p.alamat
+          )}
+        </div>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="saveP(${p.id})"
+        >
+          Update
+        </button>
+
+        <button onclick="penduduk()">
+          Batal
+        </button>
+
+      </div>
+
+    </div>
+  `;
 }
 
 
@@ -559,33 +612,78 @@ async function editP(id) {
 
 async function saveP(id) {
 
+  const ids = [
+    'nik',
+    'no_kk',
+    'nama',
+    'tempat_lahir',
+    'tanggal_lahir',
+    'jenis_kelamin',
+    'agama',
+    'pendidikan',
+    'pekerjaan',
+    'status_perkawinan',
+    'alamat',
+    'rt',
+    'rw',
+    'desa',
+    'kecamatan',
+    'kabupaten',
+    'provinsi'
+  ];
+
   const d = {};
 
-  PENDUDUK_FIELDS.forEach(i => {
-    d[i] = ($('#' + i)?.value || '').trim();
+  ids.forEach(i => {
+    const el = document.getElementById(i);
+    d[i] = el ? String(el.value || '').trim() : '';
   });
 
-  if (!d.nik || !d.nama) return alert('NIK dan Nama wajib diisi.');
+  if (!d.nik || !d.nama) {
+    return alert('NIK dan Nama wajib diisi.');
+  }
 
-  if (!/^\d{16}$/.test(d.nik)) return alert('NIK harus 16 digit angka.');
+  // Bersihkan NIK dari spasi/karakter non-digit
+  d.nik = d.nik.replace(/\D/g, '');
+
+  if (!/^\d{16}$/.test(d.nik)) {
+    return alert('NIK harus 16 digit angka.\nSaat ini: ' + d.nik.length + ' digit.');
+  }
 
   d.status_kependudukan = 'Tetap';
 
-  if (ktpScannedPath) d.ktp_path = ktpScannedPath;
+  if (id) {
+    d.id = id;
+  }
 
-  if (id) d.id = Number(id);
+  // Pastikan tanggal_lahir format YYYY-MM-DD atau kosong
+  if (d.tanggal_lahir && !/^\d{4}-\d{2}-\d{2}$/.test(d.tanggal_lahir)) {
+    d.tanggal_lahir = '';
+  }
 
   try {
 
-    await window.desaAPI.penduduk.save(d);
+    if (!window.desaAPI || !window.desaAPI.penduduk || typeof window.desaAPI.penduduk.save !== 'function') {
+      throw new Error('API penduduk.save tidak tersedia. Periksa preload / main process.');
+    }
 
-    alert(id ? 'Data diperbarui.' : 'Data tersimpan.');
+    const r = await window.desaAPI.penduduk.save(d);
+
+    const msg = (r && r.updated)
+      ? 'Data diperbarui.'
+      : 'Data tersimpan.';
+
+    alert(msg);
 
     await penduduk();
 
   } catch (e) {
 
-    alert('Gagal menyimpan: ' + (e?.message || e));
+    console.error('saveP error:', e);
+    alert(
+      'Gagal menyimpan penduduk:\n\n' +
+      (e?.message || String(e))
+    );
   }
 }
 
@@ -596,13 +694,377 @@ async function saveP(id) {
 
 async function hapusP(id) {
 
-  if (!confirm('Nonaktifkan penduduk ini?')) return;
+  if (!confirm('Nonaktifkan penduduk ini?')) {
+    return;
+  }
+
+  await window.desaAPI.penduduk.nonaktif(id);
+
+  await penduduk();
+}
+
+
+/* =========================================================
+   OCR KTP
+   ========================================================= */
+
+let ktpFileObject = null;
+let ktpOcrPrefix = '';   // '' untuk form tambah penduduk, 'm_' untuk input manual
+
+function previewKtp(input, prefix = '') {
+
+  const file = input.files && input.files[0];
+  const isManual = prefix === 'm_';
+
+  const preview = document.getElementById(isManual ? 'm_ktp_preview' : 'ktp_preview');
+  const wrap = document.getElementById(isManual ? 'm_ktp_preview_wrap' : 'ktp_preview_wrap');
+  const btn = document.getElementById(isManual ? 'm_btn_ocr' : 'btn_ocr');
+  const status = document.getElementById(isManual ? 'm_ocr_status' : 'ocr_status');
+
+  ktpFileObject = file || null;
+  ktpOcrPrefix = prefix;
+
+  if (!file) {
+    if (wrap) wrap.style.display = 'none';
+    if (btn) btn.disabled = true;
+    if (status) status.textContent = '';
+    return;
+  }
+
+  if (preview) {
+    preview.src = URL.createObjectURL(file);
+  }
+  if (wrap) wrap.style.display = '';
+  if (btn) btn.disabled = false;
+  if (status) {
+    status.textContent = 'Gambar siap di-scan. Klik tombol "Scan KTP Sekarang".';
+    status.style.color = '#64748b';
+  }
+}
+
+
+async function loadTesseract() {
+
+  if (window.Tesseract) {
+    return window.Tesseract;
+  }
+
+  // Coba load dari CDN
+  return new Promise((resolve, reject) => {
+
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    script.onload = () => {
+      if (window.Tesseract) {
+        resolve(window.Tesseract);
+      } else {
+        reject(new Error('Tesseract gagal dimuat'));
+      }
+    };
+    script.onerror = () =>
+      reject(new Error('Gagal memuat library OCR (butuh koneksi internet)'));
+
+    document.head.appendChild(script);
+  });
+}
+
+
+function parseKtpText(text) {
+
+  const result = {
+    nik: '',
+    nama: '',
+    tempat_lahir: '',
+    tanggal_lahir: '',
+    jenis_kelamin: '',
+    alamat: '',
+    rt: '',
+    rw: '',
+    desa: '',
+    kecamatan: '',
+    agama: '',
+    status_perkawinan: '',
+    pekerjaan: '',
+    provinsi: '',
+    kabupaten: ''
+  };
+
+  if (!text) return result;
+
+  // Normalisasi
+  const lines = text
+    .replace(/\r/g, '')
+    .split('\n')
+    .map(l => l.trim())
+    .filter(Boolean);
+
+  const full = text.replace(/\s+/g, ' ');
+
+  // NIK (16 digit)
+  const nikMatch =
+    full.match(/\b(\d{16})\b/) ||
+    text.match(/NIK[:\s]*(\d{16})/i);
+  if (nikMatch) result.nik = nikMatch[1];
+
+  // Helper: ambil nilai setelah label
+  function afterLabel(label, src = full) {
+    const re = new RegExp(
+      label + '[:\\s]+([^\\n]+?)(?=\\s{2,}|\\n|NIK|Nama|Tempat|Jenis|Alamat|RT|Kel|Kecamatan|Agama|Status|Pekerjaan|Kewarganegaraan|Berlaku|$)',
+      'i'
+    );
+    const m = src.match(re);
+    return m ? m[1].trim().replace(/^[:\-\s]+/, '') : '';
+  }
+
+  // Nama
+  result.nama =
+    afterLabel('Nama') ||
+    afterLabel('Nama Lengkap');
+
+  // Bersihkan nama dari noise umum
+  if (result.nama) {
+    result.nama = result.nama
+      .replace(/\b(NIK|Tempat|Tgl|Lahir|Jenis|Kelamin)\b.*/i, '')
+      .trim();
+  }
+
+  // Tempat / Tgl Lahir  →  contoh: JAKARTA, 01-01-1990
+  let ttl =
+    afterLabel('Tempat/Tgl Lahir') ||
+    afterLabel('Tempat / Tgl Lahir') ||
+    afterLabel('Tempat/Tgl') ||
+    afterLabel('Tempat Lahir');
+
+  if (ttl) {
+    // Coba pola: TEMPAT, DD-MM-YYYY atau DD/MM/YYYY
+    const ttlMatch = ttl.match(
+      /^(.+?)[,\s]+(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{4})/
+    );
+    if (ttlMatch) {
+      result.tempat_lahir = ttlMatch[1].trim();
+      const d = ttlMatch[2].padStart(2, '0');
+      const m = ttlMatch[3].padStart(2, '0');
+      const y = ttlMatch[4];
+      result.tanggal_lahir = `${y}-${m}-${d}`;
+    } else {
+      result.tempat_lahir = ttl.split(',')[0].trim();
+    }
+  }
+
+  // Jenis Kelamin
+  const jk =
+    afterLabel('Jenis Kelamin') ||
+    afterLabel('Jenis kelamin');
+  if (/laki/i.test(jk) || /\bL\b/.test(jk)) {
+    result.jenis_kelamin = 'Laki-laki';
+  } else if (/perem|wanita/i.test(jk) || /\bP\b/.test(jk)) {
+    result.jenis_kelamin = 'Perempuan';
+  }
+
+  // Alamat
+  result.alamat =
+    afterLabel('Alamat') ||
+    afterLabel('ALAMAT');
+
+  // RT/RW
+  const rtrw =
+    afterLabel('RT/RW') ||
+    afterLabel('RT / RW') ||
+    full.match(/RT[\s\/]*RW[:\s]*(\d{1,3})\s*[\/\-]\s*(\d{1,3})/i);
+
+  if (typeof rtrw === 'string') {
+    const parts = rtrw.split(/[\/\-]/).map(s => s.trim());
+    if (parts[0]) result.rt = parts[0].replace(/\D/g, '');
+    if (parts[1]) result.rw = parts[1].replace(/\D/g, '');
+  } else if (rtrw && rtrw[1]) {
+    result.rt = rtrw[1];
+    result.rw = rtrw[2] || '';
+  }
+
+  // Kel/Desa
+  result.desa =
+    afterLabel('Kel/Desa') ||
+    afterLabel('Kelurahan') ||
+    afterLabel('Desa') ||
+    afterLabel('Kel');
+
+  // Kecamatan
+  result.kecamatan =
+    afterLabel('Kecamatan') ||
+    afterLabel('Kec');
+
+  // Agama
+  result.agama = afterLabel('Agama');
+
+  // Status Perkawinan
+  result.status_perkawinan =
+    afterLabel('Status Perkawinan') ||
+    afterLabel('Status');
+
+  // Pekerjaan
+  result.pekerjaan = afterLabel('Pekerjaan');
+
+  // Provinsi & Kabupaten (sering ada di bagian atas KTP)
+  const provMatch = full.match(
+    /PROVINSI\s+([A-Z\s]+?)(?=\s+KABUPATEN|\s+KOTA|$)/i
+  );
+  if (provMatch) {
+    result.provinsi = provMatch[1].trim();
+  }
+
+  const kabMatch = full.match(
+    /(?:KABUPATEN|KOTA)\s+([A-Z\s]+?)(?=\s+NIK|\s+Nama|$)/i
+  );
+  if (kabMatch) {
+    result.kabupaten = kabMatch[1].trim();
+  }
+
+  return result;
+}
+
+
+function fillFormFromOcr(data, prefix = '') {
+
+  const set = (id, val) => {
+    const el = document.getElementById(prefix + id);
+    if (el && val !== undefined && val !== null && val !== '') {
+      el.value = val;
+    }
+  };
+
+  set('nik', data.nik);
+  set('nama', data.nama);
+  set('no_kk', data.no_kk);
+  set('tempat_lahir', data.tempat_lahir);
+  set('tanggal_lahir', data.tanggal_lahir);
+  set('jenis_kelamin', data.jenis_kelamin);
+  set('alamat', data.alamat);
+  set('rt', data.rt);
+  set('rw', data.rw);
+  set('desa', data.desa);
+  set('kecamatan', data.kecamatan);
+  set('agama', data.agama);
+  set('status_perkawinan', data.status_perkawinan);
+  set('pekerjaan', data.pekerjaan);
+  set('kabupaten', data.kabupaten);
+  set('provinsi', data.provinsi);
+}
+
+
+async function scanKtpOcr(prefix) {
+
+  // prefix bisa dikirim dari onclick, atau pakai yang terakhir diset
+  if (typeof prefix === 'string') {
+    ktpOcrPrefix = prefix;
+  }
+
+  const isManual = ktpOcrPrefix === 'm_';
+  const status = document.getElementById(isManual ? 'm_ocr_status' : 'ocr_status');
+  const btn = document.getElementById(isManual ? 'm_btn_ocr' : 'btn_ocr');
+
+  if (!ktpFileObject) {
+    alert('Pilih gambar KTP terlebih dahulu.');
+    return;
+  }
+
+  if (btn) btn.disabled = true;
+
+  const setStatus = (msg, color = '#64748b') => {
+    if (status) {
+      status.textContent = msg;
+      status.style.color = color;
+    }
+  };
 
   try {
-    await window.desaAPI.penduduk.nonaktif(id);
-    await penduduk();
+
+    // 1. Coba lewat backend dulu (jika ada)
+    if (window.desaAPI && typeof window.desaAPI.ocrKtp === 'function') {
+
+      setStatus('Sedang memproses OCR via backend...', '#0ea5e9');
+
+      const data = await window.desaAPI.ocrKtp(ktpFileObject);
+
+      if (data && (data.nik || data.nama)) {
+        fillFormFromOcr(data, ktpOcrPrefix);
+        setStatus('✓ Data berhasil dibaca dari KTP (backend).', '#16a34a');
+        return;
+      }
+    }
+
+    // 2. Fallback: Tesseract.js (client-side)
+    setStatus('Memuat library OCR...', '#0ea5e9');
+
+    const Tesseract = await loadTesseract();
+
+    setStatus('Sedang membaca KTP (bisa 10–30 detik)...', '#0ea5e9');
+
+    const result = await Tesseract.recognize(
+      ktpFileObject,
+      'ind+eng',
+      {
+        logger: m => {
+          if (m.status === 'recognizing text' && m.progress) {
+            const pct = Math.round(m.progress * 100);
+            setStatus(`Membaca KTP... ${pct}%`, '#0ea5e9');
+          }
+        }
+      }
+    );
+
+    const text = result?.data?.text || '';
+    console.log('OCR Raw Text:\n', text);
+
+    const parsed = parseKtpText(text);
+
+    if (!parsed.nik && !parsed.nama) {
+      setStatus(
+        '⚠ Tidak berhasil membaca data penting. Coba foto lebih jelas / pencahayaan lebih baik.',
+        '#ea580c'
+      );
+      alert(
+        'OCR tidak menemukan NIK atau Nama.\n\n' +
+        'Tips:\n' +
+        '• Pastikan foto KTP jelas dan tidak buram\n' +
+        '• Pencahayaan cukup\n' +
+        '• Hindari pantulan cahaya\n' +
+        '• Coba crop hanya bagian data KTP'
+      );
+      return;
+    }
+
+    fillFormFromOcr(parsed, ktpOcrPrefix);
+
+    const filled = [
+      parsed.nik && 'NIK',
+      parsed.nama && 'Nama',
+      parsed.tempat_lahir && 'Tempat Lahir',
+      parsed.tanggal_lahir && 'Tgl Lahir',
+      parsed.jenis_kelamin && 'Jenis Kelamin',
+      parsed.alamat && 'Alamat',
+      parsed.desa && 'Desa',
+      parsed.kecamatan && 'Kecamatan'
+    ].filter(Boolean).join(', ');
+
+    setStatus(
+      `✓ Berhasil membaca: ${filled || 'sebagian data'}`,
+      '#16a34a'
+    );
+
   } catch (e) {
-    alert('Gagal menonaktifkan: ' + (e?.message || e));
+
+    console.error('OCR Error:', e);
+    setStatus('Gagal melakukan OCR: ' + (e?.message || e), '#dc2626');
+    alert(
+      'Gagal melakukan OCR.\n\n' +
+      (e?.message || e) +
+      '\n\nPastikan ada koneksi internet (untuk memuat library) ' +
+      'atau implementasikan window.desaAPI.ocrKtp di backend.'
+    );
+
+  } finally {
+
+    if (btn) btn.disabled = false;
   }
 }
 
@@ -613,12 +1075,15 @@ async function hapusP(id) {
 
 async function suratTypesPage() {
 
-  suratTypes = await window.desaAPI.surat.types();
+  suratTypes = await window.desaAPI.surat.types() || [];
 
   $('#content').innerHTML = `
+
     <div class="panel">
 
-      <h2>Daftar Jenis Surat (${suratTypes.length})</h2>
+      <h2>
+        Daftar Jenis Surat (${suratTypes.length})
+      </h2>
 
       <table class="table">
 
@@ -632,17 +1097,23 @@ async function suratTypesPage() {
         </thead>
 
         <tbody>
+
           ${
             suratTypes.map(x => `
               <tr>
+
                 <td>${esc(x.kode)}</td>
+
                 <td>${esc(x.nama)}</td>
+
                 <td>${esc(x.kategori)}</td>
+
                 <td>${(x.fields || []).length}</td>
+
               </tr>
-            `).join('') ||
-            `<tr><td colspan="4" class="empty">Belum ada jenis surat</td></tr>`
+            `).join('')
           }
+
         </tbody>
 
       </table>
@@ -656,53 +1127,134 @@ async function suratTypesPage() {
    BUAT SURAT
    ========================================================= */
 
-async function buat(suratId = null) {
+async function buat() {
 
-  editSuratId = suratId || null;
+  suratTypes = await window.desaAPI.surat.types() || [];
 
-  suratTypes = await window.desaAPI.surat.types();
+  cachedPenduduk =
+    await window.desaAPI.penduduk.list('') || [];
 
-  cachedPenduduk = await window.desaAPI.penduduk.list('');
-
-  const tgl = new Date().toISOString().slice(0, 10);
-
-  let s = null;
-
-  if (editSuratId) {
-    s = await window.desaAPI.surat.get(editSuratId);
-  }
-
-  const selectedJenis = s ? s.jenis_surat_id : (suratTypes[0]?.id ?? '');
-  const selectedPenduduk = s ? s.penduduk_id : (cachedPenduduk[0]?.id ?? '');
+  const tgl =
+    new Date().toISOString().slice(0, 10);
 
   $('#content').innerHTML = `
-    <div class="grid two-col">
+
+    <div class="grid">
 
       <div class="panel">
 
-        <h2>${editSuratId ? 'Edit / Cetak Ulang Surat' : '4. Buat Surat'}</h2>
+        <h2>4. Buat Surat</h2>
 
-        <label>Penduduk</label>
+        <label>Sumber Data Penduduk</label>
 
-        <select id="pid" onchange="toggleManualP()">
-          <option value="__manual__">➕ Penduduk Baru (Input Manual) ...</option>
-          ${
-            cachedPenduduk.map(x => `
-              <option value="${x.id}" ${Number(x.id) === Number(selectedPenduduk) ? 'selected' : ''}>
-                ${esc(x.nama)} - ${esc(x.nik)}
-              </option>
-            `).join('')
-          }
-        </select>
+        <div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input
+              type="radio"
+              name="sumber_penduduk"
+              value="db"
+              checked
+              onchange="togglePendudukMode()"
+            >
+            Dari Database
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input
+              type="radio"
+              name="sumber_penduduk"
+              value="manual"
+              onchange="togglePendudukMode()"
+            >
+            Input Manual
+          </label>
+        </div>
 
-        <div id="manualp" class="manual-box"></div>
+        <!-- Mode Database -->
+        <div id="mode-db">
+          <label>Penduduk</label>
+          <select id="pid">
+            <option value="">-- pilih penduduk --</option>
+            ${
+              cachedPenduduk.map(x => `
+                <option value="${x.id}">
+                  ${esc(x.nama)} - ${esc(x.nik)}
+                </option>
+              `).join('')
+            }
+          </select>
+        </div>
+
+        <!-- Mode Manual -->
+        <div id="mode-manual" style="display:none">
+
+          <!-- SCAN KTP untuk Input Manual -->
+          <div class="panel" style="margin:12px 0;background:#f8fafc;border:1px dashed #94a3b8;padding:12px">
+            <h3 style="margin:0 0 8px 0;font-size:15px">📷 Scan KTP (OCR)</h3>
+            <p class="hint" style="margin-bottom:10px;font-size:13px">
+              Upload foto/scan KTP agar data terisi otomatis.
+            </p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">
+              <div>
+                <input
+                  type="file"
+                  id="m_ktp_file"
+                  accept="image/*"
+                  capture="environment"
+                  onchange="previewKtp(this, 'm_')"
+                >
+                <div style="margin-top:8px">
+                  <button
+                    class="primary"
+                    id="m_btn_ocr"
+                    onclick="scanKtpOcr('m_')"
+                    disabled
+                  >
+                    Scan KTP Sekarang
+                  </button>
+                </div>
+                <div id="m_ocr_status" style="margin-top:8px;font-size:13px;color:#64748b"></div>
+              </div>
+              <div id="m_ktp_preview_wrap" style="display:none">
+                <img
+                  id="m_ktp_preview"
+                  style="max-width:220px;max-height:140px;border:1px solid #cbd5e1;border-radius:6px"
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="grid" style="margin-top:8px">
+            ${fld('m_nik', 'NIK *')}
+            ${fld('m_nama', 'Nama Lengkap *')}
+            ${fld('m_no_kk', 'No. KK')}
+            ${fld('m_tempat_lahir', 'Tempat Lahir')}
+            ${fld('m_tanggal_lahir', 'Tanggal Lahir', 'date')}
+            ${fld('m_jenis_kelamin', 'Jenis Kelamin', 'select', 'Laki-laki|Perempuan')}
+            ${fld('m_agama', 'Agama')}
+            ${fld('m_pekerjaan', 'Pekerjaan')}
+            ${fld('m_status_perkawinan', 'Status Perkawinan')}
+            ${fld('m_rt', 'RT')}
+            ${fld('m_rw', 'RW')}
+            ${fld('m_desa', 'Desa')}
+            ${fld('m_kecamatan', 'Kecamatan')}
+            ${fld('m_kabupaten', 'Kabupaten')}
+            ${fld('m_provinsi', 'Provinsi')}
+            <div class="full">
+              ${fld('m_alamat', 'Alamat', 'textarea')}
+            </div>
+          </div>
+        </div>
 
         <label>Jenis Surat</label>
 
-        <select id="tid" onchange="dynamicFields()">
+        <select
+          id="tid"
+          onchange="dynamicFields()"
+        >
+          <option value="">-- pilih jenis surat --</option>
           ${
             suratTypes.map(x => `
-              <option value="${x.id}" ${Number(x.id) === Number(selectedJenis) ? 'selected' : ''}>
+              <option value="${x.id}">
                 ${esc(x.kode)} - ${esc(x.nama)}
               </option>
             `).join('')
@@ -711,26 +1263,33 @@ async function buat(suratId = null) {
 
         <label>Nomor Surat</label>
 
-        <div class="toolbar">
-          <input id="nomor" placeholder="001/DESA/2025" value="${esc(s?.nomor_surat || '')}">
-          <button onclick="autoNomor()">Otomatis</button>
-        </div>
+        <input
+          id="nomor"
+          placeholder="001/DESA/2025"
+        >
 
         <label>Tanggal</label>
 
-        <input id="tanggal" type="date" value="${esc(s?.tanggal_surat || tgl)}">
+        <input
+          id="tanggal"
+          type="date"
+          value="${tgl}"
+        >
 
         <div id="dyn"></div>
 
         <div class="actions">
 
-          <button class="primary" onclick="saveLetter()">
-            ${editSuratId ? 'Simpan Perubahan' : 'Simpan'}
+          <button
+            class="primary"
+            onclick="saveLetter()"
+          >
+            Simpan
           </button>
 
-          <button onclick="preview()">Preview</button>
-
-          ${editSuratId ? `<button onclick="buat()">+ Surat Baru</button>` : ''}
+          <button onclick="preview()">
+            Preview
+          </button>
 
         </div>
 
@@ -740,7 +1299,10 @@ async function buat(suratId = null) {
 
         <h2>5. Preview</h2>
 
-        <div id="prev" class="preview">
+        <div
+          id="prev"
+          class="preview"
+        >
           Preview surat akan muncul di sini.
         </div>
 
@@ -749,197 +1311,37 @@ async function buat(suratId = null) {
     </div>
   `;
 
-  await dynamicFields(s ? s.form : null);
-
-  if (s) preview();
+  await dynamicFields();
+  await cekTemplateStatus();
 }
 
 
-/* =========================================================
-   NOMOR OTOMATIS
-   ========================================================= */
+function togglePendudukMode() {
 
-async function autoNomor() {
+  const mode =
+    document.querySelector(
+      'input[name="sumber_penduduk"]:checked'
+    )?.value || 'db';
 
-  const tid = $('#tid');
-  if (!tid) return;
+  const modeDb = $('#mode-db');
+  const modeManual = $('#mode-manual');
 
-  const x = suratTypes.find(t => t.id == tid.value);
-  if (!x) return alert('Pilih jenis surat dulu.');
+  if (modeDb) {
+    modeDb.style.display =
+      mode === 'db' ? '' : 'none';
+  }
 
-  try {
-    const nomor = await window.desaAPI.surat.nextNomor(
-      $('#tanggal').value,
-      x.kode
-    );
-    $('#nomor').value = nomor;
-  } catch (e) {
-    alert('Gagal membuat nomor: ' + (e?.message || e));
+  if (modeManual) {
+    modeManual.style.display =
+      mode === 'manual' ? '' : 'none';
   }
 }
 
 
-/* =========================================================
-   INPUT MANUAL PENDUDUK DI MENU BUAT SURAT
-   (data otomatis masuk ke Daftar Penduduk saat surat disimpan)
-   ========================================================= */
-
-const MANUAL_P_FIELDS = [
-  'nik', 'nama', 'no_kk', 'tempat_lahir', 'tanggal_lahir',
-  'jenis_kelamin', 'agama', 'pendidikan', 'pekerjaan',
-  'status_perkawinan', 'rt', 'rw', 'alamat'
-];
-
-function isManualMode() {
-  return $('#pid')?.value === '__manual__';
-}
-
-async function toggleManualP() {
-
-  const box = $('#manualp');
-  if (!box) return;
-
-  if (!isManualMode()) {
-    box.innerHTML = '';
-    return;
-  }
-
-  // bawa default wilayah dari Pengaturan Desa
-  let s = {};
-  try { s = await window.desaAPI.settings.get() || {}; } catch (e) {}
-
-  box.innerHTML = `
-    <div class="manual-inner">
-
-      <h3>Input Manual Data Penduduk</h3>
-
-      <p class="hint">
-        Isi data di bawah. Saat surat disimpan, penduduk baru ini
-        <b>otomatis tersimpan ke Daftar Penduduk</b>.
-        Opsional: upload KTP untuk mengisi form lewat scan OCR.
-      </p>
-
-      <div class="actions" style="margin-bottom:10px">
-        <button type="button" onclick="uploadKtpSurat()">🪪 Upload KTP + Scan OCR</button>
-      </div>
-
-      <div id="ktpstatus" class="ktp-status"></div>
-
-      <div class="grid">
-
-        ${fld('m_nik', 'NIK *', 'text')}
-        ${fld('m_nama', 'Nama Lengkap *', 'text')}
-        ${fld('m_no_kk', 'No. KK', 'text')}
-        ${fld('m_tempat_lahir', 'Tempat Lahir', 'text')}
-        ${fld('m_tanggal_lahir', 'Tanggal Lahir', 'date')}
-        ${fld('m_jenis_kelamin', 'Jenis Kelamin', 'select', 'Laki-laki|Perempuan')}
-        ${fld('m_agama', 'Agama', 'text')}
-        ${fld('m_pendidikan', 'Pendidikan', 'text')}
-        ${fld('m_pekerjaan', 'Pekerjaan', 'text')}
-        ${fld('m_status_perkawinan', 'Status Perkawinan', 'text')}
-        ${fld('m_rt', 'RT', 'text')}
-        ${fld('m_rw', 'RW', 'text')}
-        ${fld('m_desa', 'Desa', 'text', '', s.nama_desa || '')}
-        ${fld('m_kecamatan', 'Kecamatan', 'text', '', s.kecamatan || '')}
-        ${fld('m_kabupaten', 'Kabupaten', 'text', '', s.kabupaten || '')}
-        ${fld('m_provinsi', 'Provinsi', 'text', '', s.provinsi || '')}
-
-        <div class="full">
-          ${fld('m_alamat', 'Alamat', 'textarea')}
-        </div>
-
-      </div>
-
-    </div>
-  `;
-}
-
-// Upload KTP khusus mode manual di Buat Surat → scan lalu isi field m_*
-async function uploadKtpSurat() {
-
-  if (!window.desaAPI?.ktpUpload) return alert('Fitur upload butuh aplikasi desktop (Electron).');
-
-  const status = $('#ktpstatus');
-
-  let path;
-  try {
-    path = await window.desaAPI.ktpUpload();
-  } catch (e) {
-    return; // batal
-  }
-  if (!path) return;
-
-  ktpScannedPath = path;
-
-  if (typeof window.KtpOcr === 'undefined') {
-    if (status) status.innerHTML = '<span class="err">Modul OCR tidak tersedia.</span>';
-    return;
-  }
-
-  if (status) status.textContent = 'Memuat mesin OCR…';
-
-  try {
-
-    const text = await window.KtpOcr.runOcr(
-      window.desaAPI.fileUrl(path),
-      pct => { if (status) status.textContent = `Membaca KTP… ${pct}%`; }
-    );
-
-    const d = window.KtpOcr.parseKtpText(text);
-
-    let filled = 0;
-    Object.entries(d).forEach(([k, v]) => {
-      const el = $('#m_' + k);
-      if (el && v) { el.value = v; filled++; }
-    });
-
-    if (status) status.innerHTML = filled
-      ? `<span class="ok">✓ ${filled} field terisi otomatis — periksa kembali.</span>`
-      : '<span class="err">Tidak ada data yang terbaca. Isi manual saja.</span>';
-
-  } catch (e) {
-    if (status) status.innerHTML = `<span class="err">OCR gagal: ${esc(e?.message || e)}</span>`;
-  }
-}
-
-function collectManualPenduduk() {
-
-  const d = {};
-
-  MANUAL_P_FIELDS.forEach(f => {
-    const el = $('#m_' + f);
-    if (el) d[f] = el.value.trim();
-  });
-
-  ['desa', 'kecamatan', 'kabupaten', 'provinsi'].forEach(f => {
-    const el = $('#m_' + f);
-    if (el) d[f] = el.value.trim();
-  });
-
-  if (ktpScannedPath) d.ktp_path = ktpScannedPath;
-
-  return d;
-}
-
-async function ensureManualPendudukSaved() {
-
-  const d = collectManualPenduduk();
-
-  if (!d.nik || !d.nama) {
-    throw new Error('Mode manual: NIK dan Nama wajib diisi.');
-  }
-  if (!/^\d{16}$/.test(d.nik)) {
-    throw new Error('Mode manual: NIK harus 16 digit angka.');
-  }
-
-  d.status_kependudukan = 'Tetap';
-
-  const saved = await window.desaAPI.penduduk.save(d);
-
-  // segarkan cache & dropdown agar penduduk baru ikut terdaftar
-  cachedPenduduk = await window.desaAPI.penduduk.list('');
-
-  return saved;
+function getPendudukMode() {
+  return document.querySelector(
+    'input[name="sumber_penduduk"]:checked'
+  )?.value || 'db';
 }
 
 
@@ -947,24 +1349,34 @@ async function ensureManualPendudukSaved() {
    FORM DINAMIS SURAT
    ========================================================= */
 
-async function dynamicFields(existingForm = null) {
+async function dynamicFields() {
 
   const tid = $('#tid');
-  if (!tid) return;
-
   const dyn = $('#dyn');
 
-  const x = suratTypes.find(t => t.id == tid.value);
-
-  if (!x) {
-    if (dyn) dyn.innerHTML = '';
-    await cekTemplateStatus();
+  if (!tid || !dyn) {
     return;
   }
 
-  const fields = (x.fields || []).filter(
-    f => (f.field || '').toLowerCase() !== 'penduduk'
-  );
+  if (!tid.value) {
+    dyn.innerHTML = '';
+    return;
+  }
+
+  const x =
+    suratTypes.find(t => t.id == tid.value);
+
+  if (!x) {
+    dyn.innerHTML = '';
+    return;
+  }
+
+  const fields =
+    (x.fields || []).filter(
+      f =>
+        (f.field || '').toLowerCase()
+        !== 'penduduk'
+    );
 
   dyn.innerHTML =
     '<h3>Form Dinamis</h3>' +
@@ -973,13 +1385,18 @@ async function dynamicFields(existingForm = null) {
         ? fields.map(f =>
             fld(
               'f_' + f.field,
-              (f.label || f.field).replaceAll('_', ' '),
-              f.tipe === 'DATE' ? 'date' : 'text',
-              '',
-              existingForm ? (existingForm[f.field] ?? '') : ''
+              (f.label || f.field)
+                .replaceAll('_', ' '),
+              f.tipe === 'DATE'
+                ? 'date'
+                : 'text'
             )
           ).join('')
-        : `<p class="hint">Tidak ada field tambahan untuk surat ini.</p>`
+        : `
+          <p class="hint">
+            Tidak ada field tambahan untuk surat ini.
+          </p>
+        `
     );
 
   await cekTemplateStatus();
@@ -993,9 +1410,14 @@ async function dynamicFields(existingForm = null) {
 async function cekTemplateStatus() {
 
   const tid = $('#tid');
-  if (!tid) return;
 
-  const x = suratTypes.find(t => t.id == tid.value);
+  if (!tid || !tid.value) {
+    currentTemplate = null;
+    return;
+  }
+
+  const x =
+    suratTypes.find(t => t.id == tid.value);
 
   if (!x) {
     currentTemplate = null;
@@ -1003,8 +1425,14 @@ async function cekTemplateStatus() {
   }
 
   try {
-    currentTemplate = await window.desaAPI.templates.getByKode(x.kode);
+
+    currentTemplate =
+      await window.desaAPI.templates.getByKode(
+        x.kode
+      );
+
   } catch (e) {
+
     console.error(e);
     currentTemplate = null;
   }
@@ -1015,50 +1443,78 @@ async function cekTemplateStatus() {
    BUILD DATA SURAT
    ========================================================= */
 
-function collectFields() {
+function buildDataMap() {
+
+  const nomorEl = $('#nomor');
+  const tanggalEl = $('#tanggal');
+  const mode = getPendudukMode();
+
+  let p = {};
+
+  if (mode === 'manual') {
+
+    // Ambil data dari form manual
+    const map = {
+      nik: 'm_nik',
+      nama: 'm_nama',
+      no_kk: 'm_no_kk',
+      tempat_lahir: 'm_tempat_lahir',
+      tanggal_lahir: 'm_tanggal_lahir',
+      jenis_kelamin: 'm_jenis_kelamin',
+      agama: 'm_agama',
+      pekerjaan: 'm_pekerjaan',
+      status_perkawinan: 'm_status_perkawinan',
+      rt: 'm_rt',
+      rw: 'm_rw',
+      desa: 'm_desa',
+      kecamatan: 'm_kecamatan',
+      kabupaten: 'm_kabupaten',
+      provinsi: 'm_provinsi',
+      alamat: 'm_alamat'
+    };
+
+    Object.entries(map).forEach(([key, id]) => {
+      const el = $('#' + id);
+      if (el) p[key] = (el.value || '').trim();
+    });
+
+  } else {
+
+    // Ambil dari database
+    const pid = $('#pid');
+    p =
+      (pid && pid.value)
+        ? (cachedPenduduk.find(
+            x => x.id == pid.value
+          ) || {})
+        : {};
+  }
 
   const fields = {};
 
-  $$('#dyn input, #dyn textarea, #dyn select').forEach(e => {
-    if (e.id.startsWith('f_')) {
-      fields[e.id.slice(2)] = e.value;
-    }
-  });
+  $$('#dyn input, #dyn textarea, #dyn select')
+    .forEach(e => {
 
-  return fields;
-}
+      if (e.id && e.id.startsWith('f_')) {
+        fields[e.id.slice(2)] = e.value;
+      }
 
-function manualPendudukFromForm() {
-
-  const d = {};
-
-  ['nik', 'nama', 'no_kk', 'tempat_lahir', 'tanggal_lahir',
-   'jenis_kelamin', 'agama', 'pendidikan', 'pekerjaan',
-   'status_perkawinan', 'rt', 'rw', 'desa', 'kecamatan',
-   'kabupaten', 'provinsi', 'alamat'].forEach(f => {
-    const el = $('#m_' + f);
-    if (el) d[f] = el.value.trim();
-  });
-
-  return d;
-}
-
-function buildDataMap() {
-
-  const pid = $('#pid');
-
-  const p = isManualMode()
-    ? manualPendudukFromForm()
-    : (cachedPenduduk.find(x => x.id == (pid?.value || -1)) || {});
-
-  const fields = collectFields();
+    });
 
   return {
+
     ...p,
+
     ...fields,
-    keperluan: fields.keperluan || '',
-    nomor_surat: $('#nomor')?.value || '',
-    tanggal_surat: $('#tanggal')?.value || ''
+
+    keperluan:
+      fields.keperluan || '',
+
+    nomor_surat:
+      (nomorEl && nomorEl.value) || '',
+
+    tanggal_surat:
+      (tanggalEl && tanggalEl.value) || ''
   };
 }
 
@@ -1069,10 +1525,18 @@ function buildDataMap() {
 
 function replacePlaceholders(isi, data) {
 
-  return isi.replace(/\{\{(\w+)\}\}/g, (_, k) => {
-    const v = data[k];
-    return v !== undefined && v !== null ? String(v) : '';
-  });
+  return isi.replace(
+    /\{\{(\w+)\}\}/g,
+    (_, k) => {
+
+      const v = data[k];
+
+      return v !== undefined &&
+             v !== null
+        ? String(v)
+        : '';
+    }
+  );
 }
 
 
@@ -1082,50 +1546,112 @@ function replacePlaceholders(isi, data) {
 
 async function preview() {
 
-  const prev = $('#prev');
-  if (!prev) return;
-
-  const s = await window.desaAPI.settings.get();
+  const s =
+    await window.desaAPI.settings.get();
 
   const tid = $('#tid');
-  if (!tid) return;
+  const mode = getPendudukMode();
 
-  const x = suratTypes.find(t => t.id == tid.value);
+  if (!tid || !tid.value) {
+    return alert('Pilih jenis surat dulu.');
+  }
 
-  if (!x) return alert('Pilih jenis surat dulu.');
+  if (mode === 'db') {
+    const pid = $('#pid');
+    if (!pid || !pid.value) {
+      return alert('Pilih penduduk dulu.');
+    }
+  } else {
+    // Validasi input manual
+    const nik = ($('#m_nik')?.value || '').trim();
+    const nama = ($('#m_nama')?.value || '').trim();
+
+    if (!nik || !nama) {
+      return alert('NIK dan Nama wajib diisi (mode manual).');
+    }
+
+    if (!/^\d{16}$/.test(nik)) {
+      return alert('NIK harus 16 digit angka.');
+    }
+  }
+
+  const x =
+    suratTypes.find(
+      t => t.id == tid.value
+    );
+
+  if (!x) {
+    return alert(
+      'Pilih jenis surat dulu.'
+    );
+  }
 
   await cekTemplateStatus();
 
-  const data = buildDataMap();
+  const data =
+    buildDataMap();
 
   let bodyHtml;
   let usedTemplate = false;
 
-  if (currentTemplate && currentTemplate.isi) {
+  if (
+    currentTemplate &&
+    currentTemplate.isi
+  ) {
 
     usedTemplate = true;
 
     bodyHtml =
-      replacePlaceholders(currentTemplate.isi, data)
-        .split('\n')
-        .map(l => (l.trim() === '' ? '<br>' : `<p>${esc(l)}</p>`))
-        .join('');
+      replacePlaceholders(
+        currentTemplate.isi,
+        data
+      )
+      .split('\n')
+      .map(
+        l =>
+          l.trim() === ''
+            ? '<br>'
+            : `<p>${esc(l)}</p>`
+      )
+      .join('');
 
   } else {
 
-    const fields = collectFields();
+    const fields = {};
+
+    $$('#dyn input, #dyn textarea, #dyn select')
+      .forEach(e => {
+
+        if (e.id.startsWith('f_')) {
+          fields[e.id.slice(2)] =
+            e.value;
+        }
+
+      });
 
     const body =
       Object.entries(fields)
         .filter(a => a[1])
         .map(
           a =>
-            `<p><b>${esc(a[0].replaceAll('_', ' '))}: </b>${esc(a[1])}</p>`
+            `<p>
+              <b>
+                ${esc(
+                  a[0]
+                    .replaceAll('_', ' ')
+                )}:
+              </b>
+              ${esc(a[1])}
+            </p>`
         )
         .join('');
 
     bodyHtml = `
-      <p>Yang bertanda tangan di bawah ini menerangkan bahwa:</p>
+
+      <p>
+        Yang bertanda tangan di bawah ini
+        menerangkan bahwa:
+      </p>
 
       <p>
         <b>${esc(data.nama || '')}</b><br>
@@ -1135,84 +1661,191 @@ async function preview() {
 
       ${body}
 
-      <p>Demikian surat ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
+      <p>
+        Demikian surat ini dibuat untuk
+        dipergunakan sebagaimana mestinya.
+      </p>
     `;
   }
 
   const kop = `
+
     <div class="kop">
-      <b>PEMERINTAH DESA ${esc((s.nama_desa || '').toUpperCase())}</b><br>
-      KECAMATAN ${esc((s.kecamatan || '').toUpperCase())}<br>
-      KABUPATEN ${esc((s.kabupaten || '').toUpperCase())}<br>
+
+      <b>
+        PEMERINTAH DESA
+        ${esc(
+          (s.nama_desa || '')
+            .toUpperCase()
+        )}
+      </b>
+
+      <br>
+
+      KECAMATAN
+      ${esc(
+        (s.kecamatan || '')
+          .toUpperCase()
+      )}
+
+      <br>
+
+      KABUPATEN
+      ${esc(
+        (s.kabupaten || '')
+          .toUpperCase()
+      )}
+
+      <br>
+
       ${esc(s.alamat || '')}
+
     </div>
   `;
 
   lastPreview = `
+
     ${kop}
 
-    <h3 class="letter-title">${esc((x.nama || '').toUpperCase())}</h3>
+    <h3 class="letter-title">
+      ${esc(
+        x.nama.toUpperCase()
+      )}
+    </h3>
 
-    <p class="letter-number">Nomor: ${esc(data.nomor_surat || '........................')}</p>
+    <p class="letter-number">
+      Nomor:
+      ${esc(
+        data.nomor_surat ||
+        '........................'
+      )}
+    </p>
 
-    <div class="letter-body">${bodyHtml}</div>
+    <div class="letter-body">
+      ${bodyHtml}
+    </div>
 
     <div class="signature">
-      ${esc(s.nama_desa || '')}, ${esc(data.tanggal_surat || '')}
-      <br><br>
+
+      ${esc(s.nama_desa || '')},
+      ${esc(data.tanggal_surat || '')}
+
+      <br>
+
       Kepala Desa
+
       <br><br><br><br>
-      <b><u>${esc(s.kepala_desa || '........................')}</u></b>
+
+      <b>
+        <u>
+          ${esc(
+            s.kepala_desa ||
+            '........................'
+          )}
+        </u>
+      </b>
+
     </div>
   `;
 
-  const status = usedTemplate
-    ? `<div class="template-status template-ok">✓ Menggunakan template kode ${esc(currentTemplate.kode)}</div>`
-    : `<div class="template-status template-missing">⚠ Template untuk kode ${esc(x.kode)} belum dibuat. Menggunakan format dasar.</div>`;
+  const status =
+    usedTemplate
 
-  prev.innerHTML =
-    status +
-    lastPreview +
-    `
-      <div class="actions preview-actions">
-        <button class="primary" onclick="cetakPreview()">Cetak</button>
-        <button onclick="cetakPDF()">PDF</button>
-        <button onclick="cetakWord()">Word</button>
-      </div>
-    `;
+      ? `
+        <div class="template-status template-ok">
+          ✓ Menggunakan template kode
+          ${esc(currentTemplate.kode)}
+        </div>
+      `
+
+      : `
+        <div class="template-status template-missing">
+          ⚠ Template untuk kode
+          ${esc(x.kode)}
+          belum dibuat.
+          Menggunakan format dasar.
+        </div>
+      `;
+
+  const prev = $('#prev');
+  if (prev) {
+    prev.innerHTML =
+      status +
+      lastPreview +
+      `
+
+        <div class="actions preview-actions">
+
+          <button
+            class="primary"
+            onclick="doPrint()"
+          >
+            Cetak
+          </button>
+
+          <button
+            onclick="doPdf()"
+          >
+            PDF
+          </button>
+
+          <button
+            onclick="doWord()"
+          >
+            Word
+          </button>
+
+        </div>
+      `;
+  }
 }
 
-function ensurePreview() {
-  if (!lastPreview) {
-    alert('Buat preview surat terlebih dahulu.');
+
+/* =========================================================
+   CETAK / PDF / WORD HELPERS
+   ========================================================= */
+
+function ensurePreviewContent() {
+  if (!lastPreview || !String(lastPreview).trim()) {
+    alert('Konten surat masih kosong.\n\nKlik tombol Preview terlebih dahulu, lalu coba lagi.');
     return false;
   }
   return true;
 }
 
-async function cetakPreview() {
-  if (!ensurePreview()) return;
-  try { await window.desaAPI.print(); }
-  catch (e) { alert('Gagal mencetak: ' + (e?.message || e)); }
-}
-
-async function cetakPDF() {
-  if (!ensurePreview()) return;
+async function doPrint() {
+  if (!ensurePreviewContent()) return;
   try {
-    const f = await window.desaAPI.pdf();
-    if (f) alert('PDF tersimpan:\n' + f);
+    await window.desaAPI.print(lastPreview);
   } catch (e) {
-    alert('Gagal membuat PDF: ' + (e?.message || e));
+    console.error(e);
+    alert('Gagal mencetak:\n' + (e?.message || e));
   }
 }
 
-async function cetakWord() {
-  if (!ensurePreview()) return;
+async function doPdf() {
+  if (!ensurePreviewContent()) return;
   try {
-    const f = await window.desaAPI.word(lastPreview);
-    if (f) alert('Word tersimpan:\n' + f);
+    const path = await window.desaAPI.pdf(lastPreview);
+    if (path) {
+      alert('PDF berhasil disimpan:\n' + path);
+    }
   } catch (e) {
-    alert('Gagal membuat Word: ' + (e?.message || e));
+    console.error(e);
+    alert('Gagal membuat PDF:\n' + (e?.message || e));
+  }
+}
+
+async function doWord() {
+  if (!ensurePreviewContent()) return;
+  try {
+    const path = await window.desaAPI.word(lastPreview);
+    if (path) {
+      alert('File Word berhasil disimpan:\n' + path);
+    }
+  } catch (e) {
+    console.error(e);
+    alert('Gagal membuat Word:\n' + (e?.message || e));
   }
 }
 
@@ -1224,50 +1857,130 @@ async function cetakWord() {
 async function saveLetter() {
 
   const tid = $('#tid');
-  if (!tid) return;
+  const nomorEl = $('#nomor');
+  const tanggalEl = $('#tanggal');
+  const mode = getPendudukMode();
 
-  const x = suratTypes.find(t => t.id == tid.value);
+  if (!tid || !tid.value) {
+    return alert('Pilih jenis surat.');
+  }
 
-  if (!x) return alert('Pilih jenis surat.');
+  let pendudukId = 0;
+  let manualData = {};
 
-  const nomor = ($('#nomor')?.value || '').trim();
+  if (mode === 'db') {
+    const pid = $('#pid');
+    if (!pid || !pid.value) {
+      return alert('Pilih penduduk.');
+    }
+    pendudukId = Number(pid.value);
+  } else {
+    // Validasi & ambil data manual
+    const nik = ($('#m_nik')?.value || '').trim();
+    const nama = ($('#m_nama')?.value || '').trim();
 
-  if (!nomor) return alert('Nomor surat wajib diisi (atau tekan "Otomatis").');
+    if (!nik || !nama) {
+      return alert('NIK dan Nama wajib diisi (mode manual).');
+    }
 
-  const fields = collectFields();
+    if (!/^\d{16}$/.test(nik)) {
+      return alert('NIK harus 16 digit angka.');
+    }
 
-  let manualSaved = null;
+    const map = {
+      nik: 'm_nik',
+      nama: 'm_nama',
+      no_kk: 'm_no_kk',
+      tempat_lahir: 'm_tempat_lahir',
+      tanggal_lahir: 'm_tanggal_lahir',
+      jenis_kelamin: 'm_jenis_kelamin',
+      agama: 'm_agama',
+      pekerjaan: 'm_pekerjaan',
+      status_perkawinan: 'm_status_perkawinan',
+      rt: 'm_rt',
+      rw: 'm_rw',
+      desa: 'm_desa',
+      kecamatan: 'm_kecamatan',
+      kabupaten: 'm_kabupaten',
+      provinsi: 'm_provinsi',
+      alamat: 'm_alamat'
+    };
+
+    Object.entries(map).forEach(([key, id]) => {
+      const el = $('#' + id);
+      if (el) manualData[key] = (el.value || '').trim();
+    });
+  }
+
+  const x =
+    suratTypes.find(
+      t => t.id == tid.value
+    );
+
+  if (!x) {
+    return alert(
+      'Pilih jenis surat.'
+    );
+  }
+
+  const fields = {};
+
+  $$('#dyn input, #dyn textarea, #dyn select')
+    .forEach(e => {
+
+      if (e.id && e.id.startsWith('f_')) {
+        fields[e.id.slice(2)] =
+          e.value;
+      }
+
+    });
+
+  // Gabungkan data manual ke form agar tersimpan di arsip
+  const formData = {
+    ...fields,
+    ...(mode === 'manual' ? manualData : {})
+  };
 
   try {
 
-    // Mode manual: simpan penduduk baru DULU, lalu pakai id-nya untuk surat
-    if (isManualMode()) {
-      manualSaved = await ensureManualPendudukSaved();
-    }
+    await window.desaAPI.surat.save({
 
-    const payload = {
-      nomor,
-      jenis: Number(tid.value),
-      penduduk: manualSaved ? manualSaved.id : Number($('#pid')?.value || 0),
-      tanggal: $('#tanggal')?.value || '',
-      keperluan: fields.keperluan || '',
-      form: fields
-    };
+      nomor:
+        (nomorEl && nomorEl.value) || '',
 
-    if (editSuratId) payload.id = editSuratId;
+      jenis:
+        Number(tid.value),
 
-    await window.desaAPI.surat.save(payload);
+      penduduk:
+        pendudukId,          // 0 jika manual
+
+      tanggal:
+        (tanggalEl && tanggalEl.value) || '',
+
+      keperluan:
+        fields.keperluan || '',
+
+      form:
+        formData,
+
+      // Flag agar backend tahu ini data manual
+      is_manual:
+        mode === 'manual'
+
+    });
 
     alert(
-      (editSuratId ? 'Perubahan surat disimpan.' : 'Surat disimpan dan masuk arsip.') +
-      (manualSaved ? `\nPenduduk "${manualSaved.nama}" (NIK ${manualSaved.nik}) juga tersimpan ke Daftar Penduduk.` : '')
+      'Surat disimpan dan masuk arsip.'
     );
 
     await preview();
 
   } catch (e) {
 
-    alert('Gagal menyimpan surat: ' + (e?.message || e));
+    alert(
+      'Gagal menyimpan surat: ' +
+      (e?.message || e)
+    );
   }
 }
 
@@ -1278,26 +1991,41 @@ async function saveLetter() {
 
 async function arsip() {
 
-  const r = await window.desaAPI.arsip.list({});
+  const r =
+    await window.desaAPI.arsip.list({}) || [];
 
   $('#content').innerHTML = `
+
     <div class="panel">
 
       <h2>6. Arsip Surat</h2>
 
       <div class="toolbar">
 
-        <input id="aq" placeholder="Nomor / jenis / NIK / nama">
+        <input
+          id="aq"
+          placeholder="Nomor / jenis / NIK / nama"
+        >
 
-        <input id="yr" placeholder="Tahun" style="max-width:130px">
+        <input
+          id="yr"
+          placeholder="Tahun"
+          style="max-width:130px"
+        >
 
-        <button class="primary" onclick="findA()">Cari</button>
+        <button
+          class="primary"
+          onclick="findA()"
+        >
+          Cari
+        </button>
 
       </div>
 
       <table class="table">
 
         <thead>
+
           <tr>
             <th>Tanggal</th>
             <th>Nomor</th>
@@ -1306,13 +2034,22 @@ async function arsip() {
             <th>Nama</th>
             <th>Aksi</th>
           </tr>
+
         </thead>
 
         <tbody id="ar">
+
           ${
             r.map(aRow).join('') ||
-            `<tr><td colspan="6" class="empty">Belum ada arsip</td></tr>`
+            `
+              <tr>
+                <td colspan="6" class="empty">
+                  Belum ada arsip
+                </td>
+              </tr>
+            `
           }
+
         </tbody>
 
       </table>
@@ -1324,14 +2061,57 @@ async function arsip() {
 
 function aRow(r) {
 
+  const id = r.id;
+
   return `
+
     <tr>
-      <td>${esc(r.tanggal_surat)}</td>
-      <td>${esc(r.nomor_surat)}</td>
-      <td>${esc(r.jenis_surat)}</td>
-      <td>${esc(r.nik)}</td>
-      <td>${esc(r.nama_penduduk)}</td>
-      <td><button onclick="buat(${r.surat_id})">Buka / Cetak Ulang</button></td>
+
+      <td>
+        ${esc(r.tanggal_surat)}
+      </td>
+
+      <td>
+        ${esc(r.nomor_surat)}
+      </td>
+
+      <td>
+        ${esc(r.jenis_surat)}
+      </td>
+
+      <td>
+        ${esc(r.nik)}
+      </td>
+
+      <td>
+        ${esc(r.nama_penduduk)}
+      </td>
+
+      <td class="aksi">
+
+        <button
+          title="Cetak Ulang"
+          onclick="cetakArsip(${id})"
+        >
+          Cetak
+        </button>
+
+        <button
+          title="Download PDF"
+          onclick="unduhArsip(${id})"
+        >
+          PDF
+        </button>
+
+        <button
+          title="Hapus Arsip"
+          onclick="hapusArsip(${id})"
+        >
+          Hapus
+        </button>
+
+      </td>
+
     </tr>
   `;
 }
@@ -1339,14 +2119,258 @@ function aRow(r) {
 
 async function findA() {
 
-  const r = await window.desaAPI.arsip.list({
-    q: $('#aq').value,
-    tahun: $('#yr').value
-  });
+  const ar = $('#ar');
+  const aq = $('#aq');
+  const yr = $('#yr');
+  if (!ar) return;
 
-  $('#ar').innerHTML =
+  const r =
+    await window.desaAPI.arsip.list({
+
+      q:
+        (aq && aq.value) || '',
+
+      tahun:
+        (yr && yr.value) || ''
+
+    }) || [];
+
+  ar.innerHTML =
     r.map(aRow).join('') ||
-    `<tr><td colspan="6" class="empty">Tidak ditemukan</td></tr>`;
+    `
+      <tr>
+        <td colspan="6" class="empty">
+          Tidak ditemukan
+        </td>
+      </tr>
+    `;
+}
+
+
+/* =========================================================
+   CETAK / UNDUH / HAPUS ARSIP
+   ========================================================= */
+
+async function loadArsipPreview(id) {
+
+  if (!id) {
+    alert('ID arsip tidak valid.');
+    return false;
+  }
+
+  try {
+
+    // Ambil detail arsip (harus didukung di backend)
+    const detail =
+      await window.desaAPI.arsip.get(id);
+
+    if (!detail) {
+      alert('Data arsip tidak ditemukan.');
+      return false;
+    }
+
+    const s =
+      await window.desaAPI.settings.get() || {};
+
+    // Data untuk placeholder
+    const data = {
+      ...(detail.penduduk || {}),
+      ...(detail.form || {}),
+      nomor_surat: detail.nomor_surat || detail.nomor || '',
+      tanggal_surat: detail.tanggal_surat || detail.tanggal || '',
+      nama: detail.nama_penduduk || (detail.penduduk && detail.penduduk.nama) || '',
+      nik: detail.nik || (detail.penduduk && detail.penduduk.nik) || '',
+      alamat: (detail.penduduk && detail.penduduk.alamat) || detail.alamat || ''
+    };
+
+    // Coba ambil template berdasarkan kode jenis surat
+    let bodyHtml = '';
+    let usedTemplate = false;
+    let kodeJenis = detail.kode_jenis || detail.kode || '';
+
+    if (!kodeJenis && detail.jenis_surat) {
+      // fallback: cari dari daftar jenis surat
+      const types = await window.desaAPI.surat.types() || [];
+      const found = types.find(t =>
+        t.nama === detail.jenis_surat ||
+        t.id == detail.jenis
+      );
+      if (found) kodeJenis = found.kode;
+    }
+
+    if (kodeJenis) {
+      try {
+        const tmpl =
+          await window.desaAPI.templates.getByKode(kodeJenis);
+
+        if (tmpl && tmpl.isi) {
+          usedTemplate = true;
+          bodyHtml =
+            replacePlaceholders(tmpl.isi, data)
+              .split('\n')
+              .map(l =>
+                l.trim() === ''
+                  ? '<br>'
+                  : `<p>${esc(l)}</p>`
+              )
+              .join('');
+        }
+      } catch (e) {
+        console.warn('Template tidak ditemukan:', e);
+      }
+    }
+
+    // Fallback format dasar jika tidak ada template
+    if (!usedTemplate) {
+      const formFields = detail.form || {};
+      const extra = Object.entries(formFields)
+        .filter(([, v]) => v)
+        .map(([k, v]) =>
+          `<p><b>${esc(k.replaceAll('_', ' '))}:</b> ${esc(v)}</p>`
+        )
+        .join('');
+
+      bodyHtml = `
+        <p>
+          Yang bertanda tangan di bawah ini
+          menerangkan bahwa:
+        </p>
+        <p>
+          <b>${esc(data.nama || '')}</b><br>
+          NIK: ${esc(data.nik || '')}<br>
+          Alamat: ${esc(data.alamat || '')}
+        </p>
+        ${extra}
+        <p>
+          Demikian surat ini dibuat untuk
+          dipergunakan sebagaimana mestinya.
+        </p>
+      `;
+    }
+
+    const kop = `
+      <div class="kop">
+        <b>
+          PEMERINTAH DESA
+          ${esc((s.nama_desa || '').toUpperCase())}
+        </b>
+        <br>
+        KECAMATAN
+        ${esc((s.kecamatan || '').toUpperCase())}
+        <br>
+        KABUPATEN
+        ${esc((s.kabupaten || '').toUpperCase())}
+        <br>
+        ${esc(s.alamat || '')}
+      </div>
+    `;
+
+    const judul =
+      (detail.jenis_surat || 'SURAT').toUpperCase();
+
+    lastPreview = `
+      ${kop}
+
+      <h3 class="letter-title">
+        ${esc(judul)}
+      </h3>
+
+      <p class="letter-number">
+        Nomor:
+        ${esc(data.nomor_surat || '........................')}
+      </p>
+
+      <div class="letter-body">
+        ${bodyHtml}
+      </div>
+
+      <div class="signature">
+        ${esc(s.nama_desa || '')},
+        ${esc(data.tanggal_surat || '')}
+        <br>
+        Kepala Desa
+        <br><br><br><br>
+        <b>
+          <u>
+            ${esc(s.kepala_desa || '........................')}
+          </u>
+        </b>
+      </div>
+    `;
+
+    return true;
+
+  } catch (e) {
+    console.error('Gagal memuat arsip:', e);
+    alert(
+      'Gagal memuat data arsip.\n' +
+      (e?.message || e) +
+      '\n\nPastikan backend mendukung:\nwindow.desaAPI.arsip.get(id)'
+    );
+    return false;
+  }
+}
+
+
+async function cetakArsip(id) {
+
+  const ok = await loadArsipPreview(id);
+  if (!ok) return;
+
+  try {
+    await doPrint();
+  } catch (e) {
+    alert('Gagal mencetak: ' + (e?.message || e));
+  }
+}
+
+
+async function unduhArsip(id) {
+
+  const ok = await loadArsipPreview(id);
+  if (!ok) return;
+
+  try {
+    await doPdf();
+  } catch (e) {
+    try {
+      await doWord();
+    } catch (e2) {
+      alert(
+        'Gagal mengunduh.\n' +
+        (e?.message || e)
+      );
+    }
+  }
+}
+
+
+async function hapusArsip(id) {
+
+  if (!id) return;
+
+  if (!confirm('Yakin ingin menghapus arsip surat ini?')) {
+    return;
+  }
+
+  try {
+
+    await window.desaAPI.arsip.delete(id);
+
+    alert('Arsip berhasil dihapus.');
+
+    // Refresh daftar
+    await findA();
+
+  } catch (e) {
+
+    console.error(e);
+    alert(
+      'Gagal menghapus arsip.\n' +
+      (e?.message || e) +
+      '\n\nPastikan backend mendukung:\nwindow.desaAPI.arsip.delete(id)'
+    );
+  }
 }
 
 
@@ -1356,31 +2380,51 @@ async function findA() {
 
 async function templates() {
 
-  const r = await window.desaAPI.templates.list();
+  const r =
+    await window.desaAPI.templates.list() || [];
 
-  suratTypes = await window.desaAPI.surat.types();
+  suratTypes =
+    await window.desaAPI.surat.types() || [];
 
-  const mapKode = Object.fromEntries(
-    suratTypes.map(t => [t.kode, t.nama])
-  );
+  const mapKode =
+    Object.fromEntries(
+      suratTypes.map(
+        t => [t.kode, t.nama]
+      )
+    );
 
   $('#content').innerHTML = `
+
     <div class="panel">
 
       <h2>7. Template Surat</h2>
 
       <p class="hint">
-        Placeholder: {{nama}}, {{nik}}, {{alamat}}, {{tanggal_surat}},
-        {{nomor_surat}}. Kode template harus sama dengan kode jenis surat.
+        Placeholder:
+        {{nama}},
+        {{nik}},
+        {{alamat}},
+        {{tanggal_surat}},
+        {{nomor_surat}}.
+        Kode template harus sama dengan
+        kode jenis surat.
       </p>
 
       <div class="actions">
-        <button class="primary" onclick="templateForm()">+ Template Baru</button>
+
+        <button
+          class="primary"
+          onclick="templateForm()"
+        >
+          + Template Baru
+        </button>
+
       </div>
 
       <table class="table">
 
         <thead>
+
           <tr>
             <th>Kode</th>
             <th>Nama</th>
@@ -1388,24 +2432,66 @@ async function templates() {
             <th>Ukuran</th>
             <th>Aksi</th>
           </tr>
+
         </thead>
 
         <tbody>
+
           ${
             r.map(x => `
+
               <tr>
-                <td>${esc(x.kode)}</td>
-                <td>${esc(x.nama)}</td>
-                <td>${esc(mapKode[x.kode] || '-')}</td>
-                <td>${esc(x.ukuran_kertas)}</td>
+
                 <td>
-                  <button onclick="templateForm(${x.id})">Edit</button>
-                  <button onclick="hapusT(${x.id})">Hapus</button>
+                  ${esc(x.kode)}
+                </td>
+
+                <td>
+                  ${esc(x.nama)}
+                </td>
+
+                <td>
+                  ${esc(
+                    mapKode[x.kode] || '-'
+                  )}
+                </td>
+
+                <td>
+                  ${esc(x.ukuran_kertas)}
+                </td>
+
+                <td>
+
+                  <button
+                    onclick="templateForm(${x.id})"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onclick="hapusT(${x.id})"
+                  >
+                    Hapus
+                  </button>
+
+                </td>
+
+              </tr>
+
+            `).join('') ||
+
+            `
+              <tr>
+                <td
+                  colspan="5"
+                  class="empty"
+                >
+                  Belum ada template
                 </td>
               </tr>
-            `).join('') ||
-            `<tr><td colspan="5" class="empty">Belum ada template</td></tr>`
+            `
           }
+
         </tbody>
 
       </table>
@@ -1421,112 +2507,214 @@ async function templates() {
 
 async function templateForm(id) {
 
-  suratTypes = await window.desaAPI.surat.types();
+  suratTypes =
+    await window.desaAPI.surat.types() || [];
 
   let t = {
+
     id: null,
+
     kode: '',
+
     nama: '',
+
     judul: '',
-    isi: defaultTemplateText(),
+
+    isi: '',
+
     ukuran_kertas: 'A4',
+
     margin_atas: 2,
+
     margin_bawah: 2,
+
     margin_kiri: 3,
+
     margin_kanan: 3,
+
     aktif: 1
+
   };
 
   if (id) {
-    const row = await window.desaAPI.templates.get(id);
-    if (row) t = row;
-  }
 
-  editingTemplateId = t.id || null;
+    const row =
+      await window.desaAPI.templates.get(id);
+
+    if (row) {
+      t = row;
+    }
+  }
 
   const opsiKode =
     suratTypes
       .map(x => `
-        <option value="${esc(x.kode)}" ${x.kode === t.kode ? 'selected' : ''}>
-          ${esc(x.kode)} - ${esc(x.nama)}
+
+        <option
+          value="${esc(x.kode)}"
+          ${
+            x.kode === t.kode
+              ? 'selected'
+              : ''
+          }
+        >
+          ${esc(x.kode)}
+          -
+          ${esc(x.nama)}
         </option>
+
       `)
       .join('');
 
   $('#content').innerHTML = `
+
     <div class="panel">
 
-      <h2>${t.id ? 'Edit Template' : 'Template Baru'}</h2>
+      <h2>
+        ${t.id ? 'Edit' : 'Template Baru'}
+      </h2>
 
       <div class="grid">
 
         <div>
-          <label>Kode (jenis surat)</label>
+
+          <label>
+            Kode (jenis surat)
+          </label>
+
           <select id="tk">
-            <option value="">-- pilih jenis surat --</option>
+
+            <option value="">
+              -- pilih jenis surat --
+            </option>
+
             ${opsiKode}
+
           </select>
+
         </div>
 
-        ${fld('tn', 'Nama Template', 'text', '', t.nama)}
-        ${fld('tj', 'Judul', 'text', '', t.judul)}
-        ${fld('tu', 'Ukuran', 'select', 'A4|F4', t.ukuran_kertas)}
-        ${fld('ma', 'Margin Atas (cm)', 'text', '', t.margin_atas)}
-        ${fld('mb', 'Margin Bawah (cm)', 'text', '', t.margin_bawah)}
-        ${fld('mk', 'Margin Kiri (cm)', 'text', '', t.margin_kiri)}
-        ${fld('mn', 'Margin Kanan (cm)', 'text', '', t.margin_kanan)}
+        ${fld(
+          'tn',
+          'Nama Template',
+          'text',
+          '',
+          t.nama
+        )}
+
+        ${fld(
+          'tj',
+          'Judul',
+          'text',
+          '',
+          t.judul
+        )}
+
+        ${fld(
+          'tu',
+          'Ukuran',
+          'select',
+          'A4|F4',
+          t.ukuran_kertas
+        )}
+
+        ${fld(
+          'ma',
+          'Margin Atas (cm)',
+          'text',
+          '',
+          t.margin_atas
+        )}
+
+        ${fld(
+          'mb',
+          'Margin Bawah (cm)',
+          'text',
+          '',
+          t.margin_bawah
+        )}
+
+        ${fld(
+          'mk',
+          'Margin Kiri (cm)',
+          'text',
+          '',
+          t.margin_kiri
+        )}
+
+        ${fld(
+          'mn',
+          'Margin Kanan (cm)',
+          'text',
+          '',
+          t.margin_kanan
+        )}
 
       </div>
 
-      <label>Isi Template</label>
+      <label>
+        Isi Template
+      </label>
 
-      <textarea id="ti" class="template-editor">${esc(t.isi)}</textarea>
+      <textarea
+        id="ti"
+        class="template-editor"
+      >${esc(t.isi)}</textarea>
 
       <div class="placeholder-box">
 
-        <b>Placeholder yang tersedia:</b>
+        <b>
+          Placeholder yang tersedia:
+        </b>
 
         <div class="placeholder-list">
-          ${
-            ['nama', 'nik', 'no_kk', 'tempat_lahir', 'tanggal_lahir',
-             'jenis_kelamin', 'agama', 'pendidikan', 'pekerjaan',
-             'alamat', 'rt', 'rw', 'desa', 'kecamatan', 'kabupaten',
-             'provinsi', 'nomor_surat', 'tanggal_surat', 'keperluan']
-              .map(k => `<code>{{${k}}}</code>`).join(' ')
-          }
+
+          <code>{{nama}}</code>
+          <code>{{nik}}</code>
+          <code>{{no_kk}}</code>
+
+          <code>{{tempat_lahir}}</code>
+          <code>{{tanggal_lahir}}</code>
+          <code>{{jenis_kelamin}}</code>
+
+          <code>{{agama}}</code>
+          <code>{{pendidikan}}</code>
+          <code>{{pekerjaan}}</code>
+
+          <code>{{alamat}}</code>
+          <code>{{rt}}</code>
+          <code>{{rw}}</code>
+
+          <code>{{desa}}</code>
+          <code>{{kecamatan}}</code>
+
+          <code>{{kabupaten}}</code>
+          <code>{{provinsi}}</code>
+
+          <code>{{nomor_surat}}</code>
+          <code>{{tanggal_surat}}</code>
+
         </div>
 
       </div>
 
       <div class="actions">
 
-        <button class="primary" onclick="saveT(${t.id || 'null'})">
+        <button
+          class="primary"
+          onclick="saveT(${t.id || 'null'})"
+        >
           Simpan
         </button>
 
-        <button onclick="templates()">Batal</button>
+        <button onclick="templates()">
+          Batal
+        </button>
 
       </div>
 
     </div>
   `;
-}
-
-function defaultTemplateText() {
-  return `Yang bertanda tangan di bawah ini menerangkan bahwa:
-
-Nama            : {{nama}}
-NIK             : {{nik}}
-No. KK          : {{no_kk}}
-Tempat/Tgl Lahir: {{tempat_lahir}}, {{tanggal_lahir}}
-Jenis Kelamin   : {{jenis_kelamin}}
-Agama           : {{agama}}
-Pekerjaan       : {{pekerjaan}}
-Alamat          : {{alamat}}, RT {{rt}} / RW {{rw}}
-
-Keperluan: {{keperluan}}
-
-Demikian surat keterangan ini dibuat untuk dipergunakan sebagaimana mestinya.`;
 }
 
 
@@ -1537,36 +2725,63 @@ Demikian surat keterangan ini dibuat untuk dipergunakan sebagaimana mestinya.`;
 async function saveT(id) {
 
   const d = {
-    id: id || null,
-    kode: $('#tk').value,
-    nama: ($('#tn').value || '').trim(),
-    judul: ($('#tj').value || '').trim(),
-    isi: $('#ti').value,
-    ukuran_kertas: $('#tu').value,
-    margin_atas: +($('#ma').value || 2),
-    margin_bawah: +($('#mb').value || 2),
-    margin_kiri: +($('#mk').value || 3),
-    margin_kanan: +($('#mn').value || 3),
+
+    id:
+      id || null,
+
+    kode:
+      $('#tk').value,
+
+    nama:
+      $('#tn').value,
+
+    judul:
+      $('#tj').value,
+
+    isi:
+      $('#ti').value,
+
+    ukuran_kertas:
+      $('#tu').value,
+
+    margin_atas:
+      +($('#ma').value || 2),
+
+    margin_bawah:
+      +($('#mb').value || 2),
+
+    margin_kiri:
+      +($('#mk').value || 3),
+
+    margin_kanan:
+      +($('#mn').value || 3),
+
     aktif: 1
   };
 
-  if (!d.kode || !d.nama) return alert('Kode dan Nama wajib diisi.');
+  if (!d.kode || !d.nama) {
 
-  if (!d.isi || !d.isi.trim()) return alert('Isi template wajib diisi.');
+    return alert(
+      'Kode dan Nama wajib diisi.'
+    );
+  }
 
   try {
 
     await window.desaAPI.templates.save(d);
 
-    alert('Template tersimpan.');
-
-    editingTemplateId = null;
+    alert(
+      'Template tersimpan.'
+    );
 
     await templates();
 
   } catch (e) {
 
-    alert('Gagal menyimpan: ' + (e?.message || e));
+    alert(
+      'Gagal menyimpan: ' +
+      (e?.message || e)
+    );
   }
 }
 
@@ -1577,14 +2792,15 @@ async function saveT(id) {
 
 async function hapusT(id) {
 
-  if (!confirm('Hapus template ini?')) return;
-
-  try {
-    await window.desaAPI.templates.remove(id);
-    await templates();
-  } catch (e) {
-    alert('Gagal menghapus: ' + (e?.message || e));
+  if (!confirm(
+    'Hapus template ini?'
+  )) {
+    return;
   }
+
+  await window.desaAPI.templates.delete(id);
+
+  await templates();
 }
 
 
@@ -1594,34 +2810,125 @@ async function hapusT(id) {
 
 async function settings() {
 
-  const s = await window.desaAPI.settings.get();
+  const s =
+    await window.desaAPI.settings.get();
 
   $('#content').innerHTML = `
+
     <div class="panel">
 
       <h2>8. Pengaturan Desa</h2>
 
       <div class="grid">
 
-        ${fld('dn', 'Nama Desa', 'text', '', s.nama_desa)}
-        ${fld('dk', 'Kecamatan', 'text', '', s.kecamatan)}
-        ${fld('db', 'Kabupaten', 'text', '', s.kabupaten)}
-        ${fld('dp', 'Provinsi', 'text', '', s.provinsi)}
-        ${fld('dz', 'Kode Pos', 'text', '', s.kode_pos)}
-        ${fld('dh', 'Kepala Desa', 'text', '', s.kepala_desa)}
-        ${fld('di', 'NIP Kepala Desa', 'text', '', s.nip_kepala_desa)}
-        ${fld('dl', 'Logo Path', 'text', '', s.logo_path)}
-        ${fld('ds', 'Stempel Path', 'text', '', s.stempel_path)}
-        ${fld('dt', 'Tanda Tangan Path', 'text', '', s.tanda_tangan_path)}
-        ${fld('fn', 'Format Nomor', 'text', '', s.format_nomor)}
+        ${fld(
+          'dn',
+          'Nama Desa',
+          'text',
+          '',
+          s.nama_desa
+        )}
+
+        ${fld(
+          'dk',
+          'Kecamatan',
+          'text',
+          '',
+          s.kecamatan
+        )}
+
+        ${fld(
+          'db',
+          'Kabupaten',
+          'text',
+          '',
+          s.kabupaten
+        )}
+
+        ${fld(
+          'dp',
+          'Provinsi',
+          'text',
+          '',
+          s.provinsi
+        )}
+
+        ${fld(
+          'dz',
+          'Kode Pos',
+          'text',
+          '',
+          s.kode_pos
+        )}
+
+        ${fld(
+          'dh',
+          'Kepala Desa',
+          'text',
+          '',
+          s.kepala_desa
+        )}
+
+        ${fld(
+          'di',
+          'NIP Kepala Desa',
+          'text',
+          '',
+          s.nip_kepala_desa
+        )}
+
+        ${fld(
+          'dl',
+          'Logo Path',
+          'text',
+          '',
+          s.logo_path
+        )}
+
+        ${fld(
+          'ds',
+          'Stempel Path',
+          'text',
+          '',
+          s.stempel_path
+        )}
+
+        ${fld(
+          'dt',
+          'Tanda Tangan Path',
+          'text',
+          '',
+          s.tanda_tangan_path
+        )}
+
+        ${fld(
+          'fn',
+          'Format Nomor',
+          'text',
+          '',
+          s.format_nomor
+        )}
 
         <div class="full">
-          ${fld('da', 'Alamat', 'textarea', '', s.alamat)}
+
+          ${fld(
+            'da',
+            'Alamat',
+            'textarea',
+            '',
+            s.alamat
+          )}
+
         </div>
 
       </div>
 
-      <button class="primary" onclick="saveS()">Simpan</button>
+      <button
+        class="primary"
+        onclick="saveS()"
+      >
+        Simpan
+      </button>
 
     </div>
   `;
@@ -1634,34 +2941,45 @@ async function settings() {
 
 async function saveS() {
 
+  const d = {};
+
   const map = [
+
     ['dn', 'nama_desa'],
     ['dk', 'kecamatan'],
     ['db', 'kabupaten'],
     ['dp', 'provinsi'],
+
     ['da', 'alamat'],
+
     ['dz', 'kode_pos'],
+
     ['dh', 'kepala_desa'],
+
     ['di', 'nip_kepala_desa'],
+
     ['dl', 'logo_path'],
+
     ['ds', 'stempel_path'],
+
     ['dt', 'tanda_tangan_path'],
+
     ['fn', 'format_nomor']
+
   ];
 
-  const d = {};
-
   map.forEach(a => {
-    const el = $('#' + a[0]);
-    d[a[1]] = el ? el.value : '';
+
+    d[a[1]] =
+      $('#' + a[0]).value;
+
   });
 
-  try {
-    await window.desaAPI.settings.save(d);
-    alert('Pengaturan disimpan.');
-  } catch (e) {
-    alert('Gagal menyimpan pengaturan: ' + (e?.message || e));
-  }
+  await window.desaAPI.settings.save(d);
+
+  alert(
+    'Pengaturan disimpan.'
+  );
 }
 
 
@@ -1671,18 +2989,26 @@ async function saveS() {
 
 async function users() {
 
-  const r = await window.desaAPI.users.list();
+  const r =
+    await window.desaAPI.users.list() || [];
 
   $('#content').innerHTML = `
+
     <div class="panel">
 
       <h2>9. Pengguna</h2>
 
-      <button class="primary" onclick="userForm()">+ Pengguna</button>
+      <button
+        class="primary"
+        onclick="userForm()"
+      >
+        + Pengguna
+      </button>
 
       <table class="table">
 
         <thead>
+
           <tr>
             <th>Username</th>
             <th>Nama</th>
@@ -1690,24 +3016,47 @@ async function users() {
             <th>Aktif</th>
             <th>Aksi</th>
           </tr>
+
         </thead>
 
         <tbody>
+
           ${
             r.map(x => `
+
               <tr>
-                <td>${esc(x.username)}</td>
-                <td>${esc(x.nama)}</td>
-                <td>${esc(x.role)}</td>
-                <td>${x.aktif ? 'Ya' : 'Tidak'}</td>
+
                 <td>
-                  <button onclick="userForm(${x.id})">Edit</button>
-                  ${x.id !== 1 ? `<button onclick="toggleU(${x.id})">${x.aktif ? 'Nonaktifkan' : 'Aktifkan'}</button>` : ''}
+                  ${esc(x.username)}
                 </td>
+
+                <td>
+                  ${esc(x.nama)}
+                </td>
+
+                <td>
+                  ${esc(x.role)}
+                </td>
+
+                <td>
+                  ${x.aktif ? 'Ya' : 'Tidak'}
+                </td>
+
+                <td>
+
+                  <button
+                    onclick="userForm(${x.id})"
+                  >
+                    Edit
+                  </button>
+
+                </td>
+
               </tr>
-            `).join('') ||
-            `<tr><td colspan="5" class="empty">Belum ada pengguna</td></tr>`
+
+            `).join('')
           }
+
         </tbody>
 
       </table>
@@ -1724,37 +3073,97 @@ async function users() {
 async function userForm(id) {
 
   let u = {
+
     id: null,
+
     username: '',
+
     password: '',
+
     nama: '',
+
     role: 'Operator',
+
     aktif: 1
+
   };
 
   if (id) {
-    const list = await window.desaAPI.users.list();
-    const found = list.find(x => Number(x.id) === Number(id));
-    if (found) u = { ...found, password: '' };
+
+    const list =
+      await window.desaAPI.users.list() || [];
+
+    const found =
+      list.find(
+        x => x.id === id
+      );
+
+    if (found) {
+
+      u = {
+        ...found,
+        password: ''
+      };
+    }
   }
 
   $('#content').innerHTML = `
+
     <div class="panel">
 
-      <h2>${u.id ? 'Edit' : 'Pengguna Baru'}</h2>
+      <h2>
+        ${u.id
+          ? 'Edit'
+          : 'Pengguna Baru'}
+      </h2>
 
-      ${fld('uu', 'Username', 'text', '', u.username)}
-      ${fld('up', 'Password ' + (u.id ? '(kosongkan jika tidak diubah)' : '*'), 'password')}
-      ${fld('un', 'Nama', 'text', '', u.nama)}
-      ${fld('ur', 'Role', 'select', 'Admin|Operator|Kepala Desa', u.role)}
+      ${fld(
+        'uu',
+        'Username',
+        'text',
+        '',
+        u.username
+      )}
+
+      ${fld(
+        'up',
+        'Password ' +
+        (
+          u.id
+            ? '(kosongkan jika tidak diubah)'
+            : ''
+        ),
+        'password'
+      )}
+
+      ${fld(
+        'un',
+        'Nama',
+        'text',
+        '',
+        u.nama
+      )}
+
+      ${fld(
+        'ur',
+        'Role',
+        'select',
+        'Admin|Operator|Kepala Desa',
+        u.role
+      )}
 
       <div class="actions">
 
-        <button class="primary" onclick="saveU(${u.id || 'null'})">
+        <button
+          class="primary"
+          onclick="saveU(${u.id || 'null'})"
+        >
           Simpan
         </button>
 
-        <button onclick="users()">Batal</button>
+        <button onclick="users()">
+          Batal
+        </button>
 
       </div>
 
@@ -1764,39 +3173,49 @@ async function userForm(id) {
 
 
 /* =========================================================
-   SIMPAN / TOGGLE PENGGUNA
+   SIMPAN PENGGUNA
    ========================================================= */
 
 async function saveU(id) {
 
   const d = {
-    id: id || null,
-    username: ($('#uu').value || '').trim(),
-    password: $('#up').value,
-    nama: ($('#un').value || '').trim(),
-    role: $('#ur').value,
+
+    id:
+      id || null,
+
+    username:
+      $('#uu').value,
+
+    password:
+      $('#up').value,
+
+    nama:
+      $('#un').value,
+
+    role:
+      $('#ur').value,
+
     aktif: 1
+
   };
 
-  if (!d.username || !d.nama) return alert('Username dan Nama wajib diisi.');
+  if (!d.username || !d.nama) {
 
-  if (!d.id && !d.password) return alert('Password wajib untuk pengguna baru.');
-
-  try {
-    await window.desaAPI.users.save(d);
-    await users();
-  } catch (e) {
-    alert('Gagal menyimpan pengguna: ' + (e?.message || e));
+    return alert(
+      'Username dan Nama wajib diisi.'
+    );
   }
-}
 
-async function toggleU(id) {
-  try {
-    await window.desaAPI.users.toggle(Number(id));
-    await users();
-  } catch (e) {
-    alert('Gagal mengubah status: ' + (e?.message || e));
+  if (!d.id && !d.password) {
+
+    return alert(
+      'Password wajib untuk pengguna baru.'
+    );
   }
+
+  await window.desaAPI.users.save(d);
+
+  await users();
 }
 
 
@@ -1807,15 +3226,22 @@ async function toggleU(id) {
 function backup() {
 
   $('#content').innerHTML = `
+
     <div class="panel">
 
       <h2>10. Backup / Restore</h2>
 
-      <p>Backup database lokal atau restore dari file .db.</p>
+      <p>
+        Backup database lokal atau
+        restore dari file .db.
+      </p>
 
       <div class="actions">
 
-        <button class="primary" onclick="doBackup()">
+        <button
+          class="primary"
+          onclick="doBackup()"
+        >
           Backup Database
         </button>
 
@@ -1830,37 +3256,66 @@ function backup() {
 }
 
 
+/* =========================================================
+   BACKUP DATABASE
+   ========================================================= */
+
 async function doBackup() {
 
   try {
 
-    const x = await window.desaAPI.backup();
+    const x =
+      await window.desaAPI.backup();
 
-    if (x) alert('Backup tersimpan:\n' + x);
+    if (x) {
+
+      alert(
+        'Backup tersimpan:\n' + x
+      );
+    }
 
   } catch (e) {
 
-    alert('Gagal backup: ' + (e?.message || e));
+    alert(
+      'Gagal backup: ' +
+      (e?.message || e)
+    );
   }
 }
 
 
+/* =========================================================
+   RESTORE DATABASE
+   ========================================================= */
+
 async function doRestore() {
 
-  if (!confirm('Restore akan mengganti database aktif. Lanjutkan?')) return;
+  if (!confirm(
+    'Restore akan mengganti database aktif. Lanjutkan?'
+  )) {
+    return;
+  }
 
   try {
 
-    const x = await window.desaAPI.restore();
+    const x =
+      await window.desaAPI.restore();
 
     if (x) {
-      alert('Restore berhasil.');
+
+      alert(
+        'Restore berhasil.'
+      );
+
       location.reload();
     }
 
   } catch (e) {
 
-    alert('Gagal restore: ' + (e?.message || e));
+    alert(
+      'Gagal restore: ' +
+      (e?.message || e)
+    );
   }
 }
 
@@ -1869,73 +3324,68 @@ async function doRestore() {
    INIT BANUAKITA
    ========================================================= */
 
-async function initApp() {
+document.addEventListener(
+  'DOMContentLoaded',
+  async function () {
 
-  /* Tidak ada login lagi. Aplikasi langsung membuka Dashboard. */
+    /*
+      Tidak ada login lagi.
+      Aplikasi langsung membuka Dashboard.
+    */
 
-  // Sinkronkan helper global dengan DOM saat ini (penting untuk hot-reload/test)
-  if (typeof window !== 'undefined') {
-    $ = s => document.querySelector(s);
-    $$ = s => document.querySelectorAll(s);
-    window.page = page;
-    window.initApp = initApp;
+    const app = $('#app');
 
-    // Ekspos fungsi yang dipanggil lewat atribut onclick HTML.
-    // Jika salah satu gagal diekspos, tombol menu jadi mati total —
-    // maka gunakan try/catch agar satu kegagalan tidak menyeret sisanya.
-    const exports = {
-      page, penduduk, addP, editP, saveP, hapusP,
-      uploadKtp, scanKtp, uploadKtpManual, uploadKtpSurat, toggleManualP,
-      suratTypesPage, buat, dynamicFields, autoNomor, preview, saveLetter,
-      arsip, findA, templates, templateForm, saveT, hapusT,
-      settings, saveS, users, userForm, saveU, toggleU,
-      backup, doBackup, doRestore,
-      logout: typeof logout === 'function' ? logout : undefined
-    };
-    for (const [k, v] of Object.entries(exports)) {
-      try { if (typeof v === 'function') window[k] = v; } catch (e) { console.error('expose failed:', k, e); }
+    if (app) {
+      app.classList.remove('hidden');
     }
-  }
 
-  // Guard: jika preload gagal dimuat, tampilkan pesan jelas
-  // alih-alih membuat semua menu mati tanpa error yang terlihat.
-  if (!window.desaAPI) {
-    const c = $('#content');
-    if (c) {
-      c.innerHTML = `
-        <div class="panel">
-          <h2>Koneksi ke aplikasi utama gagal</h2>
-          <p>Modul <code>preload.js</code> tidak tersedia, sehingga tombol
-          menu tidak dapat mengambil data. Jalankan ulang aplikasi.</p>
-        </div>`;
+    const login = $('#login');
+
+    if (login) {
+      login.classList.add('hidden');
     }
-    return;
-  }
 
-  // Hanya hapus elemen login lama jika ada (#app TIDAK BOLEH dihapus!)
-  const loginEl = $('#login');
-  if (loginEl && typeof loginEl.remove === 'function') loginEl.remove();
+    const who = $('#who');
 
-  const app = $('#app');
-  if (app && app.classList) app.classList.remove('hidden');
-
-  const keluar = document.querySelector('[onclick="logout()"]');
-  if (keluar && typeof keluar.remove === 'function') keluar.remove();
-
-  const who = $('#who');
-  if (who) who.textContent = 'Administrasi Desa';
-
-  // tanggal hari ini di topbar (format Indonesia)
-  const today = $('#today');
-  if (today) {
-    try {
-      today.textContent = new Date().toLocaleDateString('id-ID', {
-        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-      });
-    } catch (e) {
-      today.textContent = new Date().toISOString().slice(0, 10);
+    if (who) {
+      who.innerHTML =
+        'Administrasi Desa';
     }
-  }
 
-  await page('dashboard');
-}
+    // Footer kredit
+    if (!document.getElementById('bk-footer')) {
+      const style = document.createElement('style');
+      style.textContent = `
+        #bk-footer {
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 9999;
+          text-align: center;
+          padding: 8px 12px;
+          font-size: 12px;
+          color: #64748b;
+          background: rgba(255,255,255,0.92);
+          border-top: 1px solid #e2e8f0;
+          letter-spacing: 0.2px;
+          pointer-events: none;
+        }
+        #bk-footer span {
+          pointer-events: auto;
+        }
+        body {
+          padding-bottom: 36px !important;
+        }
+      `;
+      document.head.appendChild(style);
+
+      const footer = document.createElement('div');
+      footer.id = 'bk-footer';
+      footer.innerHTML = '<span>BK Tech · Support Adha H.Y</span>';
+      document.body.appendChild(footer);
+    }
+
+    await page('dashboard');
+  }
+);
