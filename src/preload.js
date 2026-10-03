@@ -7,13 +7,16 @@ contextBridge.exposeInMainWorld('desaAPI', {
   penduduk: {
     list: q => ipcRenderer.invoke('penduduk:list', q),
     get: id => ipcRenderer.invoke('penduduk:get', id),
-    findByNik: nik => ipcRenderer.invoke('penduduk:findByNik', nik),
     save: d => ipcRenderer.invoke('penduduk:save', d),
     nonaktif: id => ipcRenderer.invoke('penduduk:nonaktif', id)
   },
 
+  ktpUpload: () => ipcRenderer.invoke('ktp:upload'),
+  fileUrl: p => 'file://' + String(p || '').split(/[\\/]/).join('/'),
+
   surat: {
     types: () => ipcRenderer.invoke('surat:types'),
+    nextNomor: (t, k) => ipcRenderer.invoke('surat:nextNomor', t, k),
     save: d => ipcRenderer.invoke('surat:save', d),
     get: id => ipcRenderer.invoke('surat:get', id)
   },
@@ -29,7 +32,8 @@ contextBridge.exposeInMainWorld('desaAPI', {
 
   users: {
     list: () => ipcRenderer.invoke('users:list'),
-    save: d => ipcRenderer.invoke('users:save', d)
+    save: d => ipcRenderer.invoke('users:save', d),
+    toggle: id => ipcRenderer.invoke('users:toggle', id)
   },
 
   templates: {
@@ -37,7 +41,7 @@ contextBridge.exposeInMainWorld('desaAPI', {
     get: id => ipcRenderer.invoke('templates:get', id),
     getByKode: kode => ipcRenderer.invoke('templates:getByKode', kode),
     save: d => ipcRenderer.invoke('templates:save', d),
-    delete: id => ipcRenderer.invoke('templates:delete', id)
+    remove: id => ipcRenderer.invoke('templates:delete', id)
   },
 
   backup: () => ipcRenderer.invoke('backup'),

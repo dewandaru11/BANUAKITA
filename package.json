@@ -1,20 +1,17 @@
 {
   "name": "banuakita",
   "version": "1.0.0",
-  "description": "BanuaKita - Administrasi Desa Desktop",
+  "description": "Administrasi Desa Desktop",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder",
-    "rebuild": "electron-rebuild -f -w better-sqlite3"
+    "build": "electron-builder"
   },
   "dependencies": {
-    "better-sqlite3": "^11.10.0"
-  },
-  "devDependencies": {
+    "better-sqlite3": "^11.10.0",
     "electron": "^38.2.1",
     "electron-builder": "^26.0.12",
-    "@electron/rebuild": "^4.2.0"
+    "tesseract.js": "^7.0.0"
   },
   "build": {
     "appId": "id.banuakita.app",
@@ -31,18 +28,9 @@
     ],
     "win": {
       "target": "nsis"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "BanuaKita"
     }
   },
-  "allowScripts": {
-    "electron@38.8.6": true,
-    "better-sqlite3@11.10.0": true,
-    "electron-winstaller@5.4.0": true
+  "devDependencies": {
+    "@electron/rebuild": "^4.2.0"
   }
 }

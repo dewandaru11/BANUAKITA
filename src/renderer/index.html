@@ -1,49 +1,96 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>BanuaKita - Administrasi Desa</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BanuaKita - Administrasi Desa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div id="app" class="app">
-    <aside>
-      <div class="brand">BANUAKITA</div>
-      <div id="who" class="who">Administrasi Desa</div>
+<div id="app" class="app">
 
-      <button onclick="page('dashboard')">🏠 Dashboard</button>
-      <button onclick="page('penduduk')">👥 Penduduk</button>
-      <button onclick="page('buat')">📄 Buat Surat</button>
-      <button onclick="page('arsip')">🗄️ Arsip</button>
-      <button onclick="page('types')">📑 Jenis Surat</button>
-      <button onclick="page('templates')">📝 Template</button>
-      <button onclick="page('settings')">⚙️ Pengaturan</button>
-      <button onclick="page('users')">👤 Pengguna</button>
-      <button onclick="page('backup')">💾 Backup/Restore</button>
-    </aside>
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
 
-    <main>
-      <header>
+    <div class="brand">
+      <div class="brand-logo">🏡</div>
+      <div class="brand-text">
+        <b>BanuaKita</b>
+        <span>Administrasi Desa</span>
+      </div>
+    </div>
+
+    <div class="user-chip">
+      <div class="avatar">AD</div>
+      <div class="user-meta">
+        <b id="who">Administrasi Desa</b>
+        <span>Sistem Desa Digital</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-label">Menu Utama</div>
+      <button class="nav-btn active" data-page="dashboard" onclick="page('dashboard')">
+        <span class="ico">🏠</span> Dashboard
+      </button>
+      <button class="nav-btn" data-page="penduduk" onclick="page('penduduk')">
+        <span class="ico">👥</span> Data Penduduk
+      </button>
+      <button class="nav-btn" data-page="buat" onclick="page('buat')">
+        <span class="ico">✉️</span> Buat Surat
+      </button>
+      <button class="nav-btn" data-page="arsip" onclick="page('arsip')">
+        <span class="ico">🗄️</span> Arsip Surat
+      </button>
+
+      <div class="nav-label">Konfigurasi</div>
+      <button class="nav-btn" data-page="types" onclick="page('types')">
+        <span class="ico">📑</span> Jenis Surat
+      </button>
+      <button class="nav-btn" data-page="templates" onclick="page('templates')">
+        <span class="ico">📝</span> Template Surat
+      </button>
+      <button class="nav-btn" data-page="settings" onclick="page('settings')">
+        <span class="ico">⚙️</span> Pengaturan Desa
+      </button>
+      <button class="nav-btn" data-page="users" onclick="page('users')">
+        <span class="ico">👤</span> Pengguna
+      </button>
+      <button class="nav-btn" data-page="backup" onclick="page('backup')">
+        <span class="ico">💾</span> Backup / Restore
+      </button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <small>v1.0 · BanuaKita</small>
+    </div>
+
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+
+    <header class="topbar">
+      <div>
         <h1 id="title">Dashboard</h1>
-      </header>
+        <p class="crumb">BanuaKita <i id="crumb-page">/ Dashboard</i></p>
+      </div>
+      <div class="topbar-right">
+        <span class="date-chip" id="today"></span>
+      </div>
+    </header>
 
-      <section id="content"></section>
-    </main>
-  </div>
+    <section id="content" class="content"></section>
 
-  <script src="app.js"></script>
+  </main>
 
-  <script>
-    // BANUAKITA langsung membuka Dashboard tanpa login
-    document.addEventListener('DOMContentLoaded', function () {
-      if (typeof page === 'function') {
-        page('dashboard');
-      }
-    });
-  </script>
+</div>
 
+<script src="tesseract.min.js"></script>
+<script src="ktp-ocr.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
-```
