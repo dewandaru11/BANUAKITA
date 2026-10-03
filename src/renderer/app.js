@@ -1197,11 +1197,11 @@ async function buat() {
           </label>
         </div>
 
-        <!-- Mode Database -->
+        <!-- Pilih dari database -->
         <div id="mode-db">
-          <label>Penduduk</label>
+          <label>Pilih Penduduk (isi otomatis)</label>
           <select id="pid" onchange="onPendudukChange()">
-            <option value="">-- pilih penduduk --</option>
+            <option value="">-- pilih penduduk / kosongkan untuk isi manual --</option>
             ${
               cachedPenduduk.map(x => `
                 <option value="${x.id}">
@@ -1210,116 +1210,81 @@ async function buat() {
               `).join('')
             }
           </select>
-          <div id="penduduk-info" style="display:none;margin-top:10px;padding:12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;font-size:13px;line-height:1.6"></div>
+          <div id="penduduk-info" style="display:none;margin-top:8px;padding:10px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;font-size:13px"></div>
         </div>
 
-        <!-- Mode Manual -->
-        <div id="mode-manual" style="display:none">
-
-          <!-- SCAN KTP untuk Input Manual -->
-          <div class="panel" style="margin:12px 0;background:#f8fafc;border:1px dashed #94a3b8;padding:12px">
-            <h3 style="margin:0 0 8px 0;font-size:15px">📷 Scan KTP (OCR)</h3>
-            <p class="hint" style="margin-bottom:10px;font-size:13px">
-              Upload foto/scan KTP agar data terisi otomatis.
-            </p>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">
-              <div>
-                <input
-                  type="file"
-                  id="m_ktp_file"
-                  accept="image/*"
-                  capture="environment"
-                  onchange="previewKtp(this, 'm_')"
-                >
-                <div style="margin-top:8px">
-                  <button
-                    class="primary"
-                    id="m_btn_ocr"
-                    onclick="scanKtpOcr('m_')"
-                    disabled
-                  >
-                    Scan KTP Sekarang
-                  </button>
-                </div>
-                <div id="m_ocr_status" style="margin-top:8px;font-size:13px;color:#64748b"></div>
+        <!-- SCAN KTP -->
+        <div class="panel" style="margin:14px 0;background:#f8fafc;border:1px dashed #94a3b8;padding:12px">
+          <h3 style="margin:0 0 8px 0;font-size:15px">📷 Scan KTP (OCR)</h3>
+          <p class="hint" style="margin-bottom:10px;font-size:13px">Upload foto/scan KTP agar form terisi otomatis.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">
+            <div>
+              <input type="file" id="m_ktp_file" accept="image/*" capture="environment" onchange="previewKtp(this, 'm_')">
+              <div style="margin-top:8px">
+                <button class="primary" id="m_btn_ocr" onclick="scanKtpOcr('m_')" disabled>Scan KTP Sekarang</button>
               </div>
-              <div id="m_ktp_preview_wrap" style="display:none">
-                <img
-                  id="m_ktp_preview"
-                  style="max-width:220px;max-height:140px;border:1px solid #cbd5e1;border-radius:6px"
-                >
-              </div>
+              <div id="m_ocr_status" style="margin-top:8px;font-size:13px;color:#64748b"></div>
+            </div>
+            <div id="m_ktp_preview_wrap" style="display:none">
+              <img id="m_ktp_preview" style="max-width:220px;max-height:140px;border:1px solid #cbd5e1;border-radius:6px">
             </div>
           </div>
-
-          <div class="form-section-title">Data Pemohon</div>
-          <div class="grid form-grid-2" style="margin-top:8px">
-            ${fld('m_nama', 'Nama Lengkap *', 'text', '', '', '', 'Nama sesuai KTP')}
-            ${fld('m_tempat_lahir', 'Tempat Lahir', 'text', '', '', '', 'Tempat lahir')}
-            ${fld('m_tanggal_lahir', 'Tanggal Lahir', 'date', '', '', 'Contoh: 1 Januari 1990')}
-            ${fld('m_nik', 'NIK *', 'text', '', '', '16 digit angka', 'NIK')}
-            ${fld('m_no_kk', 'Nomor KK', 'text', '', '', '', 'Nomor Kartu Keluarga')}
-            ${fld('m_jenis_kelamin', 'Jenis Kelamin', 'select', OPT_JK)}
-            ${fld('m_agama', 'Agama', 'select', OPT_AGAMA)}
-            ${fld('m_status_perkawinan', 'Status Perkawinan', 'select', OPT_STATUS)}
-            ${fld('m_pekerjaan', 'Pekerjaan', 'select', OPT_PEKERJAAN)}
-            ${fld('m_alamat', 'Alamat', 'textarea', '', '', '', 'Alamat lengkap')}
-            ${fld('m_rt', 'RT', 'text', '', '', 'Contoh: 001', '001')}
-            ${fld('m_rw', 'RW', 'text', '', '', 'Contoh: 001', '001')}
-            ${fld('m_desa', 'Desa', 'text', '', '', '', 'Nama desa')}
-            ${fld('m_kecamatan', 'Kecamatan', 'text', '', '', '', 'Nama kecamatan')}
-            ${fld('m_kabupaten', 'Kabupaten', 'text', '', '', '', 'Nama kabupaten')}
-            ${fld('m_provinsi', 'Provinsi', 'text', '', '', '', 'Nama provinsi')}
-          </div>
         </div>
 
-        <label>Jenis Surat</label>
+        <!-- FORM PENGISIAN (seperti contoh) -->
+        <div class="form-section-title" style="text-align:center;border:none;margin-top:8px">Form Pengajuan Surat</div>
 
-        <select
-          id="tid"
-          onchange="onJenisSuratChange()"
-        >
-          <option value="">-- pilih jenis surat --</option>
-          ${
-            suratTypes.map(x => `
-              <option value="${x.id}">
-                ${esc(x.kode)} - ${esc(x.nama)}
-              </option>
-            `).join('')
-          }
-        </select>
+        <div class="grid form-grid-2" style="margin-top:8px">
+          ${fld('m_nama', 'Nama Lengkap', 'text', '', '', '', 'Nama sesuai KTP')}
+          ${fld('m_tempat_lahir', 'Tempat Lahir', 'text', '', '', '', 'Tempat lahir')}
+          ${fld('m_tanggal_lahir', 'Tanggal Lahir', 'date', '', '', 'Contoh: 1 Januari 1990')}
+          ${fld('m_nik', 'NIK', 'text', '', '', '16 digit angka', 'NIK')}
+          ${fld('m_no_kk', 'Nomor KK', 'text', '', '', '', 'Nomor Kartu Keluarga')}
+          ${fld('m_jenis_kelamin', 'Jenis Kelamin', 'select', OPT_JK)}
+          ${fld('m_agama', 'Agama', 'select', OPT_AGAMA)}
+          ${fld('m_status_perkawinan', 'Status Perkawinan', 'select', OPT_STATUS)}
+          ${fld('m_pekerjaan', 'Pekerjaan', 'select', OPT_PEKERJAAN)}
+          ${fld('m_alamat', 'Alamat', 'textarea', '', '', '', 'Alamat')}
+          ${fld('m_rt', 'RT', 'text', '', '', 'Contoh: 001', '001')}
+          ${fld('m_rw', 'RW', 'text', '', '', 'Contoh: 001', '001')}
+          ${fld('m_desa', 'Desa', 'text', '', '', '', 'Nama desa')}
+          ${fld('m_kecamatan', 'Kecamatan', 'text', '', '', '', 'Nama kecamatan')}
+          ${fld('m_kabupaten', 'Kabupaten', 'text', '', '', '', 'Nama kabupaten')}
+          ${fld('m_provinsi', 'Provinsi', 'text', '', '', '', 'Nama provinsi')}
+        </div>
 
-        <label>Nomor Surat</label>
+        <div class="form-section-title" style="color:#dc2626;border-color:#fecaca">Kontak Pemohon</div>
+        <div class="grid form-grid-2">
+          ${fld('m_nama_pemohon', 'Nama Pemohon', 'text', '', '', '', 'Nama pemohon')}
+          ${fld('m_telp', 'No. Tlp / WhatsApp', 'text', '', '', 'Wajib diisi', '08xxxxxxxxxx')}
+          ${fld('m_email', 'Email (jika ada)', 'text', '', '', '', 'nama@domain.com')}
+          ${fld('m_keperluan', 'Keperluan', 'text', '', '', 'Contoh: Beasiswa Sekolah', 'Keperluan surat')}
+        </div>
 
-        <input
-          id="nomor"
-          placeholder="Otomatis / isi manual"
-        >
-
-        <label>Tanggal</label>
-
-        <input
-          id="tanggal"
-          type="date"
-          value="${tgl}"
-          onchange="autoNomorSurat()"
-        >
+        <div class="form-section-title">Jenis & Nomor Surat</div>
+        <div class="grid form-grid-2">
+          <div class="form-field">
+            <label>Jenis Surat</label>
+            <select id="tid" onchange="onJenisSuratChange()">
+              <option value="">-- pilih jenis surat --</option>
+              ${
+                suratTypes.map(x => `
+                  <option value="${x.id}">
+                    ${esc(x.kode)} - ${esc(x.nama)}
+                  </option>
+                `).join('')
+              }
+            </select>
+          </div>
+          ${fld('nomor', 'Nomor Surat', 'text', '', '', '', 'Otomatis / isi manual')}
+          ${fld('tanggal', 'Tanggal', 'date', '', tgl)}
+        </div>
 
         <div id="dyn"></div>
 
-        <div class="actions">
-
-          <button
-            class="primary"
-            onclick="saveLetter()"
-          >
-            Simpan
-          </button>
-
-          <button onclick="preview()">
-            Preview
-          </button>
-
+        <div class="actions" style="margin-top:18px">
+          <button class="primary" onclick="saveLetter()">Simpan</button>
+          <button onclick="preview()">Preview</button>
         </div>
 
       </div>
@@ -1355,40 +1320,56 @@ function getSelectedPenduduk() {
   return cachedPenduduk.find(x => String(x.id) === String(pid.value)) || null;
 }
 
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (val === undefined || val === null) return;
+  el.value = val;
+}
+
 function onPendudukChange() {
   const p = getSelectedPenduduk();
   const info = $('#penduduk-info');
 
-  if (!info) return;
-
   if (!p) {
-    info.style.display = 'none';
-    info.innerHTML = '';
+    if (info) {
+      info.style.display = 'none';
+      info.innerHTML = '';
+    }
     return;
   }
 
-  // Tampilkan ringkasan data penduduk
-  info.style.display = '';
-  info.innerHTML = `
-    <b style="color:#166534">✓ Data terpilih (otomatis terisi di surat)</b><br>
-    <b>Nama:</b> ${esc(p.nama)} &nbsp;|&nbsp;
-    <b>NIK:</b> ${esc(p.nik)}<br>
-    <b>No. KK:</b> ${esc(p.no_kk || '-')} &nbsp;|&nbsp;
-    <b>JK:</b> ${esc(p.jenis_kelamin || '-')}<br>
-    <b>TTL:</b> ${esc(p.tempat_lahir || '-')} , ${esc(p.tanggal_lahir || '-')}<br>
-    <b>Alamat:</b> ${esc(p.alamat || '-')}<br>
-    <b>RT/RW:</b> ${esc(p.rt || '-')} / ${esc(p.rw || '-')} &nbsp;|&nbsp;
-    <b>Desa:</b> ${esc(p.desa || '-')}
-  `;
+  if (info) {
+    info.style.display = '';
+    info.innerHTML = `<b style="color:#166534">✓ Data penduduk dipilih — form terisi otomatis</b>`;
+  }
 
-  // Isi otomatis field dinamis yang namanya sama dengan kolom penduduk
+  // Isi form utama (mirip form pengajuan)
+  setVal('m_nama', p.nama);
+  setVal('m_nik', p.nik);
+  setVal('m_no_kk', p.no_kk);
+  setVal('m_tempat_lahir', p.tempat_lahir);
+  setVal('m_tanggal_lahir', p.tanggal_lahir);
+  setVal('m_jenis_kelamin', p.jenis_kelamin);
+  setVal('m_agama', p.agama);
+  setVal('m_status_perkawinan', p.status_perkawinan);
+  setVal('m_pekerjaan', p.pekerjaan);
+  setVal('m_alamat', p.alamat);
+  setVal('m_rt', p.rt);
+  setVal('m_rw', p.rw);
+  setVal('m_desa', p.desa);
+  setVal('m_kecamatan', p.kecamatan);
+  setVal('m_kabupaten', p.kabupaten);
+  setVal('m_provinsi', p.provinsi);
+  setVal('m_nama_pemohon', p.nama);
+
+  // Isi juga field dinamis
   fillDynFromPenduduk(p);
 }
 
 function fillDynFromPenduduk(p) {
   if (!p) return;
 
-  // Map field form dinamis -> key data penduduk
   const map = {
     nama: p.nama,
     nik: p.nik,
@@ -1411,10 +1392,9 @@ function fillDynFromPenduduk(p) {
 
   Object.entries(map).forEach(([key, val]) => {
     if (val === undefined || val === null || val === '') return;
-    const el = document.getElementById('f_' + key);
-    if (el && !el.value) {
-      el.value = val;
-    }
+    // form dinamis (f_) dan form utama (m_)
+    setVal('f_' + key, val);
+    setVal('m_' + key, val);
   });
 }
 
@@ -1465,31 +1445,39 @@ async function autoNomorSurat() {
 
 
 function togglePendudukMode() {
-
+  // Form isian selalu tampil.
+  // Mode "Dari Database" menampilkan dropdown pilih penduduk.
   const mode =
     document.querySelector(
       'input[name="sumber_penduduk"]:checked'
     )?.value || 'db';
 
   const modeDb = $('#mode-db');
-  const modeManual = $('#mode-manual');
-
   if (modeDb) {
-    modeDb.style.display =
-      mode === 'db' ? '' : 'none';
+    modeDb.style.display = mode === 'db' ? '' : 'none';
   }
 
-  if (modeManual) {
-    modeManual.style.display =
-      mode === 'manual' ? '' : 'none';
+  // Jika pindah ke manual, kosongkan pilihan penduduk
+  if (mode === 'manual') {
+    const pid = $('#pid');
+    if (pid) pid.value = '';
+    const info = $('#penduduk-info');
+    if (info) {
+      info.style.display = 'none';
+      info.innerHTML = '';
+    }
   }
 }
 
 
 function getPendudukMode() {
-  return document.querySelector(
+  // Jika ada penduduk terpilih → db, selain itu manual (form m_)
+  const pid = $('#pid');
+  if (pid && pid.value) return 'db';
+  const radio = document.querySelector(
     'input[name="sumber_penduduk"]:checked'
-  )?.value || 'db';
+  )?.value;
+  return radio || 'manual';
 }
 
 
@@ -1597,74 +1585,61 @@ function buildDataMap() {
 
   const nomorEl = $('#nomor');
   const tanggalEl = $('#tanggal');
-  const mode = getPendudukMode();
 
-  let p = {};
+  // Selalu ambil dari form isian (sudah auto-isi jika pilih penduduk)
+  const map = {
+    nik: 'm_nik',
+    nama: 'm_nama',
+    no_kk: 'm_no_kk',
+    tempat_lahir: 'm_tempat_lahir',
+    tanggal_lahir: 'm_tanggal_lahir',
+    jenis_kelamin: 'm_jenis_kelamin',
+    agama: 'm_agama',
+    pekerjaan: 'm_pekerjaan',
+    status_perkawinan: 'm_status_perkawinan',
+    rt: 'm_rt',
+    rw: 'm_rw',
+    desa: 'm_desa',
+    kecamatan: 'm_kecamatan',
+    kabupaten: 'm_kabupaten',
+    provinsi: 'm_provinsi',
+    alamat: 'm_alamat'
+  };
 
-  if (mode === 'manual') {
+  const p = {};
+  Object.entries(map).forEach(([key, id]) => {
+    const el = document.getElementById(id);
+    if (el) p[key] = (el.value || '').trim();
+  });
 
-    // Ambil data dari form manual
-    const map = {
-      nik: 'm_nik',
-      nama: 'm_nama',
-      no_kk: 'm_no_kk',
-      tempat_lahir: 'm_tempat_lahir',
-      tanggal_lahir: 'm_tanggal_lahir',
-      jenis_kelamin: 'm_jenis_kelamin',
-      agama: 'm_agama',
-      pekerjaan: 'm_pekerjaan',
-      status_perkawinan: 'm_status_perkawinan',
-      rt: 'm_rt',
-      rw: 'm_rw',
-      desa: 'm_desa',
-      kecamatan: 'm_kecamatan',
-      kabupaten: 'm_kabupaten',
-      provinsi: 'm_provinsi',
-      alamat: 'm_alamat'
-    };
-
-    Object.entries(map).forEach(([key, id]) => {
-      const el = $('#' + id);
-      if (el) p[key] = (el.value || '').trim();
-    });
-
-  } else {
-
-    // Ambil dari database
-    const pid = $('#pid');
-    p =
-      (pid && pid.value)
-        ? (cachedPenduduk.find(
-            x => x.id == pid.value
-          ) || {})
-        : {};
+  // Fallback: jika form kosong tapi penduduk dipilih, ambil dari cache
+  const pid = $('#pid');
+  if (pid && pid.value && !p.nama) {
+    const row = cachedPenduduk.find(x => String(x.id) === String(pid.value));
+    if (row) Object.assign(p, row);
   }
 
   const fields = {};
+  $$('#dyn input, #dyn textarea, #dyn select').forEach(e => {
+    if (e.id && e.id.startsWith('f_')) {
+      fields[e.id.slice(2)] = e.value;
+    }
+  });
 
-  $$('#dyn input, #dyn textarea, #dyn select')
-    .forEach(e => {
-
-      if (e.id && e.id.startsWith('f_')) {
-        fields[e.id.slice(2)] = e.value;
-      }
-
-    });
+  const keperluanEl = document.getElementById('m_keperluan');
+  const telpEl = document.getElementById('m_telp');
+  const emailEl = document.getElementById('m_email');
+  const namaPemohonEl = document.getElementById('m_nama_pemohon');
 
   return {
-
     ...p,
-
     ...fields,
-
-    keperluan:
-      fields.keperluan || '',
-
-    nomor_surat:
-      (nomorEl && nomorEl.value) || '',
-
-    tanggal_surat:
-      (tanggalEl && tanggalEl.value) || ''
+    keperluan: (keperluanEl && keperluanEl.value) || fields.keperluan || '',
+    telp: (telpEl && telpEl.value) || '',
+    email: (emailEl && emailEl.value) || '',
+    nama_pemohon: (namaPemohonEl && namaPemohonEl.value) || p.nama || '',
+    nomor_surat: (nomorEl && nomorEl.value) || '',
+    tanggal_surat: (tanggalEl && tanggalEl.value) || ''
   };
 }
 
@@ -1695,206 +1670,132 @@ function replacePlaceholders(isi, data) {
    ========================================================= */
 
 async function preview() {
+  try {
 
-  const s =
-    await window.desaAPI.settings.get();
+  let s = {};
+  try {
+    s = await window.desaAPI.settings.get() || {};
+  } catch (e) {
+    console.warn('settings.get gagal:', e);
+  }
 
   const tid = $('#tid');
-  const mode = getPendudukMode();
 
   if (!tid || !tid.value) {
     return alert('Pilih jenis surat dulu.');
   }
 
-  if (mode === 'db') {
-    const pid = $('#pid');
-    if (!pid || !pid.value) {
-      return alert('Pilih penduduk dulu.');
-    }
-  } else {
-    // Validasi input manual
-    const nik = ($('#m_nik')?.value || '').trim();
-    const nama = ($('#m_nama')?.value || '').trim();
+  // Data selalu dari form (auto-isi jika pilih penduduk)
+  const data = buildDataMap();
 
-    if (!nik || !nama) {
-      return alert('NIK dan Nama wajib diisi (mode manual).');
-    }
-
-    if (!/^\d{16}$/.test(nik)) {
-      return alert('NIK harus 16 digit angka.');
-    }
+  if (!data.nama || !data.nik) {
+    return alert('Nama dan NIK wajib diisi.\nPilih penduduk atau isi form terlebih dahulu.');
   }
 
-  const x =
-    suratTypes.find(
-      t => t.id == tid.value
-    );
+  const nikClean = String(data.nik).replace(/\D/g, '');
+  if (nikClean.length !== 16) {
+    return alert('NIK harus 16 digit angka.\nSaat ini: ' + nikClean.length + ' digit.');
+  }
+  data.nik = nikClean;
 
+  // Lengkapi data desa dari pengaturan jika form kosong
+  if (!data.desa && s.nama_desa) data.desa = s.nama_desa;
+  if (!data.kecamatan && s.kecamatan) data.kecamatan = s.kecamatan;
+  if (!data.kabupaten && s.kabupaten) data.kabupaten = s.kabupaten;
+  if (!data.provinsi && s.provinsi) data.provinsi = s.provinsi;
+
+  const x = suratTypes.find(t => String(t.id) === String(tid.value));
   if (!x) {
-    return alert(
-      'Pilih jenis surat dulu.'
-    );
+    return alert('Jenis surat tidak ditemukan. Pilih ulang jenis surat.');
   }
 
+  // Muat template sesuai kode jenis surat
   await cekTemplateStatus();
 
-  const data =
-    buildDataMap();
+  // Jika template belum ter-load, coba lagi langsung
+  if (!currentTemplate || !currentTemplate.isi) {
+    try {
+      if (window.desaAPI.templates && typeof window.desaAPI.templates.getByKode === 'function') {
+        currentTemplate = await window.desaAPI.templates.getByKode(x.kode);
+      }
+    } catch (e) {
+      console.warn('Template getByKode gagal:', e);
+    }
+  }
 
-  let bodyHtml;
+  let bodyHtml = '';
   let usedTemplate = false;
 
-  if (
-    currentTemplate &&
-    currentTemplate.isi
-  ) {
-
+  if (currentTemplate && currentTemplate.isi) {
     usedTemplate = true;
-
-    bodyHtml =
-      replacePlaceholders(
-        currentTemplate.isi,
-        data
-      )
+    // Jangan double-escape isi template yang sudah berisi data
+    const filled = replacePlaceholders(currentTemplate.isi, data);
+    bodyHtml = filled
       .split('\n')
-      .map(
-        l =>
-          l.trim() === ''
-            ? '<br>'
-            : `<p>${esc(l)}</p>`
-      )
+      .map(l => {
+        const t = l.trim();
+        if (t === '') return '<br>';
+        // baris sudah plain text dari template + data
+        return `<p style="margin:2px 0;white-space:pre-wrap">${esc(t)}</p>`;
+      })
+      .join('');
+  } else {
+    // Fallback format dasar
+    const extra = Object.entries(data)
+      .filter(([k, v]) => v && !['nama','nik','alamat','nomor_surat','tanggal_surat','desa','kecamatan','kabupaten','provinsi'].includes(k))
+      .slice(0, 12)
+      .map(([k, v]) => `<p><b>${esc(k.replaceAll('_', ' '))}:</b> ${esc(v)}</p>`)
       .join('');
 
-  } else {
-
-    const fields = {};
-
-    $$('#dyn input, #dyn textarea, #dyn select')
-      .forEach(e => {
-
-        if (e.id.startsWith('f_')) {
-          fields[e.id.slice(2)] =
-            e.value;
-        }
-
-      });
-
-    const body =
-      Object.entries(fields)
-        .filter(a => a[1])
-        .map(
-          a =>
-            `<p>
-              <b>
-                ${esc(
-                  a[0]
-                    .replaceAll('_', ' ')
-                )}:
-              </b>
-              ${esc(a[1])}
-            </p>`
-        )
-        .join('');
-
     bodyHtml = `
-
-      <p>
-        Yang bertanda tangan di bawah ini
-        menerangkan bahwa:
-      </p>
-
+      <p>Yang bertanda tangan di bawah ini menerangkan bahwa:</p>
       <p>
         <b>${esc(data.nama || '')}</b><br>
         NIK: ${esc(data.nik || '')}<br>
         Alamat: ${esc(data.alamat || '')}
       </p>
-
-      ${body}
-
-      <p>
-        Demikian surat ini dibuat untuk
-        dipergunakan sebagaimana mestinya.
-      </p>
+      ${extra}
+      <p>Demikian surat ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
     `;
   }
 
+  // Kop resmi Desa Pusar (sesuai template Word)
   const kop = `
-
-    <div class="kop">
-
-      <b>
-        PEMERINTAH DESA
-        ${esc(
-          (s.nama_desa || '')
-            .toUpperCase()
-        )}
-      </b>
-
-      <br>
-
-      KECAMATAN
-      ${esc(
-        (s.kecamatan || '')
-          .toUpperCase()
-      )}
-
-      <br>
-
-      KABUPATEN
-      ${esc(
-        (s.kabupaten || '')
-          .toUpperCase()
-      )}
-
-      <br>
-
-      ${esc(s.alamat || '')}
-
+    <div class="kop" style="text-align:center;line-height:1.35;margin-bottom:8px">
+      <div style="font-weight:bold;font-size:13pt">PEMERINTAH KABUPATEN ${esc((s.kabupaten || '').toUpperCase())}</div>
+      <div style="font-weight:bold;font-size:12pt">KECAMATAN ${esc((s.kecamatan || '').toUpperCase())}</div>
+      <div style="font-weight:bold;font-size:12pt">DESA ${esc((s.nama_desa || '').toUpperCase())}</div>
+      <div style="font-size:10pt">${esc(s.alamat || '')}</div>
+      <hr style="border:none;border-top:3px double #000;margin:8px 0 4px 0">
     </div>
   `;
 
-  lastPreview = `
+  const judulSurat = (currentTemplate && currentTemplate.judul)
+    ? currentTemplate.judul
+    : (x.nama || 'SURAT').toUpperCase();
 
+  lastPreview = `
     ${kop}
 
-    <h3 class="letter-title">
-      ${esc(
-        x.nama.toUpperCase()
-      )}
+    <h3 class="letter-title" style="text-align:center;text-decoration:underline;margin:12px 0 4px;font-size:13pt">
+      ${esc(judulSurat)}
     </h3>
 
-    <p class="letter-number">
-      Nomor:
-      ${esc(
-        data.nomor_surat ||
-        '........................'
-      )}
+    <p class="letter-number" style="text-align:center;margin:0 0 16px">
+      Nomor : ${esc(data.nomor_surat || '........................')}
     </p>
 
-    <div class="letter-body">
+    <div class="letter-body" style="text-align:justify">
       ${bodyHtml}
     </div>
 
-    <div class="signature">
-
-      ${esc(s.nama_desa || '')},
-      ${esc(data.tanggal_surat || '')}
-
-      <br>
-
-      Kepala Desa
-
+    <div class="signature" style="width:45%;margin-left:auto;text-align:center;margin-top:28px;line-height:1.4">
+      Dikeluarkan di : ${esc(s.nama_desa || '')}<br>
+      Pada Tanggal &nbsp;: ${esc(data.tanggal_surat || '')}
+      <br><br>
+      KEPALA DESA ${esc((s.nama_desa || '').toUpperCase())}
       <br><br><br><br>
-
-      <b>
-        <u>
-          ${esc(
-            s.kepala_desa ||
-            '........................'
-          )}
-        </u>
-      </b>
-
+      <b><u>${esc(s.kepala_desa || '........................')}</u></b>
     </div>
   `;
 
@@ -1923,30 +1824,17 @@ async function preview() {
       status +
       lastPreview +
       `
-
         <div class="actions preview-actions">
-
-          <button
-            class="primary"
-            onclick="doPrint()"
-          >
-            Cetak
-          </button>
-
-          <button
-            onclick="doPdf()"
-          >
-            PDF
-          </button>
-
-          <button
-            onclick="doWord()"
-          >
-            Word
-          </button>
-
+          <button class="primary" onclick="doPrint()">Cetak</button>
+          <button onclick="doPdf()">PDF</button>
+          <button onclick="doWord()">Word</button>
         </div>
       `;
+  }
+
+  } catch (err) {
+    console.error('preview error:', err);
+    alert('Gagal membuat preview:\n' + (err?.message || err));
   }
 }
 
@@ -2025,119 +1913,49 @@ async function saveLetter() {
   const tid = $('#tid');
   const nomorEl = $('#nomor');
   const tanggalEl = $('#tanggal');
-  const mode = getPendudukMode();
 
   if (!tid || !tid.value) {
     return alert('Pilih jenis surat.');
   }
 
-  let pendudukId = 0;
-  let manualData = {};
+  const data = buildDataMap();
 
-  if (mode === 'db') {
-    const pid = $('#pid');
-    if (!pid || !pid.value) {
-      return alert('Pilih penduduk.');
-    }
-    pendudukId = Number(pid.value);
-  } else {
-    // Validasi & ambil data manual
-    const nik = ($('#m_nik')?.value || '').trim();
-    const nama = ($('#m_nama')?.value || '').trim();
-
-    if (!nik || !nama) {
-      return alert('NIK dan Nama wajib diisi (mode manual).');
-    }
-
-    if (!/^\d{16}$/.test(nik)) {
-      return alert('NIK harus 16 digit angka.');
-    }
-
-    const map = {
-      nik: 'm_nik',
-      nama: 'm_nama',
-      no_kk: 'm_no_kk',
-      tempat_lahir: 'm_tempat_lahir',
-      tanggal_lahir: 'm_tanggal_lahir',
-      jenis_kelamin: 'm_jenis_kelamin',
-      agama: 'm_agama',
-      pekerjaan: 'm_pekerjaan',
-      status_perkawinan: 'm_status_perkawinan',
-      rt: 'm_rt',
-      rw: 'm_rw',
-      desa: 'm_desa',
-      kecamatan: 'm_kecamatan',
-      kabupaten: 'm_kabupaten',
-      provinsi: 'm_provinsi',
-      alamat: 'm_alamat'
-    };
-
-    Object.entries(map).forEach(([key, id]) => {
-      const el = $('#' + id);
-      if (el) manualData[key] = (el.value || '').trim();
-    });
+  if (!data.nama || !data.nik) {
+    return alert('Nama dan NIK wajib diisi.\nPilih penduduk atau isi form manual.');
   }
 
-  const x =
-    suratTypes.find(
-      t => t.id == tid.value
-    );
-
-  if (!x) {
-    return alert(
-      'Pilih jenis surat.'
-    );
+  if (!/^\d{16}$/.test(String(data.nik).replace(/\D/g, ''))) {
+    return alert('NIK harus 16 digit angka.');
   }
+
+  const pid = $('#pid');
+  const pendudukId = (pid && pid.value) ? Number(pid.value) : null;
 
   const fields = {};
+  $$('#dyn input, #dyn textarea, #dyn select').forEach(e => {
+    if (e.id && e.id.startsWith('f_')) {
+      fields[e.id.slice(2)] = e.value;
+    }
+  });
 
-  $$('#dyn input, #dyn textarea, #dyn select')
-    .forEach(e => {
-
-      if (e.id && e.id.startsWith('f_')) {
-        fields[e.id.slice(2)] =
-          e.value;
-      }
-
-    });
-
-  // Gabungkan data manual ke form agar tersimpan di arsip
   const formData = {
-    ...fields,
-    ...(mode === 'manual' ? manualData : {})
+    ...data,
+    ...fields
   };
 
   try {
 
     await window.desaAPI.surat.save({
-
-      nomor:
-        (nomorEl && nomorEl.value) || '',
-
-      jenis:
-        Number(tid.value),
-
-      penduduk:
-        pendudukId,          // 0 jika manual
-
-      tanggal:
-        (tanggalEl && tanggalEl.value) || '',
-
-      keperluan:
-        fields.keperluan || '',
-
-      form:
-        formData,
-
-      // Flag agar backend tahu ini data manual
-      is_manual:
-        mode === 'manual'
-
+      nomor: (nomorEl && nomorEl.value) || data.nomor_surat || '',
+      jenis: Number(tid.value),
+      penduduk: pendudukId,
+      tanggal: (tanggalEl && tanggalEl.value) || data.tanggal_surat || '',
+      keperluan: data.keperluan || fields.keperluan || '',
+      form: formData,
+      is_manual: !pendudukId
     });
 
-    alert(
-      'Surat disimpan dan masuk arsip.'
-    );
+    alert('Surat disimpan dan masuk arsip.');
 
     await preview();
 
@@ -2416,17 +2234,9 @@ async function loadArsipPreview(id) {
 
     const kop = `
       <div class="kop">
-        <b>
-          PEMERINTAH DESA
-          ${esc((s.nama_desa || '').toUpperCase())}
-        </b>
-        <br>
-        KECAMATAN
-        ${esc((s.kecamatan || '').toUpperCase())}
-        <br>
-        KABUPATEN
-        ${esc((s.kabupaten || '').toUpperCase())}
-        <br>
+        <b>PEMERINTAH KABUPATEN ${esc((s.kabupaten || '').toUpperCase())}</b><br>
+        <b>KECAMATAN ${esc((s.kecamatan || '').toUpperCase())}</b><br>
+        <b>DESA ${esc((s.nama_desa || '').toUpperCase())}</b><br>
         ${esc(s.alamat || '')}
       </div>
     `;
@@ -2442,8 +2252,7 @@ async function loadArsipPreview(id) {
       </h3>
 
       <p class="letter-number">
-        Nomor:
-        ${esc(data.nomor_surat || '........................')}
+        Nomor : ${esc(data.nomor_surat || '........................')}
       </p>
 
       <div class="letter-body">
@@ -2451,10 +2260,10 @@ async function loadArsipPreview(id) {
       </div>
 
       <div class="signature">
-        ${esc(s.nama_desa || '')},
-        ${esc(data.tanggal_surat || '')}
-        <br>
-        Kepala Desa
+        Dikeluarkan di : ${esc(s.nama_desa || '')}<br>
+        Pada Tanggal   : ${esc(data.tanggal_surat || '')}
+        <br><br>
+        KEPALA DESA ${esc((s.nama_desa || '').toUpperCase())}
         <br><br><br><br>
         <b>
           <u>
