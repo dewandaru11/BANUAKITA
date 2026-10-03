@@ -1,1 +1,49 @@
-<!doctype html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aplikasi Desa</title><link rel="stylesheet" href="style.css"></head><body><div id="login" class="login"><div class="loginbox"><h1>APLIKASI DESA</h1><p>Administrasi Desa</p><input id="u" value="admin" placeholder="Username"><input id="p" value="admin123" type="password" placeholder="Password"><button class="primary wide" onclick="doLogin()">MASUK</button><small>Login awal: admin / admin123</small><div id="err"></div></div></div><div id="app" class="app hidden"><aside><div class="brand">APLIKASI DESA</div><div id="who" class="who"></div><button onclick="page('dashboard')">🏠 Dashboard</button><button onclick="page('penduduk')">👥 Penduduk</button><button onclick="page('buat')">📄 Buat Surat</button><button onclick="page('arsip')">🗄️ Arsip</button><button onclick="page('types')">📑 Jenis Surat</button><button onclick="page('templates')">📝 Template</button><button onclick="page('settings')">⚙️ Pengaturan</button><button onclick="page('users')">👤 Pengguna</button><button onclick="page('backup')">💾 Backup/Restore</button><button onclick="logout()">🚪 Keluar</button></aside><main><header><h1 id="title">Dashboard</h1></header><section id="content"></section></main></div><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BanuaKita - Administrasi Desa</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="app" class="app">
+    <aside>
+      <div class="brand">BANUAKITA</div>
+      <div id="who" class="who">Administrasi Desa</div>
+
+      <button onclick="page('dashboard')">🏠 Dashboard</button>
+      <button onclick="page('penduduk')">👥 Penduduk</button>
+      <button onclick="page('buat')">📄 Buat Surat</button>
+      <button onclick="page('arsip')">🗄️ Arsip</button>
+      <button onclick="page('types')">📑 Jenis Surat</button>
+      <button onclick="page('templates')">📝 Template</button>
+      <button onclick="page('settings')">⚙️ Pengaturan</button>
+      <button onclick="page('users')">👤 Pengguna</button>
+      <button onclick="page('backup')">💾 Backup/Restore</button>
+    </aside>
+
+    <main>
+      <header>
+        <h1 id="title">Dashboard</h1>
+      </header>
+
+      <section id="content"></section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+
+  <script>
+    // BANUAKITA langsung membuka Dashboard tanpa login
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof page === 'function') {
+        page('dashboard');
+      }
+    });
+  </script>
+
+</body>
+</html>
+```

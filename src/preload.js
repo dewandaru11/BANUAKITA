@@ -6,12 +6,16 @@ contextBridge.exposeInMainWorld('desaAPI', {
 
   penduduk: {
     list: q => ipcRenderer.invoke('penduduk:list', q),
-    save: d => ipcRenderer.invoke('penduduk:save', d)
+    get: id => ipcRenderer.invoke('penduduk:get', id),
+    findByNik: nik => ipcRenderer.invoke('penduduk:findByNik', nik),
+    save: d => ipcRenderer.invoke('penduduk:save', d),
+    nonaktif: id => ipcRenderer.invoke('penduduk:nonaktif', id)
   },
 
   surat: {
     types: () => ipcRenderer.invoke('surat:types'),
-    save: d => ipcRenderer.invoke('surat:save', d)
+    save: d => ipcRenderer.invoke('surat:save', d),
+    get: id => ipcRenderer.invoke('surat:get', id)
   },
 
   arsip: {
@@ -30,8 +34,10 @@ contextBridge.exposeInMainWorld('desaAPI', {
 
   templates: {
     list: () => ipcRenderer.invoke('templates:list'),
+    get: id => ipcRenderer.invoke('templates:get', id),
     getByKode: kode => ipcRenderer.invoke('templates:getByKode', kode),
-    save: d => ipcRenderer.invoke('templates:save', d)
+    save: d => ipcRenderer.invoke('templates:save', d),
+    delete: id => ipcRenderer.invoke('templates:delete', id)
   },
 
   backup: () => ipcRenderer.invoke('backup'),

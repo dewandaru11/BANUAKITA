@@ -1,20 +1,24 @@
 {
-  "name": "aplikasi-desa",
+  "name": "banuakita",
   "version": "1.0.0",
-  "description": "Administrasi Desa Desktop",
+  "description": "BanuaKita - Administrasi Desa Desktop",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "rebuild": "electron-rebuild -f -w better-sqlite3"
   },
   "dependencies": {
-    "better-sqlite3": "^11.10.0",
+    "better-sqlite3": "^11.10.0"
+  },
+  "devDependencies": {
     "electron": "^38.2.1",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "@electron/rebuild": "^4.2.0"
   },
   "build": {
-    "appId": "id.aplikasidesa.app",
-    "productName": "Aplikasi Desa",
+    "appId": "id.banuakita.app",
+    "productName": "BanuaKita",
     "directories": {
       "output": "dist"
     },
@@ -27,9 +31,18 @@
     ],
     "win": {
       "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BanuaKita"
     }
   },
-  "devDependencies": {
-    "@electron/rebuild": "^4.2.0"
+  "allowScripts": {
+    "electron@38.8.6": true,
+    "better-sqlite3@11.10.0": true,
+    "electron-winstaller@5.4.0": true
   }
 }
