@@ -365,7 +365,7 @@
     </style>
     <div class="fsd-admin">
       <aside class="fsd-sidebar no-print">
-        <div class="fsd-brand"><div class="fsd-brand-icon">🏡</div><div><strong>BanuaKita</strong><small>Administrasi Desa</small></div></div>
+        <div class="fsd-brand"><div class="fsd-brand-icon">🏠</div><div><strong>BanuaKita</strong><small>Administrasi Desa</small></div></div>
         <div class="fsd-user"><span class="fsd-avatar">AD</span><span>Administrasi Desa<br><small style="font-weight:400;color:#b7d4c8">Sistem Desa Digital</small></span></div>
         <div><div class="fsd-menu-label">MENU UTAMA</div><nav class="fsd-nav">
           <button type="button" data-view="dashboard" class="active"><span class="fsd-nav-icon">🏠</span>Dashboard</button>
@@ -376,7 +376,7 @@
         <div><div class="fsd-menu-label">KONFIGURASI</div><nav class="fsd-nav">
           <button type="button" data-view="jenis"><span class="fsd-nav-icon">📄</span>Jenis Surat</button>
           <button type="button" data-view="template"><span class="fsd-nav-icon">📝</span>Template Surat</button>
-          <button type="button" data-view="pengaturan"><span class="fsd-nav-icon">⚙️</span>Pengaturan Desa</button>
+          <button type="button" data-view="pengaturan"><span class="fsd-nav-icon"></span>Pengaturan Desa</button>
           <button type="button" data-view="pengguna"><span class="fsd-nav-icon">👤</span>Pengguna</button>
           <button type="button" data-view="backup"><span class="fsd-nav-icon">💾</span>Backup / Restore</button>
         </nav></div>
@@ -385,13 +385,13 @@
         <div class="fsd-topbar"><div><h1 id="fsd-page-title">Dashboard</h1><div class="fsd-crumb">BanuaKita / <b id="fsd-breadcrumb">Dashboard</b></div></div><span style="width:28px;height:28px;border-radius:50%;background:#e7f5ee;display:block" title="Administrasi Desa"></span></div>
         <div class="fsd-main-content">
           <section class="fsd-view" data-panel="dashboard">
-            <div class="fsd-admin-card"><h2>Selamat Datang di BANUAKITA</h2><p>Sistem Administrasi Desa.</p><p>Kelola pembuatan surat dan administrasi desa dari menu di sebelah kiri.</p><button type="button" class="fsd-dash-create" style="border:0;border-radius:9px;background:#329b70;color:#fff;padding:11px 16px;font-weight:700;cursor:pointer">＋ Buat Surat Baru</button></div>
+            <div class="fsd-admin-card"><h2>Selamat Datang di BANUAKITA</h2><p>Sistem Administrasi Desa.</p><p>Kelola pembuatan surat dan administrasi desa dari menu di sebelah kiri.</p><button type="button" class="fsd-dash-create" style="border:0;border-radius:9px;background:#329b70;color:#fff;padding:11px 16px;font-weight:700;cursor:pointer"></button></div>
             <div class="fsd-stat-grid"><div class="fsd-stat"><small>Jenis Surat Tersedia</small><strong>15</strong></div><div class="fsd-stat"><small>Surat Dibuat Sesi Ini</small><strong id="fsd-session-count">0</strong></div><div class="fsd-stat"><small>Status Aplikasi</small><strong style="font-size:19px">Siap Digunakan</strong></div></div>
             <div class="fsd-admin-card"><h2>Akses Cepat</h2><p class="fsd-note">Pilih Buat Surat untuk mengisi formulir, melihat pratinjau, mencetak PDF, atau mengunduh dokumen Word.</p></div>
           </section>
           <section class="fsd-view" data-panel="penduduk" hidden>
             <div class="fsd-admin-card"><h2>Data Penduduk</h2><p class="fsd-note">Isi biodata secara manual atau baca dari foto KTP. Data disimpan di browser perangkat ini.</p>
-              <div class="fsd-actions"><label class="fsd-field">Foto KTP<input id="res-ktp-file" type="file" accept="image/*"></label><button id="res-read-ktp" type="button">🪪 Baca KTP (OCR)</button></div><p id="res-ocr-status" class="fsd-note" aria-live="polite"></p>
+              <div class="fsd-actions"><label class="fsd-field">Foto KTP<input id="res-ktp-file" type="file" accept="image/*"></label><button id="res-read-ktp" type="button"></button></div><p id="res-ocr-status" class="fsd-note" aria-live="polite"></p>
               <div class="fsd-form-grid" id="res-form">
                 <label class="fsd-field">NIK<input id="res-nik" maxlength="16" inputmode="numeric"></label><label class="fsd-field">Nomor KK<input id="res-kk"></label>
                 <label class="fsd-field">Nama lengkap<input id="res-nama" required></label><label class="fsd-field">Tempat, tanggal lahir<input id="res-ttl"></label>
@@ -399,7 +399,7 @@
                 <label class="fsd-field">Pekerjaan<select id="res-pekerjaan"><option value="">-- Pilih pekerjaan --</option><option>Belum/Tidak Bekerja</option><option>Pelajar/Mahasiswa</option><option>Mengurus Rumah Tangga</option><option>Pensiunan</option><option>PNS</option><option>TNI</option><option>POLRI</option><option>Guru</option><option>Tenaga Kesehatan</option><option>Karyawan Swasta</option><option>Wiraswasta</option><option>Petani/Pekebun</option><option>Nelayan</option><option>Buruh Harian Lepas</option><option>Pedagang</option><option>Sopir</option><option>Perangkat Desa</option><option>Lainnya</option></select></label><label class="fsd-field">Status perkawinan<select id="res-status"><option value="">-- Pilih status --</option><option>Belum Kawin</option><option>Kawin</option><option>Cerai Hidup</option><option>Cerai Mati</option></select></label><label class="fsd-field" style="grid-column:1/-1">Alamat<textarea id="res-alamat" rows="2"></textarea></label>
               </div><div class="fsd-actions"><button type="button" id="res-save">Simpan Penduduk</button><button type="button" class="secondary" id="res-clear">Form Baru</button></div><p id="res-message" class="fsd-note" aria-live="polite"></p>
             </div>
-            <div class="fsd-admin-card"><h2>📊 Input Data Penduduk dari Excel</h2>
+            <div class="fsd-admin-card"><h2>Ã°Å¸â€œÅ  Input Data Penduduk dari Excel</h2>
               <p class="fsd-note">Impor banyak penduduk sekaligus dari file Excel (.xlsx/.xls) atau CSV. Baris pertama harus berisi judul kolom. Kolom yang dikenali: NIK, Nomor KK, Nama, Tempat/Tanggal Lahir, Jenis Kelamin, Agama, Pekerjaan, Status Perkawinan, dan Alamat.</p>
               <div class="fsd-actions"><label class="fsd-field">Pilih file Excel/CSV<input type="file" id="res-excel-file" accept=".xlsx,.xls,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"></label><button type="button" id="res-excel-preview">Baca &amp; Pratinjau</button><button type="button" class="secondary" id="res-excel-template">Unduh Template CSV</button></div>
               <p id="res-excel-message" class="fsd-note" aria-live="polite"></p><div id="res-excel-preview-table"></div>
@@ -419,14 +419,14 @@
           <section class="fsd-view" data-panel="backup" hidden><div class="fsd-admin-card"><h2>Backup / Restore</h2><p>Fitur pencadangan database belum tersedia karena aplikasi saat ini berjalan secara lokal di browser dan belum memakai basis data.</p><p class="fsd-note">Untuk pencadangan, simpan file aplikasi dan dokumen surat hasil unduhan pada media penyimpanan kantor.</p></div></section>
           <section class="fsd-view" data-panel="buat" hidden>
     <header class="fsd-hero">
-      <div class="fsd-kicker">✦ Pelayanan Administrasi Desa</div>
+      <div class="fsd-kicker">Ã¢Å“</div>
       <h1>Form Isian Surat Desa</h1>
       <p>Buat surat keterangan dengan lebih praktis. Isi data penduduk, baca data dari foto KTP, lalu periksa pratinjau sebelum mencetak atau mengunduh dokumen.</p>
     </header>
-    <p class="fsd-note">🔒 Data formulir diproses di browser pada halaman ini dan tidak dikirim ke server oleh aplikasi. Pastikan seluruh data dan format surat benar sebelum digunakan.</p>
+    <p class="fsd-note">Ã°Å¸â€â€™ Data formulir diproses di browser pada halaman ini dan tidak dikirim ke server oleh aplikasi. Pastikan seluruh data dan format surat benar sebelum digunakan.</p>
     <section class="fsd-panel no-print" style="margin:14px 0">
-      <h2><span aria-hidden="true">🪪</span> Baca Data KTP (OCR)</h2>
-      <p class="fsd-note">Pilih foto atau hasil scan KTP yang jelas. Sistem akan mencoba membaca teks, lalu Bapak dapat memeriksa dan memasukkan data ke formulir. Hasil OCR bisa keliru—selalu cocokkan dengan KTP asli. Pemrosesan dilakukan di browser; pustaka OCR dimuat dari internet.</p>
+      <h2><span aria-hidden="true"></span> Baca Data KTP (OCR)</h2>
+      <p class="fsd-note">Pilih foto atau hasil scan KTP yang jelas. Sistem akan mencoba membaca teks, lalu Bapak dapat memeriksa dan memasukkan data ke formulir. Hasil OCR bisa keliruÃ¢â‚¬â€selalu cocokkan dengan KTP asli. Pemrosesan dilakukan di browser; pustaka OCR dimuat dari internet.</p>
       <label class="fsd-field">Foto KTP (JPG, PNG)
         <input type="file" id="fsd-ktp-file" accept="image/*">
       </label>
@@ -583,7 +583,7 @@
         }
       });
       ocrTextArea.value = result.data.text || "";
-      ocrStatus.textContent = "Pembacaan selesai. Periksa teks hasil OCR, lalu klik “Masukkan data ke formulir”.";
+      ocrStatus.textContent = "Pembacaan selesai. Periksa teks hasil OCR, lalu klik Ã¢â‚¬Å“Masukkan data ke formulirÃ¢â‚¬Â.";
     } catch (err) {
       ocrStatus.textContent = "Gagal membaca KTP: " + (err.message || "Terjadi kesalahan.") + " Pastikan paket BanuaKita menyertakan library OCR lokal dan coba gambar yang lebih jelas.";
     } finally {
@@ -658,7 +658,7 @@
     const select = document.getElementById("fsd-resident-select");
     if (!select) return;
     const previous = select.value;
-    select.innerHTML = '<option value="">-- Pilih nama / NIK --</option>' + residents.map(r => `<option value="${esc(r.id)}">${esc(r.nama || "Tanpa nama")} — ${esc(r.nik || "Tanpa NIK")}</option>`).join("");
+    select.innerHTML = '<option value="">-- Pilih nama / NIK --</option>' + residents.map(r => `<option value="${esc(r.id)}">${esc(r.nama || "Tanpa nama")} Ã¢â‚¬â€ ${esc(r.nik || "Tanpa NIK")}</option>`).join("");
     if (residents.some(r => r.id === previous)) select.value = previous;
   }
   function fillFromResident() {
@@ -848,7 +848,7 @@
         if (typeKey === "kelahiran") addText("Yang bertanda tangan di bawah ini Kepala Desa Pusar, Kecamatan Baturaja Barat, Kabupaten Ogan Komering Ulu, menerangkan berdasarkan keterangan pemohon bahwa telah lahir seorang anak:");
         else if (typeKey === "tugas_puskesmas") addText("SURAT TUGAS. Kepala Desa Pusar menugaskan petugas berikut untuk melaksanakan tugas sesuai rincian di bawah ini:");
         else if (typeKey === "nikah_laki" || typeKey === "nikah_perempuan") addText("Yang bertanda tangan di bawah ini Kepala Desa Pusar, Kecamatan Baturaja Barat, Kabupaten Ogan Komering Ulu, menerangkan data calon pengantin berikut untuk keperluan pengantar nikah:");
-        else addText(`Kepada Yth. ${d.namaPenerima || "................................"}${d.alamat ? " — "+d.alamat : ""}`);
+        else addText(`Kepada Yth. ${d.namaPenerima || "................................"}${d.alamat ? " Ã¢â‚¬â€ "+d.alamat : ""}`);
         addRows(type.fields.filter(([key]) => !skip.has(key)).map(([key,label]) => [label, d[key]]));
         if (typeKey === "undangan_beasiswa") addText("Dengan hormat, kami mengundang Saudara/i untuk hadir dalam kegiatan penyerahan beasiswa berprestasi sebagaimana rincian di atas. Atas kehadirannya kami ucapkan terima kasih.");
         else if (typeKey === "tugas_puskesmas") addText("Demikian surat tugas ini dibuat untuk dilaksanakan dengan penuh tanggung jawab dan dipergunakan sebagaimana mestinya.");
@@ -894,7 +894,7 @@
     document.getElementById("res-save").onclick=()=>{const r={id:currentResidentId||("p"+Date.now()),...Object.fromEntries(ids.map(id=>[id,val(id)]))};if(!r.nama||!r.nik){document.getElementById("res-message").textContent="Nama dan NIK wajib diisi.";return;}const i=residents.findIndex(x=>x.id===r.id);if(i>=0)residents[i]=r;else residents.unshift(r);try{localStorage.setItem("banuakita_residents_v1",JSON.stringify(residents));document.getElementById("res-message").textContent="Data penduduk tersimpan di browser ini.";clear();render();refreshResidentPicker();}catch(e){document.getElementById("res-message").textContent="Penyimpanan penuh atau tidak diizinkan browser.";}};
     document.getElementById("res-clear").onclick=clear;document.getElementById("res-search").oninput=render;render();refreshResidentPicker();
     initResidentExcel({residents, render, refreshResidentPicker});
-    document.getElementById("res-read-ktp").onclick=async()=>{const f=document.getElementById("res-ktp-file").files[0],status=document.getElementById("res-ocr-status");if(!f){status.textContent="Pilih foto KTP terlebih dahulu.";return;}status.textContent="Sedang membaca KTP...";try{if(!window.Tesseract){await new Promise((ok,no)=>{const s=document.createElement("script");s.src=LOCAL_LIBS.tesseract;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}const out=await Tesseract.recognize(f,"ind+eng",{workerPath:LOCAL_LIBS.tesseractWorker,langPath:LOCAL_LIBS.tesseractLangPath,corePath:LOCAL_LIBS.tesseractCorePath});const text=out.data.text||"";const lines=text.split(/\n/).map(x=>x.trim()).filter(Boolean);const nik=(text.match(/\b\d{16}\b/)||[])[0]||"";const pick=(re)=>{const m=text.match(re);return m?m[1].trim().replace(/^[:\- ]+/,""):""};const nama=pick(/(?:Nama)\s*[:.]?\s*([^\n]+)/i);const ttl=pick(/(?:Tempat\s*[/,]?\s*Tgl\s*Lahir|Tempat\s*Lahir)\s*[:.]?\s*([^\n]+)/i);const jk= /perempuan/i.test(text)?"Perempuan":(/laki.?laki/i.test(text)?"Laki-laki":"");const agama=pick(/Agama\s*[:.]?\s*([^\n]+)/i);const alamat=pick(/Alamat\s*[:.]?\s*([^\n]+)/i);const vals={nik,nama,ttl,jk,agama,alamat};Object.entries(vals).forEach(([k,v])=>{if(v&&document.getElementById("res-"+k))document.getElementById("res-"+k).value=v;});status.textContent="OCR selesai. Periksa dan koreksi hasil sebelum menyimpan.";}catch(e){status.textContent="OCR gagal. Pastikan internet aktif dan foto jelas.";}};
+    document.getElementById("res-read-ktp").onclick=async()=>{const f=document.getElementById("res-ktp-file").files[0],status=document.getElementById("res-ocr-status");if(!f){status.textContent="Pilih foto KTP terlebih dahulu.";return;}status.textContent="Sedang membaca KTP...";try{if(!window.Tesseract){await new Promise((ok,no)=>{const s=document.createElement("script");s.src=LOCAL_LIBS.tesseract;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}const out=await Tesseract.recognize(f,"ind+eng",{workerPath:LOCAL_LIBS.tesseractWorker,langPath:LOCAL_LIBS.tesseractLangPath,corePath:LOCAL_LIBS.tesseractCorePath,logger:m=>console.log("OCR:",m)});const text=out.data.text||"";const lines=text.split(/\n/).map(x=>x.trim()).filter(Boolean);const nik=(text.match(/\b\d{16}\b/)||[])[0]||"";const pick=(re)=>{const m=text.match(re);return m?m[1].trim().replace(/^[:\- ]+/,""):""};const nama=pick(/(?:Nama)\s*[:.]?\s*([^\n]+)/i);const ttl=pick(/(?:Tempat\s*[/,]?\s*Tgl\s*Lahir|Tempat\s*Lahir)\s*[:.]?\s*([^\n]+)/i);const jk= /perempuan/i.test(text)?"Perempuan":(/laki.?laki/i.test(text)?"Laki-laki":"");const agama=pick(/Agama\s*[:.]?\s*([^\n]+)/i);const alamat=pick(/Alamat\s*[:.]?\s*([^\n]+)/i);const vals={nik,nama,ttl,jk,agama,alamat};Object.entries(vals).forEach(([k,v])=>{if(v&&document.getElementById("res-"+k))document.getElementById("res-"+k).value=v;});status.textContent="OCR selesai. Periksa dan koreksi hasil sebelum menyimpan.";}catch(e){console.error("OCR ERROR:",e);status.textContent="OCR gagal: "+(e?.message||e);}};
   }
   function initResidentExcel(ctx) {
     let parsedRows = [];
@@ -979,7 +979,7 @@
   }
 
   function initSettings(){const ids={kabupaten:"kabupaten",kecamatan:"kecamatan",desa:"desa",kepala:"kepala",alamat:"alamat",kontak:"kontak"};function fill(){Object.entries(ids).forEach(([id,k])=>document.getElementById("set-"+id).value=kop[k]||"");}fill();document.getElementById("set-save").onclick=()=>{Object.entries(ids).forEach(([id,k])=>kop[k]=document.getElementById("set-"+id).value.trim());localStorage.setItem("banuakita_settings_v1",JSON.stringify(kop));document.getElementById("set-message").textContent="Pengaturan desa tersimpan dan akan digunakan pada kop/pratinjau surat.";renderPreview();};document.getElementById("set-reset").onclick=()=>{Object.assign(kop,DEFAULT_KOP);localStorage.setItem("banuakita_settings_v1",JSON.stringify(kop));fill();renderPreview();document.getElementById("set-message").textContent="Pengaturan default dipulihkan.";};}
-  function initTemplates(){const title=document.getElementById("tpl-title"),file=document.getElementById("tpl-file"),content=document.getElementById("tpl-content"),msg=document.getElementById("tpl-message");function list(){document.getElementById("tpl-list").innerHTML=customTemplates.length?customTemplates.map(t=>`<p>📄 <b>${esc(t.title)}</b> <button type="button" data-use-tpl="${t.id}">Pilih</button> <button type="button" data-remove-tpl="${t.id}">Hapus</button></p>`).join(""):"<p class='fsd-note'>Belum ada template impor.</p>";document.querySelectorAll("[data-use-tpl]").forEach(b=>b.onclick=()=>{typeSelect.value=b.dataset.useTpl;showView("buat");renderFields();});document.querySelectorAll("[data-remove-tpl]").forEach(b=>b.onclick=()=>{if(confirm("Hapus template ini?")){const i=customTemplates.findIndex(t=>t.id===b.dataset.removeTpl);if(i>=0)customTemplates.splice(i,1);localStorage.setItem("banuakita_templates_v1",JSON.stringify(customTemplates));refreshTemplateChoices();list();}});}document.getElementById("tpl-import").onclick=async()=>{const f=file.files[0];if(!f){msg.textContent="Pilih file Word .docx terlebih dahulu.";return;}msg.textContent="Membaca dokumen Word...";try{if(!window.mammoth){await new Promise((ok,no)=>{const s=document.createElement("script");s.src=LOCAL_LIBS.mammoth;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}const ab=await f.arrayBuffer();const result=await mammoth.extractRawText({arrayBuffer:ab});content.value=result.value||"";if(!title.value)title.value=f.name.replace(/\.docx$/i,"").replace(/[_-]+/g," ");msg.textContent="Teks berhasil diimpor. Tata letak kompleks Word mungkin perlu disusun ulang; tambahkan placeholder seperti {{nama}} lalu simpan.";}catch(e){msg.textContent="Tidak dapat membaca Word. Pastikan library Word lokal tersedia dan file .docx valid.";}};document.getElementById("tpl-save").onclick=()=>{const t=title.value.trim(),c=content.value.trim();if(!t||!c){msg.textContent="Nama dan isi template harus diisi.";return;}const item={id:"tpl_"+Date.now(),title:t,content:c};customTemplates.push(item);try{localStorage.setItem("banuakita_templates_v1",JSON.stringify(customTemplates));refreshTemplateChoices();list();msg.textContent="Template tersimpan sebagai pilihan surat. Buka menu Buat Surat untuk menggunakannya.";title.value="";content.value="";file.value="";}catch(e){customTemplates.pop();msg.textContent="Template terlalu besar untuk penyimpanan browser.";}};list();}
+  function initTemplates(){const title=document.getElementById("tpl-title"),file=document.getElementById("tpl-file"),content=document.getElementById("tpl-content"),msg=document.getElementById("tpl-message");function list(){document.getElementById("tpl-list").innerHTML=customTemplates.length?customTemplates.map(t=>`<p><b>${esc(t.title)}</b> <button type="button" data-use-tpl="${t.id}">Pilih</button> <button type="button" data-remove-tpl="${t.id}">Hapus</button></p>`).join(""):"<p class='fsd-note'>Belum ada template impor.</p>";document.querySelectorAll("[data-use-tpl]").forEach(b=>b.onclick=()=>{typeSelect.value=b.dataset.useTpl;showView("buat");renderFields();});document.querySelectorAll("[data-remove-tpl]").forEach(b=>b.onclick=()=>{if(confirm("Hapus template ini?")){const i=customTemplates.findIndex(t=>t.id===b.dataset.removeTpl);if(i>=0)customTemplates.splice(i,1);localStorage.setItem("banuakita_templates_v1",JSON.stringify(customTemplates));refreshTemplateChoices();list();}});}document.getElementById("tpl-import").onclick=async()=>{const f=file.files[0];if(!f){msg.textContent="Pilih file Word .docx terlebih dahulu.";return;}msg.textContent="Membaca dokumen Word...";try{if(!window.mammoth){await new Promise((ok,no)=>{const s=document.createElement("script");s.src=LOCAL_LIBS.mammoth;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}const ab=await f.arrayBuffer();const result=await mammoth.extractRawText({arrayBuffer:ab});content.value=result.value||"";if(!title.value)title.value=f.name.replace(/\.docx$/i,"").replace(/[_-]+/g," ");msg.textContent="Teks berhasil diimpor. Tata letak kompleks Word mungkin perlu disusun ulang; tambahkan placeholder seperti {{nama}} lalu simpan.";}catch(e){msg.textContent="Tidak dapat membaca Word. Pastikan library Word lokal tersedia dan file .docx valid.";}};document.getElementById("tpl-save").onclick=()=>{const t=title.value.trim(),c=content.value.trim();if(!t||!c){msg.textContent="Nama dan isi template harus diisi.";return;}const item={id:"tpl_"+Date.now(),title:t,content:c};customTemplates.push(item);try{localStorage.setItem("banuakita_templates_v1",JSON.stringify(customTemplates));refreshTemplateChoices();list();msg.textContent="Template tersimpan sebagai pilihan surat. Buka menu Buat Surat untuk menggunakannya.";title.value="";content.value="";file.value="";}catch(e){customTemplates.pop();msg.textContent="Template terlalu besar untuk penyimpanan browser.";}};list();}
 
   const pageLabels = {dashboard:"Dashboard",penduduk:"Data Penduduk",buat:"Buat Surat",arsip:"Arsip Surat",jenis:"Jenis Surat",template:"Template Surat",pengaturan:"Pengaturan Desa",pengguna:"Pengguna","backup":"Backup / Restore"};
   function showView(view) {
@@ -996,7 +996,7 @@
     const old = typeSelect.value;
     typeSelect.querySelectorAll("option[data-custom-template]").forEach(o => o.remove());
     customTemplates.forEach(t => { const o=document.createElement("option"); o.value=t.id; o.textContent=t.title+" (Template Impor)"; o.dataset.customTemplate="1"; typeSelect.appendChild(o); });
-    document.getElementById("fsd-type-list").innerHTML = Object.values(suratTypes).map(t => `<p style="margin:7px 0">• ${esc(t.title)}</p>`).join("")+customTemplates.map(t=>`<p>• ${esc(t.title)} (impor)</p>`).join("");
+    document.getElementById("fsd-type-list").innerHTML = Object.values(suratTypes).map(t => `<p style="margin:7px 0"></p>`).join("")+customTemplates.map(t=>`<p></p>`).join("");
     if ([...typeSelect.options].some(o=>o.value===old)) typeSelect.value=old;
   }
   refreshTemplateChoices();
@@ -1012,3 +1012,7 @@
   initResidents(); initSettings(); initTemplates();
   showView("dashboard");
 })();
+
+
+
+
